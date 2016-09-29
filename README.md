@@ -1,8 +1,11 @@
 # VeiligRijdenVeiligCrashen
 
 Stap 1: Installeer Git op je machine https://git-scm.com/downloads
+
 Stap 2: Gebruik de command #cd om te gaan de directory waar je de repository files wilt hebben
+
 Stap 3: Voer de volgende command uit om het project te clonen op jouw computer.
+
         // git clone https://github.com/SimonLit/VeiligRijdenVeiligCrashen.git
         
 Nu heb je alle bestanden van het project op je computer staan, klaar om erin te werken. Maar niet zo snel, eerst een paar essentiele commands.
