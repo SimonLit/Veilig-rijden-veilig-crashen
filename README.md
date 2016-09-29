@@ -38,10 +38,14 @@ Het is belangrijk dat je in de juiste branch aan het werken bent. Met de command
 Dus je bent gewisseld van branch, wat nu? Nou nu zit je in de juiste branch, waar jij kan werken en je bestanden kan uploaden. Hoe zit onze structuur in elkaar? We hebben een master branch waar NIET in gewerkt mag worden. Deze dient alleen voltooide onderdelen van het project te hebben. Dan zijn er verscheidende branches die waar wel in gewerkt mag worden op dit moment is de main branch FirstDemo de overige takken zijn niet vertakt vanaf master maar vanaf FirstDemo. Indien jij denkt dat jouw demo voor de volgende presentatie af is kan je in github (de website) een pull request aan vragen. Dit verschuift de code die je in jouw speciefieke branch gemaakt hebt door naar FirstDemo, als een pull request geaccepteerd is wordt de branch verwijdert.
 Hieronder staat een schematische voorstellen hoe de branches nou in elkaar zitten.
 
-________MASTER
+ _____MASTER
+
         |____FirstDemo
+        
                 |_______ rp6&arduino
+                
                 |_______ netwerk&software
+                
                 |_______ smartphone
 
 De bedoeling is dat tijdens het project steeds nieuwe branches gecreerd worden die dan weer via een pull request gemergd worden. Een branch kan in princiepe "communicatie arduino" zijn, dus heb je dat af? Dan kan het doorgeschoven worden naar een tak hoger.
