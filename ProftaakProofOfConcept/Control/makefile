@@ -18,7 +18,7 @@ TARGET = main
 # Specify relative path to RP6 library files here.
 # This is "../../RP6Lib" or "../RP6Lib" usually.
 
-RP6_LIB_PATH=../../../RP6Lib
+RP6_LIB_PATH=../../../../rp6/RP6Examples_20120725f/RP6Lib
 RP6_LIB_PATH_CONTROL = $(RP6_LIB_PATH)/RP6control
 RP6_LIB_PATH_COMMON = $(RP6_LIB_PATH)/RP6common
 
