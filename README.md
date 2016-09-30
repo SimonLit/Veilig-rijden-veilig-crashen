@@ -10,7 +10,7 @@ Stap 3: Voer de volgende command uit om het project te clonen op jouw computer.
         
 Nu heb je alle bestanden van het project op je computer staan, klaar om erin te werken. Maar niet zo snel, eerst een paar essentiele commands.
 
-#// git pull
+#// git pull origin branch_waar_waar_die_je_wilt_hebben
 
 Git pull kijkt in de repository en gaat na of jij alle bestanden en veranderingen op jouw computer hebt staan. Indien niet zullen deze bestanden en veranderingen gedownload worden. Het is verstandig om regelmatig te pullen als je aan het werken bent aan het project. Zodat je altijd in de meest up to date bestanden aan het werken bent. Dit helpt verkomen van merge conflicten en het maken van dubble code. Indien je een pull doet en je krijgt het bericht "Everything is already up to date" betekent het dat je alles al hebt. Indien dit niet het geval is zal je zien dat hij wat bestanden download of de derde optie is dat er een probleem is ofwel een merge conflict. Hier later meer over.
 
