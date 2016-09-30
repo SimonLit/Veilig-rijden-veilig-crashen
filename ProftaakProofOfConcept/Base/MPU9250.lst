@@ -1,0 +1,579 @@
+   1               		.file	"MPU9250.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	initMPU9250
+  12               	initMPU9250:
+  13               	.LFB1:
+  14               		.file 1 "MPU9250.c"
+   1:MPU9250.c     **** #include "MPU9250.h"
+   2:MPU9250.c     **** #include "RP6uart.h"
+   3:MPU9250.c     **** #include "Stopwatch.h"
+   4:MPU9250.c     **** #include "RP6I2CmasterTWI.h"
+   5:MPU9250.c     **** //#include <stdbool.h>
+   6:MPU9250.c     **** #include "Stopwatch.h"
+   7:MPU9250.c     **** 
+   8:MPU9250.c     **** //====================================================================================
+   9:MPU9250.c     **** // MPU-9250 gryoscope
+  10:MPU9250.c     **** //====================================================================================
+  11:MPU9250.c     **** 
+  12:MPU9250.c     **** #define MPU9250_DEVICE_ADDRESS (0x68)
+  13:MPU9250.c     **** #define MPU9250_WRITE_ADDRESS (MPU9250_DEVICE_ADDRESS << 1)
+  14:MPU9250.c     **** #define MPU9250_READ_ADDRESS (MPU9250_WRITE_ADDRESS + 1)
+  15:MPU9250.c     **** 
+  16:MPU9250.c     **** uint8_t gyroArraySize = 15;
+  17:MPU9250.c     **** uint8_t gyroArrayIndexToWriteTo = 0;
+  18:MPU9250.c     **** gyroData gDataArray[15];
+  19:MPU9250.c     **** 
+  20:MPU9250.c     **** //bool doneReadingGyro = false;
+  21:MPU9250.c     **** 
+  22:MPU9250.c     **** void initMPU9250(void)
+  23:MPU9250.c     **** {
+  15               		.loc 1 23 0
+  16               		.cfi_startproc
+  17               	/* prologue: function */
+  18               	/* frame size = 0 */
+  19               	/* stack size = 0 */
+  20               	.L__stack_usage = 0
+  24:MPU9250.c     **** 	I2CTWI_transmit2Bytes(MPU9250_WRITE_ADDRESS, 0x4B, 0);
+  21               		.loc 1 24 0
+  22 0000 40E0      		ldi r20,0
+  23 0002 6BE4      		ldi r22,lo8(75)
+  24 0004 80ED      		ldi r24,lo8(-48)
+  25 0006 0C94 0000 		jmp I2CTWI_transmit2Bytes
+  26               	.LVL0:
+  27               		.cfi_endproc
+  28               	.LFE1:
+  30               	.global	getGyroData
+  32               	getGyroData:
+  33               	.LFB2:
+  25:MPU9250.c     **** }
+  26:MPU9250.c     **** 
+  27:MPU9250.c     **** void getGyroData(gyroData* gData) 
+  28:MPU9250.c     **** {
+  34               		.loc 1 28 0
+  35               		.cfi_startproc
+  36               	.LVL1:
+  37 000a 0F93      		push r16
+  38               	.LCFI0:
+  39               		.cfi_def_cfa_offset 3
+  40               		.cfi_offset 16, -2
+  41 000c 1F93      		push r17
+  42               	.LCFI1:
+  43               		.cfi_def_cfa_offset 4
+  44               		.cfi_offset 17, -3
+  45 000e CF93      		push r28
+  46               	.LCFI2:
+  47               		.cfi_def_cfa_offset 5
+  48               		.cfi_offset 28, -4
+  49 0010 DF93      		push r29
+  50               	.LCFI3:
+  51               		.cfi_def_cfa_offset 6
+  52               		.cfi_offset 29, -5
+  53               	/* prologue: function */
+  54               	/* frame size = 0 */
+  55               	/* stack size = 4 */
+  56               	.L__stack_usage = 4
+  57 0012 EC01      		movw r28,r24
+  29:MPU9250.c     **** 	// Read gryo data from the X-ax
+  30:MPU9250.c     **** 	I2CTWI_transmitByte(MPU9250_WRITE_ADDRESS, 0x43);
+  58               		.loc 1 30 0
+  59 0014 63E4      		ldi r22,lo8(67)
+  60 0016 80ED      		ldi r24,lo8(-48)
+  61               	.LVL2:
+  62 0018 0E94 0000 		call I2CTWI_transmitByte
+  63               	.LVL3:
+  31:MPU9250.c     **** 	gData->GyroX = I2CTWI_readByte(MPU9250_READ_ADDRESS);
+  64               		.loc 1 31 0
+  65 001c 81ED      		ldi r24,lo8(-47)
+  66 001e 0E94 0000 		call I2CTWI_readByte
+  67               	.LVL4:
+  68 0022 90E0      		ldi r25,0
+  69 0024 9983      		std Y+1,r25
+  70 0026 8883      		st Y,r24
+  32:MPU9250.c     **** 	I2CTWI_transmitByte(MPU9250_WRITE_ADDRESS, 0x44);
+  71               		.loc 1 32 0
+  72 0028 64E4      		ldi r22,lo8(68)
+  73 002a 80ED      		ldi r24,lo8(-48)
+  74 002c 0E94 0000 		call I2CTWI_transmitByte
+  75               	.LVL5:
+  33:MPU9250.c     **** 	gData->GyroX = (gData->GyroX << 8) | I2CTWI_readByte(MPU9250_READ_ADDRESS);
+  76               		.loc 1 33 0
+  77 0030 1881      		ld r17,Y
+  78 0032 00E0      		ldi r16,0
+  79 0034 81ED      		ldi r24,lo8(-47)
+  80 0036 0E94 0000 		call I2CTWI_readByte
+  81               	.LVL6:
+  82 003a 082B      		or r16,r24
+  83 003c 1983      		std Y+1,r17
+  84 003e 0883      		st Y,r16
+  34:MPU9250.c     **** 
+  35:MPU9250.c     **** 	// Read gryo data from the Y-ax
+  36:MPU9250.c     **** 	I2CTWI_transmitByte(MPU9250_WRITE_ADDRESS, 0x45);
+  85               		.loc 1 36 0
+  86 0040 65E4      		ldi r22,lo8(69)
+  87 0042 80ED      		ldi r24,lo8(-48)
+  88 0044 0E94 0000 		call I2CTWI_transmitByte
+  89               	.LVL7:
+  37:MPU9250.c     **** 	gData->GyroY = I2CTWI_readByte(MPU9250_READ_ADDRESS);
+  90               		.loc 1 37 0
+  91 0048 81ED      		ldi r24,lo8(-47)
+  92 004a 0E94 0000 		call I2CTWI_readByte
+  93               	.LVL8:
+  94 004e 90E0      		ldi r25,0
+  95 0050 9B83      		std Y+3,r25
+  96 0052 8A83      		std Y+2,r24
+  38:MPU9250.c     **** 	I2CTWI_transmitByte(MPU9250_WRITE_ADDRESS, 0x46);
+  97               		.loc 1 38 0
+  98 0054 66E4      		ldi r22,lo8(70)
+  99 0056 80ED      		ldi r24,lo8(-48)
+ 100 0058 0E94 0000 		call I2CTWI_transmitByte
+ 101               	.LVL9:
+  39:MPU9250.c     **** 	gData->GyroY = (gData->GyroX << 8) | I2CTWI_readByte(MPU9250_READ_ADDRESS);
+ 102               		.loc 1 39 0
+ 103 005c 1881      		ld r17,Y
+ 104 005e 00E0      		ldi r16,0
+ 105 0060 81ED      		ldi r24,lo8(-47)
+ 106 0062 0E94 0000 		call I2CTWI_readByte
+ 107               	.LVL10:
+ 108 0066 082B      		or r16,r24
+ 109 0068 1B83      		std Y+3,r17
+ 110 006a 0A83      		std Y+2,r16
+  40:MPU9250.c     **** 
+  41:MPU9250.c     **** 	// Read gryo data from the Z-ax
+  42:MPU9250.c     **** 	I2CTWI_transmitByte(MPU9250_WRITE_ADDRESS, 0x47);
+ 111               		.loc 1 42 0
+ 112 006c 67E4      		ldi r22,lo8(71)
+ 113 006e 80ED      		ldi r24,lo8(-48)
+ 114 0070 0E94 0000 		call I2CTWI_transmitByte
+ 115               	.LVL11:
+  43:MPU9250.c     **** 	gData->GyroZ = I2CTWI_readByte(MPU9250_READ_ADDRESS);
+ 116               		.loc 1 43 0
+ 117 0074 81ED      		ldi r24,lo8(-47)
+ 118 0076 0E94 0000 		call I2CTWI_readByte
+ 119               	.LVL12:
+ 120 007a 90E0      		ldi r25,0
+ 121 007c 9D83      		std Y+5,r25
+ 122 007e 8C83      		std Y+4,r24
+  44:MPU9250.c     **** 	I2CTWI_transmitByte(MPU9250_WRITE_ADDRESS, 0x48);
+ 123               		.loc 1 44 0
+ 124 0080 68E4      		ldi r22,lo8(72)
+ 125 0082 80ED      		ldi r24,lo8(-48)
+ 126 0084 0E94 0000 		call I2CTWI_transmitByte
+ 127               	.LVL13:
+  45:MPU9250.c     **** 	gData->GyroZ = (gData->GyroX << 8) | I2CTWI_readByte(MPU9250_READ_ADDRESS);
+ 128               		.loc 1 45 0
+ 129 0088 1881      		ld r17,Y
+ 130 008a 00E0      		ldi r16,0
+ 131 008c 81ED      		ldi r24,lo8(-47)
+ 132 008e 0E94 0000 		call I2CTWI_readByte
+ 133               	.LVL14:
+ 134 0092 082B      		or r16,r24
+ 135 0094 1D83      		std Y+5,r17
+ 136 0096 0C83      		std Y+4,r16
+ 137               	/* epilogue start */
+  46:MPU9250.c     **** 
+  47:MPU9250.c     **** 	//doneReadingGyro = true;
+  48:MPU9250.c     **** }
+ 138               		.loc 1 48 0
+ 139 0098 DF91      		pop r29
+ 140 009a CF91      		pop r28
+ 141               	.LVL15:
+ 142 009c 1F91      		pop r17
+ 143 009e 0F91      		pop r16
+ 144 00a0 0895      		ret
+ 145               		.cfi_endproc
+ 146               	.LFE2:
+ 148               	.global	saveGyroData
+ 150               	saveGyroData:
+ 151               	.LFB3:
+  49:MPU9250.c     **** 
+  50:MPU9250.c     **** void saveGyroData(gyroData gData)
+  51:MPU9250.c     **** {
+ 152               		.loc 1 51 0
+ 153               		.cfi_startproc
+ 154 00a2 CF93      		push r28
+ 155               	.LCFI4:
+ 156               		.cfi_def_cfa_offset 3
+ 157               		.cfi_offset 28, -2
+ 158 00a4 DF93      		push r29
+ 159               	.LCFI5:
+ 160               		.cfi_def_cfa_offset 4
+ 161               		.cfi_offset 29, -3
+ 162 00a6 00D0      		rcall .
+ 163 00a8 00D0      		rcall .
+ 164 00aa 00D0      		rcall .
+ 165               	.LCFI6:
+ 166               		.cfi_def_cfa_offset 10
+ 167 00ac CDB7      		in r28,__SP_L__
+ 168 00ae DEB7      		in r29,__SP_H__
+ 169               	.LCFI7:
+ 170               		.cfi_def_cfa_register 28
+ 171               	/* prologue: function */
+ 172               	/* frame size = 6 */
+ 173               	/* stack size = 8 */
+ 174               	.L__stack_usage = 8
+ 175 00b0 4983      		std Y+1,r20
+ 176 00b2 5A83      		std Y+2,r21
+ 177 00b4 6B83      		std Y+3,r22
+ 178 00b6 7C83      		std Y+4,r23
+ 179 00b8 8D83      		std Y+5,r24
+ 180 00ba 9E83      		std Y+6,r25
+  52:MPU9250.c     **** 	/*startStopwatch1();
+  53:MPU9250.c     **** 
+  54:MPU9250.c     **** 	while(!doneReadingGyro && getStopwatch1() < 5000) // Make sure that the 
+  55:MPU9250.c     **** 	{
+  56:MPU9250.c     **** 		getGyroData(&gData);
+  57:MPU9250.c     **** 	}
+  58:MPU9250.c     **** 
+  59:MPU9250.c     **** 	setStopwatch1(0);
+  60:MPU9250.c     **** 
+  61:MPU9250.c     **** 	if(doneReadingGyro)
+  62:MPU9250.c     **** 	{*/
+  63:MPU9250.c     **** 		getGyroData(&gData);
+ 181               		.loc 1 63 0
+ 182 00bc CE01      		movw r24,r28
+ 183 00be 0196      		adiw r24,1
+ 184 00c0 0E94 0000 		call getGyroData
+ 185               	.LVL16:
+  64:MPU9250.c     **** 		gDataArray[gyroArrayIndexToWriteTo] = gData;
+ 186               		.loc 1 64 0
+ 187 00c4 8091 0000 		lds r24,gyroArrayIndexToWriteTo
+ 188 00c8 96E0      		ldi r25,lo8(6)
+ 189 00ca 989F      		mul r25,r24
+ 190 00cc D001      		movw r26,r0
+ 191 00ce 1124      		clr __zero_reg__
+ 192 00d0 A050      		subi r26,lo8(-(gDataArray))
+ 193 00d2 B040      		sbci r27,hi8(-(gDataArray))
+ 194 00d4 FE01      		movw r30,r28
+ 195 00d6 3196      		adiw r30,1
+ 196               		0:
+ 197 00d8 0190      		ld r0,Z+
+ 198 00da 0D92      		st X+,r0
+ 199 00dc 9A95      		dec r25
+ 200 00de 01F4      		brne 0b
+  65:MPU9250.c     **** 		gyroArrayIndexToWriteTo++;
+ 201               		.loc 1 65 0
+ 202 00e0 8F5F      		subi r24,lo8(-(1))
+ 203 00e2 8093 0000 		sts gyroArrayIndexToWriteTo,r24
+  66:MPU9250.c     **** 
+  67:MPU9250.c     **** 		if(gyroArrayIndexToWriteTo == gyroArraySize)
+ 204               		.loc 1 67 0
+ 205 00e6 9091 0000 		lds r25,gyroArraySize
+ 206 00ea 8913      		cpse r24,r25
+ 207 00ec 00C0      		rjmp .L3
+  68:MPU9250.c     **** 		{
+  69:MPU9250.c     **** 			gyroArrayIndexToWriteTo = 0;
+ 208               		.loc 1 69 0
+ 209 00ee 1092 0000 		sts gyroArrayIndexToWriteTo,__zero_reg__
+ 210               	.L3:
+ 211               	/* epilogue start */
+  70:MPU9250.c     **** 		}
+  71:MPU9250.c     **** 	/*}	
+  72:MPU9250.c     **** 
+  73:MPU9250.c     **** 	doneReadingGyro = false;*/
+  74:MPU9250.c     **** }
+ 212               		.loc 1 74 0
+ 213 00f2 2696      		adiw r28,6
+ 214 00f4 0FB6      		in __tmp_reg__,__SREG__
+ 215 00f6 F894      		cli
+ 216 00f8 DEBF      		out __SP_H__,r29
+ 217 00fa 0FBE      		out __SREG__,__tmp_reg__
+ 218 00fc CDBF      		out __SP_L__,r28
+ 219 00fe DF91      		pop r29
+ 220 0100 CF91      		pop r28
+ 221 0102 0895      		ret
+ 222               		.cfi_endproc
+ 223               	.LFE3:
+ 225               		.section	.rodata.str1.1,"aMS",@progbits,1
+ 226               	.LC0:
+ 227 0000 496E 6465 		.string	"Index "
+ 227      7820 00
+ 228               	.LC1:
+ 229 0007 2063 6861 		.string	" changed."
+ 229      6E67 6564 
+ 229      2E00 
+ 230               	.LC2:
+ 231 0011 4779 726F 		.string	"Gyro: "
+ 231      3A20 00
+ 232               	.LC3:
+ 233 0018 2058 3A20 		.string	" X: "
+ 233      00
+ 234               	.LC4:
+ 235 001d 2047 7972 		.string	" Gyro: "
+ 235      6F3A 2000 
+ 236               	.LC5:
+ 237 0025 2059 3A20 		.string	" Y: "
+ 237      00
+ 238               	.LC6:
+ 239 002a 205A 3A20 		.string	" Z: "
+ 239      00
+ 240               		.text
+ 241               	.global	writeGyro
+ 243               	writeGyro:
+ 244               	.LFB4:
+  75:MPU9250.c     **** 
+  76:MPU9250.c     **** void writeGyro(void)
+  77:MPU9250.c     **** {
+ 245               		.loc 1 77 0
+ 246               		.cfi_startproc
+ 247 0104 EF92      		push r14
+ 248               	.LCFI8:
+ 249               		.cfi_def_cfa_offset 3
+ 250               		.cfi_offset 14, -2
+ 251 0106 FF92      		push r15
+ 252               	.LCFI9:
+ 253               		.cfi_def_cfa_offset 4
+ 254               		.cfi_offset 15, -3
+ 255 0108 0F93      		push r16
+ 256               	.LCFI10:
+ 257               		.cfi_def_cfa_offset 5
+ 258               		.cfi_offset 16, -4
+ 259 010a 1F93      		push r17
+ 260               	.LCFI11:
+ 261               		.cfi_def_cfa_offset 6
+ 262               		.cfi_offset 17, -5
+ 263 010c CF93      		push r28
+ 264               	.LCFI12:
+ 265               		.cfi_def_cfa_offset 7
+ 266               		.cfi_offset 28, -6
+ 267 010e DF93      		push r29
+ 268               	.LCFI13:
+ 269               		.cfi_def_cfa_offset 8
+ 270               		.cfi_offset 29, -7
+ 271               	/* prologue: function */
+ 272               	/* frame size = 0 */
+ 273               	/* stack size = 6 */
+ 274               	.L__stack_usage = 6
+  78:MPU9250.c     **** 
+  79:MPU9250.c     **** 	writeString("Index ");
+ 275               		.loc 1 79 0
+ 276 0110 80E0      		ldi r24,lo8(.LC0)
+ 277 0112 90E0      		ldi r25,hi8(.LC0)
+ 278 0114 0E94 0000 		call writeString
+ 279               	.LVL17:
+  80:MPU9250.c     **** 	if(gyroArrayIndexToWriteTo != 0)
+ 280               		.loc 1 80 0
+ 281 0118 8091 0000 		lds r24,gyroArrayIndexToWriteTo
+ 282 011c 8823      		tst r24
+ 283 011e 01F0      		breq .L7
+  81:MPU9250.c     **** 	{
+  82:MPU9250.c     **** 		writeInteger((gyroArrayIndexToWriteTo -1), DEC);
+ 284               		.loc 1 82 0
+ 285 0120 90E0      		ldi r25,0
+ 286 0122 6AE0      		ldi r22,lo8(10)
+ 287 0124 0197      		sbiw r24,1
+ 288 0126 00C0      		rjmp .L11
+ 289               	.L7:
+  83:MPU9250.c     **** 	}
+  84:MPU9250.c     **** 	else
+  85:MPU9250.c     **** 	{
+  86:MPU9250.c     **** 		writeInteger(0, DEC);
+ 290               		.loc 1 86 0
+ 291 0128 6AE0      		ldi r22,lo8(10)
+ 292 012a 80E0      		ldi r24,0
+ 293 012c 90E0      		ldi r25,0
+ 294               	.L11:
+ 295 012e 0E94 0000 		call writeInteger
+ 296               	.LVL18:
+  87:MPU9250.c     **** 	}
+  88:MPU9250.c     **** 	writeString(" changed.");
+ 297               		.loc 1 88 0
+ 298 0132 80E0      		ldi r24,lo8(.LC1)
+ 299 0134 90E0      		ldi r25,hi8(.LC1)
+ 300 0136 0E94 0000 		call writeString
+ 301               	.LVL19:
+  89:MPU9250.c     **** 	writeChar('\n');
+ 302               		.loc 1 89 0
+ 303 013a 8AE0      		ldi r24,lo8(10)
+ 304 013c 0E94 0000 		call writeChar
+ 305               	.LVL20:
+ 306               	.LBB2:
+  90:MPU9250.c     **** 
+  91:MPU9250.c     **** 	for(uint8_t index = 0; index < gyroArraySize; index++)
+ 307               		.loc 1 91 0
+ 308 0140 F12C      		mov r15,__zero_reg__
+  92:MPU9250.c     **** 	{	
+  93:MPU9250.c     **** 		writeString("Gyro: ");
+  94:MPU9250.c     **** 		writeInteger(index, DEC);
+  95:MPU9250.c     **** 		writeString(" X: ");
+  96:MPU9250.c     **** 		writeInteger(gDataArray[index].GyroX, DEC);
+ 309               		.loc 1 96 0
+ 310 0142 86E0      		ldi r24,lo8(6)
+ 311 0144 E82E      		mov r14,r24
+ 312               	.LVL21:
+ 313               	.L9:
+  91:MPU9250.c     **** 	for(uint8_t index = 0; index < gyroArraySize; index++)
+ 314               		.loc 1 91 0 discriminator 1
+ 315 0146 8091 0000 		lds r24,gyroArraySize
+ 316 014a F816      		cp r15,r24
+ 317 014c 00F0      		brlo .+2
+ 318 014e 00C0      		rjmp .L12
+  93:MPU9250.c     **** 		writeString("Gyro: ");
+ 319               		.loc 1 93 0 discriminator 2
+ 320 0150 80E0      		ldi r24,lo8(.LC2)
+ 321 0152 90E0      		ldi r25,hi8(.LC2)
+ 322 0154 0E94 0000 		call writeString
+ 323               	.LVL22:
+  94:MPU9250.c     **** 		writeInteger(index, DEC);
+ 324               		.loc 1 94 0 discriminator 2
+ 325 0158 0F2D      		mov r16,r15
+ 326 015a 10E0      		ldi r17,0
+ 327 015c 6AE0      		ldi r22,lo8(10)
+ 328 015e C801      		movw r24,r16
+ 329 0160 0E94 0000 		call writeInteger
+ 330               	.LVL23:
+  95:MPU9250.c     **** 		writeString(" X: ");
+ 331               		.loc 1 95 0 discriminator 2
+ 332 0164 80E0      		ldi r24,lo8(.LC3)
+ 333 0166 90E0      		ldi r25,hi8(.LC3)
+ 334 0168 0E94 0000 		call writeString
+ 335               	.LVL24:
+ 336               		.loc 1 96 0 discriminator 2
+ 337 016c E09E      		mul r14,r16
+ 338 016e E001      		movw r28,r0
+ 339 0170 E19E      		mul r14,r17
+ 340 0172 D00D      		add r29,r0
+ 341 0174 1124      		clr __zero_reg__
+ 342 0176 C050      		subi r28,lo8(-(gDataArray))
+ 343 0178 D040      		sbci r29,hi8(-(gDataArray))
+ 344 017a 6AE0      		ldi r22,lo8(10)
+ 345 017c 8881      		ld r24,Y
+ 346 017e 9981      		ldd r25,Y+1
+ 347 0180 0E94 0000 		call writeInteger
+ 348               	.LVL25:
+  97:MPU9250.c     **** 
+  98:MPU9250.c     **** 		writeString(" Gyro: ");
+ 349               		.loc 1 98 0 discriminator 2
+ 350 0184 80E0      		ldi r24,lo8(.LC4)
+ 351 0186 90E0      		ldi r25,hi8(.LC4)
+ 352 0188 0E94 0000 		call writeString
+ 353               	.LVL26:
+  99:MPU9250.c     **** 		writeInteger(index, DEC);
+ 354               		.loc 1 99 0 discriminator 2
+ 355 018c 6AE0      		ldi r22,lo8(10)
+ 356 018e C801      		movw r24,r16
+ 357 0190 0E94 0000 		call writeInteger
+ 358               	.LVL27:
+ 100:MPU9250.c     **** 		writeString(" Y: ");
+ 359               		.loc 1 100 0 discriminator 2
+ 360 0194 80E0      		ldi r24,lo8(.LC5)
+ 361 0196 90E0      		ldi r25,hi8(.LC5)
+ 362 0198 0E94 0000 		call writeString
+ 363               	.LVL28:
+ 101:MPU9250.c     **** 		writeInteger(gDataArray[index].GyroY, DEC);
+ 364               		.loc 1 101 0 discriminator 2
+ 365 019c 6AE0      		ldi r22,lo8(10)
+ 366 019e 8A81      		ldd r24,Y+2
+ 367 01a0 9B81      		ldd r25,Y+3
+ 368 01a2 0E94 0000 		call writeInteger
+ 369               	.LVL29:
+ 102:MPU9250.c     **** 
+ 103:MPU9250.c     **** 		writeString(" Gyro: ");
+ 370               		.loc 1 103 0 discriminator 2
+ 371 01a6 80E0      		ldi r24,lo8(.LC4)
+ 372 01a8 90E0      		ldi r25,hi8(.LC4)
+ 373 01aa 0E94 0000 		call writeString
+ 374               	.LVL30:
+ 104:MPU9250.c     **** 		writeInteger(index, DEC);
+ 375               		.loc 1 104 0 discriminator 2
+ 376 01ae 6AE0      		ldi r22,lo8(10)
+ 377 01b0 C801      		movw r24,r16
+ 378 01b2 0E94 0000 		call writeInteger
+ 379               	.LVL31:
+ 105:MPU9250.c     **** 		writeString(" Z: ");
+ 380               		.loc 1 105 0 discriminator 2
+ 381 01b6 80E0      		ldi r24,lo8(.LC6)
+ 382 01b8 90E0      		ldi r25,hi8(.LC6)
+ 383 01ba 0E94 0000 		call writeString
+ 384               	.LVL32:
+ 106:MPU9250.c     **** 		writeInteger(gDataArray[index].GyroZ, DEC);
+ 385               		.loc 1 106 0 discriminator 2
+ 386 01be 6AE0      		ldi r22,lo8(10)
+ 387 01c0 8C81      		ldd r24,Y+4
+ 388 01c2 9D81      		ldd r25,Y+5
+ 389 01c4 0E94 0000 		call writeInteger
+ 390               	.LVL33:
+ 107:MPU9250.c     **** 
+ 108:MPU9250.c     **** 		writeChar('\n');
+ 391               		.loc 1 108 0 discriminator 2
+ 392 01c8 8AE0      		ldi r24,lo8(10)
+ 393 01ca 0E94 0000 		call writeChar
+ 394               	.LVL34:
+  91:MPU9250.c     **** 	for(uint8_t index = 0; index < gyroArraySize; index++)
+ 395               		.loc 1 91 0 discriminator 2
+ 396 01ce F394      		inc r15
+ 397               	.LVL35:
+ 398 01d0 00C0      		rjmp .L9
+ 399               	.L12:
+ 400               	.LBE2:
+ 109:MPU9250.c     **** 	}
+ 110:MPU9250.c     **** 
+ 111:MPU9250.c     **** 	writeChar('\n');
+ 401               		.loc 1 111 0
+ 402 01d2 8AE0      		ldi r24,lo8(10)
+ 403 01d4 0E94 0000 		call writeChar
+ 404               	.LVL36:
+ 112:MPU9250.c     **** 	writeChar('\n');
+ 405               		.loc 1 112 0
+ 406 01d8 8AE0      		ldi r24,lo8(10)
+ 407               	/* epilogue start */
+ 113:MPU9250.c     **** }...
+ 408               		.loc 1 113 0
+ 409 01da DF91      		pop r29
+ 410 01dc CF91      		pop r28
+ 411 01de 1F91      		pop r17
+ 412 01e0 0F91      		pop r16
+ 413 01e2 FF90      		pop r15
+ 414               	.LVL37:
+ 415 01e4 EF90      		pop r14
+ 112:MPU9250.c     **** 	writeChar('\n');
+ 416               		.loc 1 112 0
+ 417 01e6 0C94 0000 		jmp writeChar
+ 418               	.LVL38:
+ 419               		.cfi_endproc
+ 420               	.LFE4:
+ 422               		.comm	gDataArray,90,1
+ 423               	.global	gyroArrayIndexToWriteTo
+ 424               		.section .bss
+ 427               	gyroArrayIndexToWriteTo:
+ 428 0000 00        		.zero	1
+ 429               	.global	gyroArraySize
+ 430               		.data
+ 433               	gyroArraySize:
+ 434 0000 0F        		.byte	15
+ 435               		.text
+ 436               	.Letext0:
+ 437               		.file 2 "/usr/lib/avr/include/stdint.h"
+ 438               		.file 3 "MPU9250.h"
+ 439               		.file 4 "../../../RP6Lib/RP6common/RP6I2CmasterTWI.h"
+ 440               		.file 5 "../../../RP6Lib/RP6common/RP6uart.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 MPU9250.c
+     /tmp/ccQh0iaO.s:2      *ABS*:0000003e __SP_H__
+     /tmp/ccQh0iaO.s:3      *ABS*:0000003d __SP_L__
+     /tmp/ccQh0iaO.s:4      *ABS*:0000003f __SREG__
+     /tmp/ccQh0iaO.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/ccQh0iaO.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/ccQh0iaO.s:12     .text:00000000 initMPU9250
+     /tmp/ccQh0iaO.s:32     .text:0000000a getGyroData
+     /tmp/ccQh0iaO.s:150    .text:000000a2 saveGyroData
+     /tmp/ccQh0iaO.s:427    .bss:00000000 gyroArrayIndexToWriteTo
+                            *COM*:0000005a gDataArray
+     /tmp/ccQh0iaO.s:433    .data:00000000 gyroArraySize
+     /tmp/ccQh0iaO.s:243    .text:00000104 writeGyro
+
+UNDEFINED SYMBOLS
+I2CTWI_transmit2Bytes
+I2CTWI_transmitByte
+I2CTWI_readByte
+writeString
+writeInteger
+writeChar
+__do_copy_data
+__do_clear_bss

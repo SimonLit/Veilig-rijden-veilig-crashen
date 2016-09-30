@@ -1,0 +1,8 @@
+#include "HitSide.h"
+#include "RP6I2CmasterTWI.h"
+
+#define CONTROL_DEVICE_ADDRESS (12)
+#define CONTROL_WRITE_ADDRESS (ARDUINO_DEVICE_ADDRESS << 1)
+#define CONTROL_READ_ADDRESS (ARDUINO_WRITE_ADDRESS + 1)
+
+
