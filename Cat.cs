@@ -6,7 +6,7 @@ using System.Text;
 
 namespace AnimalShelter
 {
-    public class Cat : Animal
+    public class Cat : Anal
     {
         /// <summary>
         /// Description of the bad habits that the cat has (e.g. "Scratches the couch").
