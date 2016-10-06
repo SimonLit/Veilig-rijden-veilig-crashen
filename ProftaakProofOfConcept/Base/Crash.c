@@ -3,8 +3,7 @@
 #include "MPU9250.h"
 #include "RP6I2CmasterTWI.h"
 #include "RP6uart.h"
-#include "Led.h"
-#include "Motors.h"
+//#include "Leds.h"
 #include <stdbool.h>
 
 //====================================================================================
@@ -18,10 +17,9 @@
 struct crashInfo crashInfoToSend;
 uint8_t pressed = false;
 uint8_t crashInfoWasSend = false;
-
 uint8_t hitSide;
 
-uint8_t assignCrashInfo(gyroData gData)
+int assignCrashInfo(void)
 {
 	uint16_t avergeLeftSpeed = calculateAverageLeftSpeed();
 	uint16_t avergeRightSpeed = calculateAverageRightSpeed();
@@ -49,11 +47,22 @@ uint8_t assignCrashInfo(gyroData gData)
 	writeChar('\n');
 
 	crashInfoToSend.speed = speedCMPerSecond;
-	crashInfoToSend.GyX = gData.GyroX;
-	crashInfoToSend.GyY = gData.GyroY;
-	crashInfoToSend.GyZ = gData.GyroZ;
 	crashInfoToSend.sideHit = hitSide;
 	crashInfoToSend.impact = 1;
+
+	writeString("GyX: ");
+	writeInteger(((gDataArray[14].GyroX_H << 8) | gDataArray[14].GyroX_L), DEC);
+	writeChar('\n');
+	writeChar('\n');
+	writeString("GyY: ");
+	writeInteger(((gDataArray[14].GyroY_H << 8) | gDataArray[14].GyroY_L), DEC);
+	writeChar('\n');
+	writeChar('\n');
+	writeString("GyZ: ");
+	writeInteger(((gDataArray[14].GyroZ_H << 8) | gDataArray[14].GyroZ_L), DEC);
+	writeChar('\n');
+	writeChar('\n');
+
 
 	return true;
 }
@@ -62,9 +71,9 @@ void sendCrashInfo(void)
 {
 	writeString("SENDING TO ARDUINO");
 	I2CTWI_transmit2Bytes(ARDUINO_WRITE_ADDRESS, 1, crashInfoToSend.speed); // In cm/s
-	I2CTWI_transmit2Bytes(ARDUINO_WRITE_ADDRESS, 2, crashInfoToSend.GyX);
-	I2CTWI_transmit2Bytes(ARDUINO_WRITE_ADDRESS, 3, crashInfoToSend.GyY);
-	I2CTWI_transmit2Bytes(ARDUINO_WRITE_ADDRESS, 4, crashInfoToSend.GyZ);
+	I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 2, gDataArray[14].GyroX_H, gDataArray[14].GyroX_L);
+	I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 3, gDataArray[14].GyroY_H, gDataArray[14].GyroY_L);
+	I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 4, gDataArray[14].GyroZ_H, gDataArray[14].GyroZ_L);
 	I2CTWI_transmit2Bytes(ARDUINO_WRITE_ADDRESS, 5, crashInfoToSend.sideHit); 	// 1: fromt
 																				// 2: right
 																				// 3: left
@@ -73,13 +82,24 @@ void sendCrashInfo(void)
 	I2CTWI_transmit2Bytes(ARDUINO_WRITE_ADDRESS, 6, crashInfoToSend.impact);
 }
 
+
+
 void buttenChanged(void)
 {
 	stop();
 
 	if(!pressed)
 	{
-		setLEDs(0b111111);
+	 	if(getBumperLeft() || getBumperRight())
+	 		hitSide = 1;
+	 	/*else if(getBumperRightSide(12))
+	 		hitSide = 2;
+	 	else if(getBumperLeftSide(12))
+	 		hitSide = 3;
+	 	else if(getBumperBack(12))
+	 		hitSide = 4;*/
+
+		setLEDs(0b1111);
 		pressed = true;
 
 		writeSpeed();

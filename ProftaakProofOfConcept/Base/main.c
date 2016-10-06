@@ -72,7 +72,7 @@ int main(void)
 		}
 		else if(!crashInfoWasSend && pressed)
 		{
-			crashInfoWasSend = assignCrashInfo(gData);
+			crashInfoWasSend = assignCrashInfo();
 			sendCrashInfo();
 		} 
 	}
