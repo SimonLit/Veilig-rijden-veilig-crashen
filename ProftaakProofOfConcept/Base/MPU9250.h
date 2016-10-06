@@ -13,8 +13,6 @@ typedef struct
 
 void initMPU9250(void);
 
-void getGyroData(gyroData *gData);
-
 void saveGyroData(gyroData gData);
 
 void writeGyro(void);
