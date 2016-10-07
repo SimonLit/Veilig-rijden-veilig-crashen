@@ -1,41 +1,208 @@
 #include "RP6ControlLib.h"
-#include "RP6I2CslaveTWI.h"
+#include "RP6I2CmasterTWI.h"
+/*#include "Drive.h"
+#include "MPU9250.h"
+#include "Crash.h"*/
 
-#define slaveAddress 12
+#include "RP6Control_I2CMasterLib.h" 	
+
+/**
+ * This function gets called automatically if there was an I2C Error like
+ * the slave sent a "not acknowledge" (NACK, error codes e.g. 0x20 or 0x30).
+ * The most common mistakes are: 
+ *   - using the wrong address for the slave
+ *   - slave not active or not connected to the I2C-Bus
+ *   - too fast requests for a slower slave
+ * Be sure to check this if you get I2C errors!
+ */
+void I2C_transmissionError(uint8_t errorState)
+{
+	writeString_P("\nI2C ERROR - TWI STATE: 0x");
+	writeInteger(errorState, HEX);
+	writeChar('\n');
+}
+
+
+/**
+ * Timed Watchdog display only - the other heartbeat function
+ * does not work in this example as we use blocked moving functions here.
+ */
+void watchDogRequest(void)
+{	
+	static uint8_t heartbeat2 = false;
+	if(heartbeat2)
+	{
+		clearPosLCD(0, 14, 1);
+		heartbeat2 = false;
+	}
+	else
+	{
+		setCursorPosLCD(0, 14);
+		writeStringLCD_P("#"); 
+		heartbeat2 = true;
+	}
+}
+
+
+void writeButtonPressOnLCD(uint8_t button, int pressed)
+{
+	clearLCD();
+	setCursorPosLCD(0,0);
+	writeStringLCD("btn:     times:");
+	setCursorPosLCD(1,0);
+	writeIntegerLCD(button, DEC);
+	writeStringLCD("        ");
+	writeIntegerLCD(pressed, DEC);
+}
+
+/************************************************************************************/
+//====================================================================================
+// Main - The program starts here:
+//====================================================================================
+/************************************************************************************/
+
 
 int main(void)
 {
 	initRP6Control(); 	
-	I2CTWI_initSlave(slaveAddress);
+
+	WDT_setRequestHandler(watchDogRequest); 
 
 	uint8_t sideHit = 0;
 	uint8_t timesPressed2 = 0;
+	uint8_t timesPressed3 = 0;
+	uint8_t timesPressed5 = 0;
 	
+	DDRC &= ~IO_PC2; 
+	PORTC &= ~IO_PC2;
+
 	DDRC &= ~IO_PC3; 
 	PORTC &= ~IO_PC3; 
 
-	if(PINC & IO_PC3) // Check if PC6 is high
+	DDRC &= ~IO_PC5; 
+	PORTC &= ~IO_PC5;
+
+	if(PINC & IO_PC2) 
+		writeString_P("\n\nPC2 is HIGH!\n\n");
+	else
+		writeString_P("\n\nPC2 is LOW!\n\n");
+
+	if(PINC & IO_PC3) 
 		writeString_P("\n\nPC3 is HIGH!\n\n");
 	else
 		writeString_P("\n\nPC3 is LOW!\n\n");
 
+	if(PINC & IO_PC5) 
+		writeString_P("\n\nPC5 is HIGH!\n\n");
+	else
+		writeString_P("\n\nPC5 is LOW!\n\n");
+
+	int lastButton2State = false;
 	int lastButton3State = false;
+	int lastButton5State = false;
+
+	startStopwatch2();
+	
+	//initI2C_RP6Lib();
+    I2C_setTransmissionErrorHandler(I2C_transmissionError);
+	//BUMPERS_setStateChangedHandler(buttenChanged);
+
+	//initMPU9250();
+	startStopwatch1();
+
+	I2CTWI_initMaster(100); // Initialize the TWI Module for Master operation
+				// with 100kHz SCL Frequency
+				// PCF8574 and PCF8591 are only specified for
+				// up to 100kHz SCL freq - not 400kHz HighSpeed mode!
+
+	//gyroData gData;
+
+	writeButtonPressOnLCD(0, 0);
 
 	while(true)
 	{
-		if((PINC & IO_PC3) !=  lastButton3State)
+		if(getStopwatch2() > 50)
 		{
-			if(PINC & IO_PC3)
+			if((PINC & IO_PC2) !=  lastButton2State)
 			{
-				sideHit = 2;
-				timesPressed2++;
-				writeString("Button 2 pressed ");
-				writeInteger(timesPressed2, DEC);
-				writeString(" times.");
-				writeString("\n");
-			}
-		}	
+				if(PINC & IO_PC2)
+				{
+					sideHit = 2;
+					timesPressed2++;
 
-		lastButton3State = PINC & IO_PC3;
+					writeButtonPressOnLCD(sideHit, timesPressed2);
+
+					writeString("Button 2 pressed ");
+					writeInteger(timesPressed2, DEC);
+					writeString(" times.");
+					writeString("\n");
+				}
+			}	
+
+			lastButton2State = PINC & IO_PC2;
+
+
+			if((PINC & IO_PC3) !=  lastButton3State)
+			{
+				if(PINC & IO_PC3)
+				{
+					sideHit = 3;
+					timesPressed3++;
+
+					writeButtonPressOnLCD(sideHit, timesPressed3);
+
+					writeString("Button 3 pressed ");
+					writeInteger(timesPressed3, DEC);
+					writeString(" times.");
+					writeString("\n");
+				}
+			}	
+
+			lastButton3State = PINC & IO_PC3;
+
+
+			if((PINC & IO_PC5) !=  lastButton5State)
+			{
+				if(PINC & IO_PC5)
+				{
+					sideHit = 5;
+					timesPressed5++;
+
+					writeButtonPressOnLCD(sideHit, timesPressed5);
+
+					writeString("Button 5 pressed ");
+					writeInteger(timesPressed5, DEC);
+					writeString(" times.");
+					writeString("\n");
+				}
+			}	
+
+			lastButton5State = PINC & IO_PC5;
+
+			setStopwatch2(0);
+		}
+
+		/*task_checkINT0();
+		task_I2CTWI();
+
+		if(!pressed)
+		{
+			setLEDs(0b0);
+
+			changeDirection(FWD);
+			moveAtSpeed(60,60);
+
+			if(getStopwatch1() > 1000)
+			{
+				saveSpeedData(mleft_speed, mright_speed);
+				saveGyroData(gData);
+				setStopwatch1(0);
+			}
+		}
+		else if(!crashInfoWasSend && pressed)
+		{
+			crashInfoWasSend = assignCrashInfo();
+			sendCrashInfo();
+		} */
 	}	
 }

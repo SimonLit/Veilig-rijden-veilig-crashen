@@ -6,6 +6,7 @@
 #include "Drive.h"
 #include "MPU9250.h"
 #include "Crash.h"
+#include "stdbool.h"
 
 
 /**
@@ -50,6 +51,11 @@ int main(void)
 
 	gyroData gData;
 
+	bool arrayIsFilled = false;
+	uint8_t counter = 0;
+
+	setMotorDir(FWD, FWD);
+
 	while(true)  
 	{
 		task_motionControl();
@@ -60,19 +66,36 @@ int main(void)
 		{
 			setLEDs(0b0);
 
-			setMotorDir(FWD, FWD);
-			moveAtSpeed(60,60);
+			//if(arrayIsFilled)
+			//{
+				moveAtSpeed(60,60);
+			//}
 
-			if(getStopwatch1() > 1000)
+			if(getStopwatch1() > 500)
 			{
 				saveSpeedData(mleft_speed, mright_speed);
 				saveGyroData(gData);
+				
+				
+				/*if(!arrayIsFilled)
+				{
+					counter++;
+
+					writeSpeed();
+					writeGyro();
+
+					if(counter > 10)
+					{
+						arrayIsFilled = true;
+					}
+				}*/
+
 				setStopwatch1(0);
 			}
 		}
 		else if(!crashInfoWasSend && pressed)
 		{
-			crashInfoWasSend = assignCrashInfo(gData);
+			crashInfoWasSend = assignCrashInfo();
 			sendCrashInfo();
 		} 
 	}

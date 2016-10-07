@@ -18,14 +18,15 @@ TARGET = main
 # Specify relative path to RP6 library files here.
 # This is "../../RP6Lib" or "../RP6Lib" usually.
 
-RP6_LIB_PATH=../../../RP6Lib
+RP6_LIB_PATH=../../../../rp6/RP6Examples_20120725f/RP6Lib
 RP6_LIB_PATH_CONTROL = $(RP6_LIB_PATH)/RP6control
 RP6_LIB_PATH_COMMON = $(RP6_LIB_PATH)/RP6common
+RP6_LIB_PATH_I2C_MASTER= $(RP6_LIB_PATH)/RP6control_I2CMasterLib
 
 RP6_LIB_PATH_OTHERS= $(RP6_LIB_PATH_CONTROL) $(RP6_LIB_PATH_COMMON) 
 
 # List any extra directories to look for include files here.
-EXTRAINCDIRS = $(RP6_LIB_PATH) $(RP6_LIB_PATH_OTHERS)
+EXTRAINCDIRS = $(RP6_LIB_PATH) $(RP6_LIB_PATH_OTHERS) $(RP6_LIB_PATH_I2C_MASTER)
 ###############################################################################
 
 #------------------------------------------------
@@ -35,7 +36,8 @@ SRC = $(TARGET).c
 
 SRC += $(RP6_LIB_PATH_CONTROL)/RP6ControlLib.c
 SRC += $(RP6_LIB_PATH)/RP6common/RP6uart.c
-SRC += $(RP6_LIB_PATH)/RP6common/RP6I2CslaveTWI.c
+SRC += $(RP6_LIB_PATH_COMMON)/RP6I2CmasterTWI.c
+SRC += $(RP6_LIB_PATH_I2C_MASTER)/RP6Control_I2CMasterLib.c
 
 
 include $(RP6_LIB_PATH_CONTROL)/makefile.control
