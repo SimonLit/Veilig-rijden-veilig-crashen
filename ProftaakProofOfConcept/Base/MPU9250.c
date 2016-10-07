@@ -2,7 +2,7 @@
 #include "RP6uart.h"
 #include "Stopwatch.h"
 #include "RP6I2CmasterTWI.h"
-//#include <stdbool.h>
+#include <stdbool.h>
 #include "Stopwatch.h"
 
 //====================================================================================
@@ -28,49 +28,42 @@ void getGyroData(gyroData* gData)
 {
 	// Read gryo data from the X-ax
 	I2CTWI_transmitByte(MPU9250_WRITE_ADDRESS, 0x43);
-	gData->GyroX = I2CTWI_readByte(MPU9250_READ_ADDRESS);
+	gData->GyroX_H = I2CTWI_readByte(MPU9250_READ_ADDRESS);
 	I2CTWI_transmitByte(MPU9250_WRITE_ADDRESS, 0x44);
-	gData->GyroX = (gData->GyroX << 8) | I2CTWI_readByte(MPU9250_READ_ADDRESS);
+	gData->GyroX_L = I2CTWI_readByte(MPU9250_READ_ADDRESS);
 
 	// Read gryo data from the Y-ax
 	I2CTWI_transmitByte(MPU9250_WRITE_ADDRESS, 0x45);
-	gData->GyroY = I2CTWI_readByte(MPU9250_READ_ADDRESS);
+	gData->GyroY_H = I2CTWI_readByte(MPU9250_READ_ADDRESS);
 	I2CTWI_transmitByte(MPU9250_WRITE_ADDRESS, 0x46);
-	gData->GyroY = (gData->GyroX << 8) | I2CTWI_readByte(MPU9250_READ_ADDRESS);
+	gData->GyroY_L = I2CTWI_readByte(MPU9250_READ_ADDRESS);
 
 	// Read gryo data from the Z-ax
 	I2CTWI_transmitByte(MPU9250_WRITE_ADDRESS, 0x47);
-	gData->GyroZ = I2CTWI_readByte(MPU9250_READ_ADDRESS);
+	gData->GyroZ_H = I2CTWI_readByte(MPU9250_READ_ADDRESS);
 	I2CTWI_transmitByte(MPU9250_WRITE_ADDRESS, 0x48);
-	gData->GyroZ = (gData->GyroX << 8) | I2CTWI_readByte(MPU9250_READ_ADDRESS);
+	gData->GyroZ_L = I2CTWI_readByte(MPU9250_READ_ADDRESS);
 
 	//doneReadingGyro = true;
 }
 
 void saveGyroData(gyroData gData)
 {
-	/*startStopwatch1();
+	getGyroData(&gData);
+	gDataArray[gyroArrayIndexToWriteTo] = gData;
+	gyroArrayIndexToWriteTo++;
 
-	while(!doneReadingGyro && getStopwatch1() < 5000) // Make sure that the 
+	if(gyroArrayIndexToWriteTo == gyroArraySize)
 	{
-		getGyroData(&gData);
+		gyroArrayIndexToWriteTo = 0;
 	}
 
-	setStopwatch1(0);
+	/*for (int i = 0; i < 13; i++)
+	{
+		gDataArray[gyroArrayIndexToWriteTo] = gDataArray[gyroArrayIndexToWriteTo + 1];
+	}
 
-	if(doneReadingGyro)
-	{*/
-		getGyroData(&gData);
-		gDataArray[gyroArrayIndexToWriteTo] = gData;
-		gyroArrayIndexToWriteTo++;
-
-		if(gyroArrayIndexToWriteTo == gyroArraySize)
-		{
-			gyroArrayIndexToWriteTo = 0;
-		}
-	/*}	
-
-	doneReadingGyro = false;*/
+	gDataArray[14] = gData;*/
 }
 
 void writeGyro(void)
@@ -93,17 +86,17 @@ void writeGyro(void)
 		writeString("Gyro: ");
 		writeInteger(index, DEC);
 		writeString(" X: ");
-		writeInteger(gDataArray[index].GyroX, DEC);
+		writeInteger(((gDataArray[index].GyroX_H << 8) | gDataArray[index].GyroX_L), DEC);
 
 		writeString(" Gyro: ");
 		writeInteger(index, DEC);
 		writeString(" Y: ");
-		writeInteger(gDataArray[index].GyroY, DEC);
+		writeInteger(((gDataArray[index].GyroY_H << 8) | gDataArray[index].GyroY_L), DEC);
 
 		writeString(" Gyro: ");
 		writeInteger(index, DEC);
 		writeString(" Z: ");
-		writeInteger(gDataArray[index].GyroZ, DEC);
+		writeInteger(((gDataArray[index].GyroZ_H << 8) | gDataArray[index].GyroZ_L), DEC);
 
 		writeChar('\n');
 	}

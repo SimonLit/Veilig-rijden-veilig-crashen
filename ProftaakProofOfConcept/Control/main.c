@@ -3,6 +3,17 @@
 
 #define slaveAddress 12
 
+void writePressedButton(uint8_t side, uint8_t times)
+{
+	clearLCD();
+	setCursorPosLCD(0, 0);
+	writeStringLCD("btn:   times:");
+	setCursorPosLCD(1, 0);
+	writeIntegerLCD(side, DEC);
+	writeStringLCD("      ");
+	writeIntegerLCD(times, DEC);
+}
+
 int main(void)
 {
 	initRP6Control(); 	
@@ -53,6 +64,8 @@ int main(void)
 				{
 					sideHit = 2;
 					timesPressed2++;
+					writePressedButton(sideHit, timesPressed2);
+
 					writeString("Button 2 pressed ");
 					writeInteger(timesPressed2, DEC);
 					writeString(" times.");
@@ -69,6 +82,8 @@ int main(void)
 				{
 					sideHit = 3;
 					timesPressed3++;
+					writePressedButton(sideHit, timesPressed3);
+
 					writeString("Button 3 pressed ");
 					writeInteger(timesPressed3, DEC);
 					writeString(" times.");
@@ -85,6 +100,8 @@ int main(void)
 				{
 					sideHit = 5;
 					timesPressed5++;
+					writePressedButton(sideHit, timesPressed5);
+
 					writeString("Button 5 pressed ");
 					writeInteger(timesPressed5, DEC);
 					writeString(" times.");
