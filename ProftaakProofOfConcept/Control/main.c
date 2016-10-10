@@ -62,6 +62,17 @@ void writeButtonPressOnLCD(uint8_t button, int pressed)
 /************************************************************************************/
 
 
+void writePressedButton(uint8_t side, uint8_t times)
+{
+	clearLCD();
+	setCursorPosLCD(0, 0);
+	writeStringLCD("btn:   times:");
+	setCursorPosLCD(1, 0);
+	writeIntegerLCD(side, DEC);
+	writeStringLCD("      ");
+	writeIntegerLCD(times, DEC);
+}
+
 int main(void)
 {
 	initRP6Control(); 	
@@ -101,27 +112,11 @@ int main(void)
 	int lastButton3State = false;
 	int lastButton5State = false;
 
-	startStopwatch2();
-	
-	//initI2C_RP6Lib();
-    I2C_setTransmissionErrorHandler(I2C_transmissionError);
-	//BUMPERS_setStateChangedHandler(buttenChanged);
-
-	//initMPU9250();
 	startStopwatch1();
-
-	I2CTWI_initMaster(100); // Initialize the TWI Module for Master operation
-				// with 100kHz SCL Frequency
-				// PCF8574 and PCF8591 are only specified for
-				// up to 100kHz SCL freq - not 400kHz HighSpeed mode!
-
-	//gyroData gData;
-
-	writeButtonPressOnLCD(0, 0);
 
 	while(true)
 	{
-		if(getStopwatch2() > 50)
+		if(getStopwatch1() > 50)
 		{
 			if((PINC & IO_PC2) !=  lastButton2State)
 			{
@@ -129,8 +124,7 @@ int main(void)
 				{
 					sideHit = 2;
 					timesPressed2++;
-
-					writeButtonPressOnLCD(sideHit, timesPressed2);
+					writePressedButton(sideHit, timesPressed2);
 
 					writeString("Button 2 pressed ");
 					writeInteger(timesPressed2, DEC);
@@ -149,7 +143,7 @@ int main(void)
 					sideHit = 3;
 					timesPressed3++;
 
-					writeButtonPressOnLCD(sideHit, timesPressed3);
+					writePressedButton(sideHit, timesPressed3);
 
 					writeString("Button 3 pressed ");
 					writeInteger(timesPressed3, DEC);
@@ -167,9 +161,7 @@ int main(void)
 				{
 					sideHit = 5;
 					timesPressed5++;
-
-					writeButtonPressOnLCD(sideHit, timesPressed5);
-
+					writePressedButton(sideHit, timesPressed5);
 					writeString("Button 5 pressed ");
 					writeInteger(timesPressed5, DEC);
 					writeString(" times.");
@@ -178,31 +170,8 @@ int main(void)
 			}	
 
 			lastButton5State = PINC & IO_PC5;
-
-			setStopwatch2(0);
+			setStopwatch1(0);
 		}
 
-		/*task_checkINT0();
-		task_I2CTWI();
-
-		if(!pressed)
-		{
-			setLEDs(0b0);
-
-			changeDirection(FWD);
-			moveAtSpeed(60,60);
-
-			if(getStopwatch1() > 1000)
-			{
-				saveSpeedData(mleft_speed, mright_speed);
-				saveGyroData(gData);
-				setStopwatch1(0);
-			}
-		}
-		else if(!crashInfoWasSend && pressed)
-		{
-			crashInfoWasSend = assignCrashInfo();
-			sendCrashInfo();
-		} */
 	}	
 }

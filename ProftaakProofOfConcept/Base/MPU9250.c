@@ -49,11 +49,16 @@ void getGyroData(gyroData* gData)
 
 void saveGyroData(gyroData gData)
 {
-	startStopwatch1();
 
-	while(!doneReadingGyro && getStopwatch1() < 5000) // Make sure that the 
+	startStopwatch1();
+	getGyroData(&gData);
+	gDataArray[gyroArrayIndexToWriteTo] = gData;
+	gyroArrayIndexToWriteTo++;
+
+
+	if(gyroArrayIndexToWriteTo == gyroArraySize)
 	{
-		getGyroData(&gData);
+		gyroArrayIndexToWriteTo = 0;
 	}
 
 	setStopwatch1(0);
@@ -80,6 +85,14 @@ void saveGyroData(gyroData gData)
 	}	
 	
 	doneReadingGyro = false;
+
+	/*for (int i = 0; i < 13; i++)
+	{
+		gDataArray[gyroArrayIndexToWriteTo] = gDataArray[gyroArrayIndexToWriteTo + 1];
+	}
+
+	gDataArray[14] = gData;*/
+
 }
 
 void writeGyro(void)

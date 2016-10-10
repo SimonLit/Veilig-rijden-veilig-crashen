@@ -3,6 +3,7 @@
 #include "MPU9250.h"
 #include "RP6I2CmasterTWI.h"
 #include "RP6uart.h"
+<<<<<<< HEAD
 #include "Led.h"
 #include <stdbool.h>
 
