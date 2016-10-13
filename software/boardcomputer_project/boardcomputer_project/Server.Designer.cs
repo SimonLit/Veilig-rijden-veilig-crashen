@@ -1,6 +1,6 @@
 ﻿namespace boardcomputer_project
 {
-    partial class Form1
+    partial class Server
     {
         /// <summary>
         /// Required designer variable.
@@ -28,12 +28,33 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.tbMessages = new System.Windows.Forms.TextBox();
+            this.SuspendLayout();
+            // 
+            // tbMessages
+            // 
+            this.tbMessages.Location = new System.Drawing.Point(13, 13);
+            this.tbMessages.Multiline = true;
+            this.tbMessages.Name = "tbMessages";
+            this.tbMessages.Size = new System.Drawing.Size(257, 228);
+            this.tbMessages.TabIndex = 0;
+            // 
+            // Server
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(282, 253);
+            this.Controls.Add(this.tbMessages);
+            this.Name = "Server";
             this.Text = "Form1";
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
         }
 
         #endregion
+
+        private System.Windows.Forms.TextBox tbMessages;
     }
 }
 
