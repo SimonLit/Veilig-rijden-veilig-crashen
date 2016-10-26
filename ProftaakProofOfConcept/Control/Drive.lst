@@ -1,0 +1,436 @@
+   1               		.file	"Drive.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	saveSpeedData
+  12               	saveSpeedData:
+  13               	.LFB1:
+  14               		.file 1 "Drive.c"
+   1:Drive.c       **** #include "Drive.h"
+   2:Drive.c       **** #include "RP6uart.h"
+   3:Drive.c       **** 
+   4:Drive.c       **** //====================================================================================
+   5:Drive.c       **** // Drive
+   6:Drive.c       **** //====================================================================================
+   7:Drive.c       **** 
+   8:Drive.c       **** uint8_t speedArraySize = 15;
+   9:Drive.c       **** uint8_t speedArrayIndexToWriteTo = 0;
+  10:Drive.c       **** struct speedData sData;
+  11:Drive.c       **** 
+  12:Drive.c       **** 
+  13:Drive.c       **** void saveSpeedData(uint8_t leftSpeed, uint8_t speedRight) 
+  14:Drive.c       **** {
+  15               		.loc 1 14 0
+  16               		.cfi_startproc
+  17               	.LVL0:
+  18               	/* prologue: function */
+  19               	/* frame size = 0 */
+  20               	/* stack size = 0 */
+  21               	.L__stack_usage = 0
+  15:Drive.c       **** 	sData.speedLeft = leftSpeed;
+  22               		.loc 1 15 0
+  23 0000 8093 0000 		sts sData,r24
+  16:Drive.c       **** 	sData.speedRight = speedRight;
+  24               		.loc 1 16 0
+  25 0004 6093 0000 		sts sData+1,r22
+  26               	.LVL1:
+  27 0008 E0E0      		ldi r30,lo8(sDataArray)
+  28 000a F0E0      		ldi r31,hi8(sDataArray)
+  29               	.LVL2:
+  30               	.L3:
+  31               	.LBB2:
+  17:Drive.c       **** 	int arraySize = sizeof(sDataArray)/sizeof(sDataArray[0]);
+  18:Drive.c       **** 
+  19:Drive.c       **** 	/*sDataArray[speedArrayIndexToWriteTo] = sData;
+  20:Drive.c       **** 	speedArrayIndexToWriteTo++;
+  21:Drive.c       **** 
+  22:Drive.c       **** 	if(speedArrayIndexToWriteTo == speedArraySize)
+  23:Drive.c       **** 	{
+  24:Drive.c       **** 		speedArrayIndexToWriteTo = 0;
+  25:Drive.c       **** 	}*/
+  26:Drive.c       **** 
+  27:Drive.c       **** 	for (int i = 0; i < (arraySize - 1); i++)
+  28:Drive.c       **** 	{
+  29:Drive.c       **** 		sDataArray[i] = sDataArray[i + 1];
+  32               		.loc 1 29 0 discriminator 2
+  33 000c 8281      		ldd r24,Z+2
+  34 000e 9381      		ldd r25,Z+3
+  35 0010 8193      		st Z+,r24
+  36 0012 9193      		st Z+,r25
+  27:Drive.c       **** 	for (int i = 0; i < (arraySize - 1); i++)
+  37               		.loc 1 27 0 discriminator 2
+  38 0014 80E0      		ldi r24,hi8(sDataArray+28)
+  39 0016 E030      		cpi r30,lo8(sDataArray+28)
+  40 0018 F807      		cpc r31,r24
+  41 001a 01F4      		brne .L3
+  42               	.LBE2:
+  30:Drive.c       **** 	}
+  31:Drive.c       **** 
+  32:Drive.c       **** 	sDataArray[arraySize - 1] = sData;
+  43               		.loc 1 32 0
+  44 001c 8091 0000 		lds r24,sData
+  45 0020 9091 0000 		lds r25,sData+1
+  46 0024 9093 0000 		sts sDataArray+28+1,r25
+  47 0028 8093 0000 		sts sDataArray+28,r24
+  48 002c 0895      		ret
+  49               		.cfi_endproc
+  50               	.LFE1:
+  52               	.global	calculateAverageLeftSpeed
+  54               	calculateAverageLeftSpeed:
+  55               	.LFB2:
+  33:Drive.c       **** }
+  34:Drive.c       **** 
+  35:Drive.c       **** uint16_t calculateAverageLeftSpeed(void)
+  36:Drive.c       **** {
+  56               		.loc 1 36 0
+  57               		.cfi_startproc
+  58               	/* prologue: function */
+  59               	/* frame size = 0 */
+  60               	/* stack size = 0 */
+  61               	.L__stack_usage = 0
+  62               	.LVL3:
+  63               	.LBB3:
+  37:Drive.c       **** 	uint16_t sum = 0;
+  38:Drive.c       **** 
+  39:Drive.c       **** 	for(uint8_t i = 0; i < speedArraySize; i++)
+  64               		.loc 1 39 0
+  65 002e 2091 0000 		lds r18,speedArraySize
+  66 0032 E0E0      		ldi r30,lo8(sDataArray)
+  67 0034 F0E0      		ldi r31,hi8(sDataArray)
+  68 0036 60E0      		ldi r22,0
+  69               	.LBE3:
+  37:Drive.c       **** 	uint16_t sum = 0;
+  70               		.loc 1 37 0
+  71 0038 80E0      		ldi r24,0
+  72 003a 90E0      		ldi r25,0
+  73               	.LVL4:
+  74               	.L6:
+  75               	.LBB4:
+  76               		.loc 1 39 0 discriminator 1
+  77 003c 6217      		cp r22,r18
+  78 003e 01F0      		breq .L8
+  40:Drive.c       **** 	{
+  41:Drive.c       **** 		sum += sDataArray[i].speedLeft;
+  79               		.loc 1 41 0 discriminator 2
+  80 0040 3081      		ld r19,Z
+  81 0042 830F      		add r24,r19
+  82 0044 911D      		adc r25,__zero_reg__
+  83               	.LVL5:
+  39:Drive.c       **** 	for(uint8_t i = 0; i < speedArraySize; i++)
+  84               		.loc 1 39 0 discriminator 2
+  85 0046 6F5F      		subi r22,lo8(-(1))
+  86               	.LVL6:
+  87 0048 3296      		adiw r30,2
+  88 004a 00C0      		rjmp .L6
+  89               	.L8:
+  90               	.LVL7:
+  91               	.LBE4:
+  42:Drive.c       **** 	}
+  43:Drive.c       **** 
+  44:Drive.c       **** 	uint16_t average = sum/speedArraySize;
+  92               		.loc 1 44 0
+  93 004c 70E0      		ldi r23,0
+  94 004e 0E94 0000 		call __udivmodhi4
+  95               	.LVL8:
+  96 0052 CB01      		movw r24,r22
+  45:Drive.c       **** 
+  46:Drive.c       **** 	return average;
+  47:Drive.c       **** }
+  97               		.loc 1 47 0
+  98 0054 0895      		ret
+  99               		.cfi_endproc
+ 100               	.LFE2:
+ 102               	.global	calculateAverageRightSpeed
+ 104               	calculateAverageRightSpeed:
+ 105               	.LFB3:
+  48:Drive.c       **** 
+  49:Drive.c       **** uint16_t calculateAverageRightSpeed(void)
+  50:Drive.c       **** {
+ 106               		.loc 1 50 0
+ 107               		.cfi_startproc
+ 108               	/* prologue: function */
+ 109               	/* frame size = 0 */
+ 110               	/* stack size = 0 */
+ 111               	.L__stack_usage = 0
+ 112               	.LVL9:
+ 113               	.LBB5:
+  51:Drive.c       **** 	uint16_t sum = 0;
+  52:Drive.c       **** 
+  53:Drive.c       **** 	for(uint8_t i = 0; i < speedArraySize; i++)
+ 114               		.loc 1 53 0
+ 115 0056 2091 0000 		lds r18,speedArraySize
+ 116 005a E0E0      		ldi r30,lo8(sDataArray+1)
+ 117 005c F0E0      		ldi r31,hi8(sDataArray+1)
+ 118 005e 60E0      		ldi r22,0
+ 119               	.LBE5:
+  51:Drive.c       **** 	uint16_t sum = 0;
+ 120               		.loc 1 51 0
+ 121 0060 80E0      		ldi r24,0
+ 122 0062 90E0      		ldi r25,0
+ 123               	.LVL10:
+ 124               	.L10:
+ 125               	.LBB6:
+ 126               		.loc 1 53 0 discriminator 1
+ 127 0064 6217      		cp r22,r18
+ 128 0066 01F0      		breq .L12
+  54:Drive.c       **** 	{
+  55:Drive.c       **** 		sum += sDataArray[i].speedRight;
+ 129               		.loc 1 55 0 discriminator 2
+ 130 0068 3081      		ld r19,Z
+ 131 006a 830F      		add r24,r19
+ 132 006c 911D      		adc r25,__zero_reg__
+ 133               	.LVL11:
+  53:Drive.c       **** 	for(uint8_t i = 0; i < speedArraySize; i++)
+ 134               		.loc 1 53 0 discriminator 2
+ 135 006e 6F5F      		subi r22,lo8(-(1))
+ 136               	.LVL12:
+ 137 0070 3296      		adiw r30,2
+ 138 0072 00C0      		rjmp .L10
+ 139               	.L12:
+ 140               	.LVL13:
+ 141               	.LBE6:
+  56:Drive.c       **** 	}
+  57:Drive.c       **** 
+  58:Drive.c       **** 	uint16_t average = sum/speedArraySize;
+ 142               		.loc 1 58 0
+ 143 0074 70E0      		ldi r23,0
+ 144 0076 0E94 0000 		call __udivmodhi4
+ 145               	.LVL14:
+ 146 007a CB01      		movw r24,r22
+  59:Drive.c       **** 	
+  60:Drive.c       **** 	return average;
+  61:Drive.c       **** }
+ 147               		.loc 1 61 0
+ 148 007c 0895      		ret
+ 149               		.cfi_endproc
+ 150               	.LFE3:
+ 152               		.section	.rodata.str1.1,"aMS",@progbits,1
+ 153               	.LC0:
+ 154 0000 496E 6465 		.string	"Index "
+ 154      7820 00
+ 155               	.LC1:
+ 156 0007 2063 6861 		.string	" changed."
+ 156      6E67 6564 
+ 156      2E00 
+ 157               	.LC2:
+ 158 0011 5370 6565 		.string	"Speed "
+ 158      6420 00
+ 159               	.LC3:
+ 160 0018 206C 6566 		.string	" left: "
+ 160      743A 2000 
+ 161               	.LC4:
+ 162 0020 2053 7065 		.string	" Speed "
+ 162      6564 2000 
+ 163               	.LC5:
+ 164 0028 2072 6967 		.string	" right: "
+ 164      6874 3A20 
+ 164      00
+ 165               		.text
+ 166               	.global	writeSpeed
+ 168               	writeSpeed:
+ 169               	.LFB4:
+  62:Drive.c       **** 
+  63:Drive.c       **** void writeSpeed(void)
+  64:Drive.c       **** {
+ 170               		.loc 1 64 0
+ 171               		.cfi_startproc
+ 172 007e FF92      		push r15
+ 173               	.LCFI0:
+ 174               		.cfi_def_cfa_offset 3
+ 175               		.cfi_offset 15, -2
+ 176 0080 0F93      		push r16
+ 177               	.LCFI1:
+ 178               		.cfi_def_cfa_offset 4
+ 179               		.cfi_offset 16, -3
+ 180 0082 1F93      		push r17
+ 181               	.LCFI2:
+ 182               		.cfi_def_cfa_offset 5
+ 183               		.cfi_offset 17, -4
+ 184 0084 CF93      		push r28
+ 185               	.LCFI3:
+ 186               		.cfi_def_cfa_offset 6
+ 187               		.cfi_offset 28, -5
+ 188 0086 DF93      		push r29
+ 189               	.LCFI4:
+ 190               		.cfi_def_cfa_offset 7
+ 191               		.cfi_offset 29, -6
+ 192               	/* prologue: function */
+ 193               	/* frame size = 0 */
+ 194               	/* stack size = 5 */
+ 195               	.L__stack_usage = 5
+  65:Drive.c       **** 
+  66:Drive.c       **** 	writeString("Index ");
+ 196               		.loc 1 66 0
+ 197 0088 80E0      		ldi r24,lo8(.LC0)
+ 198 008a 90E0      		ldi r25,hi8(.LC0)
+ 199 008c 0E94 0000 		call writeString
+ 200               	.LVL15:
+  67:Drive.c       **** 	writeInteger((speedArrayIndexToWriteTo -1), DEC);
+ 201               		.loc 1 67 0
+ 202 0090 8091 0000 		lds r24,speedArrayIndexToWriteTo
+ 203 0094 90E0      		ldi r25,0
+ 204 0096 6AE0      		ldi r22,lo8(10)
+ 205 0098 0197      		sbiw r24,1
+ 206 009a 0E94 0000 		call writeInteger
+ 207               	.LVL16:
+  68:Drive.c       **** 	writeString(" changed.");
+ 208               		.loc 1 68 0
+ 209 009e 80E0      		ldi r24,lo8(.LC1)
+ 210 00a0 90E0      		ldi r25,hi8(.LC1)
+ 211 00a2 0E94 0000 		call writeString
+ 212               	.LVL17:
+  69:Drive.c       **** 	writeChar('\n');
+ 213               		.loc 1 69 0
+ 214 00a6 8AE0      		ldi r24,lo8(10)
+ 215 00a8 0E94 0000 		call writeChar
+ 216               	.LVL18:
+ 217               	.LBB7:
+  70:Drive.c       **** 
+  71:Drive.c       **** 	for(uint8_t index = 0; index < speedArraySize; index++)
+ 218               		.loc 1 71 0
+ 219 00ac F12C      		mov r15,__zero_reg__
+ 220               	.LVL19:
+ 221               	.L14:
+ 222               		.loc 1 71 0 is_stmt 0 discriminator 1
+ 223 00ae 8091 0000 		lds r24,speedArraySize
+ 224 00b2 F816      		cp r15,r24
+ 225 00b4 00F4      		brsh .L16
+  72:Drive.c       **** 	{	
+  73:Drive.c       **** 		writeString("Speed ");
+ 226               		.loc 1 73 0 is_stmt 1 discriminator 2
+ 227 00b6 80E0      		ldi r24,lo8(.LC2)
+ 228 00b8 90E0      		ldi r25,hi8(.LC2)
+ 229 00ba 0E94 0000 		call writeString
+ 230               	.LVL20:
+  74:Drive.c       **** 		writeInteger(index, DEC);
+ 231               		.loc 1 74 0 discriminator 2
+ 232 00be 0F2D      		mov r16,r15
+ 233 00c0 10E0      		ldi r17,0
+ 234 00c2 6AE0      		ldi r22,lo8(10)
+ 235 00c4 C801      		movw r24,r16
+ 236 00c6 0E94 0000 		call writeInteger
+ 237               	.LVL21:
+  75:Drive.c       **** 		writeString(" left: ");
+ 238               		.loc 1 75 0 discriminator 2
+ 239 00ca 80E0      		ldi r24,lo8(.LC3)
+ 240 00cc 90E0      		ldi r25,hi8(.LC3)
+ 241 00ce 0E94 0000 		call writeString
+ 242               	.LVL22:
+  76:Drive.c       **** 		writeInteger(sDataArray[index].speedLeft, DEC);
+ 243               		.loc 1 76 0 discriminator 2
+ 244 00d2 E801      		movw r28,r16
+ 245 00d4 CC0F      		lsl r28
+ 246 00d6 DD1F      		rol r29
+ 247 00d8 C050      		subi r28,lo8(-(sDataArray))
+ 248 00da D040      		sbci r29,hi8(-(sDataArray))
+ 249 00dc 8881      		ld r24,Y
+ 250 00de 6AE0      		ldi r22,lo8(10)
+ 251 00e0 90E0      		ldi r25,0
+ 252 00e2 0E94 0000 		call writeInteger
+ 253               	.LVL23:
+  77:Drive.c       **** 
+  78:Drive.c       **** 		writeString(" Speed ");
+ 254               		.loc 1 78 0 discriminator 2
+ 255 00e6 80E0      		ldi r24,lo8(.LC4)
+ 256 00e8 90E0      		ldi r25,hi8(.LC4)
+ 257 00ea 0E94 0000 		call writeString
+ 258               	.LVL24:
+  79:Drive.c       **** 		writeInteger(index, DEC);
+ 259               		.loc 1 79 0 discriminator 2
+ 260 00ee 6AE0      		ldi r22,lo8(10)
+ 261 00f0 C801      		movw r24,r16
+ 262 00f2 0E94 0000 		call writeInteger
+ 263               	.LVL25:
+  80:Drive.c       **** 		writeString(" right: ");
+ 264               		.loc 1 80 0 discriminator 2
+ 265 00f6 80E0      		ldi r24,lo8(.LC5)
+ 266 00f8 90E0      		ldi r25,hi8(.LC5)
+ 267 00fa 0E94 0000 		call writeString
+ 268               	.LVL26:
+  81:Drive.c       **** 		writeInteger(sDataArray[index].speedRight, DEC);
+ 269               		.loc 1 81 0 discriminator 2
+ 270 00fe 8981      		ldd r24,Y+1
+ 271 0100 6AE0      		ldi r22,lo8(10)
+ 272 0102 90E0      		ldi r25,0
+ 273 0104 0E94 0000 		call writeInteger
+ 274               	.LVL27:
+  82:Drive.c       **** 		writeChar('\n');
+ 275               		.loc 1 82 0 discriminator 2
+ 276 0108 8AE0      		ldi r24,lo8(10)
+ 277 010a 0E94 0000 		call writeChar
+ 278               	.LVL28:
+  71:Drive.c       **** 	for(uint8_t index = 0; index < speedArraySize; index++)
+ 279               		.loc 1 71 0 discriminator 2
+ 280 010e F394      		inc r15
+ 281               	.LVL29:
+ 282 0110 00C0      		rjmp .L14
+ 283               	.L16:
+ 284               	.LBE7:
+  83:Drive.c       **** 	}
+  84:Drive.c       **** 
+  85:Drive.c       **** 	writeChar('\n');
+ 285               		.loc 1 85 0
+ 286 0112 8AE0      		ldi r24,lo8(10)
+ 287 0114 0E94 0000 		call writeChar
+ 288               	.LVL30:
+  86:Drive.c       **** 	writeChar('\n');
+ 289               		.loc 1 86 0
+ 290 0118 8AE0      		ldi r24,lo8(10)
+ 291               	/* epilogue start */
+  87:Drive.c       **** }
+ 292               		.loc 1 87 0
+ 293 011a DF91      		pop r29
+ 294 011c CF91      		pop r28
+ 295 011e 1F91      		pop r17
+ 296 0120 0F91      		pop r16
+ 297 0122 FF90      		pop r15
+ 298               	.LVL31:
+  86:Drive.c       **** 	writeChar('\n');
+ 299               		.loc 1 86 0
+ 300 0124 0C94 0000 		jmp writeChar
+ 301               	.LVL32:
+ 302               		.cfi_endproc
+ 303               	.LFE4:
+ 305               		.comm	sData,2,1
+ 306               	.global	speedArrayIndexToWriteTo
+ 307               		.section .bss
+ 310               	speedArrayIndexToWriteTo:
+ 311 0000 00        		.zero	1
+ 312               	.global	speedArraySize
+ 313               		.data
+ 316               	speedArraySize:
+ 317 0000 0F        		.byte	15
+ 318               		.comm	sDataArray,30,1
+ 319               		.text
+ 320               	.Letext0:
+ 321               		.file 2 "/usr/lib/avr/include/stdint.h"
+ 322               		.file 3 "Drive.h"
+ 323               		.file 4 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 Drive.c
+     /tmp/ccL1A7HB.s:2      *ABS*:0000003e __SP_H__
+     /tmp/ccL1A7HB.s:3      *ABS*:0000003d __SP_L__
+     /tmp/ccL1A7HB.s:4      *ABS*:0000003f __SREG__
+     /tmp/ccL1A7HB.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/ccL1A7HB.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/ccL1A7HB.s:12     .text:00000000 saveSpeedData
+                            *COM*:00000002 sData
+                            *COM*:0000001e sDataArray
+     /tmp/ccL1A7HB.s:54     .text:0000002e calculateAverageLeftSpeed
+     /tmp/ccL1A7HB.s:316    .data:00000000 speedArraySize
+     /tmp/ccL1A7HB.s:104    .text:00000056 calculateAverageRightSpeed
+     /tmp/ccL1A7HB.s:168    .text:0000007e writeSpeed
+     /tmp/ccL1A7HB.s:310    .bss:00000000 speedArrayIndexToWriteTo
+
+UNDEFINED SYMBOLS
+__udivmodhi4
+writeString
+writeInteger
+writeChar
+__do_copy_data
+__do_clear_bss

@@ -3,9 +3,8 @@
 #include "MPU9250.h"
 #include "RP6I2CmasterTWI.h"
 #include "RP6uart.h"
-<<<<<<< HEAD
-#include "Led.h"
 #include <stdbool.h>
+#include "RP6Control_I2CMasterLib.h" 	
 
 //====================================================================================
 // Crash
@@ -25,7 +24,8 @@ int assignCrashInfo(void)
 	uint16_t avergeLeftSpeed = calculateAverageLeftSpeed();
 	uint16_t avergeRightSpeed = calculateAverageRightSpeed();
 	uint16_t averageSpeed = (avergeLeftSpeed + avergeRightSpeed)/2;
-	double speedCMPerSecond = averageSpeed * 5 * 0.025; // By multiplying the speed by 5
+	double speedCMPerSecond = averageSpeed * 5 * 0.025; // One speed point is equal to 5 segments per second.
+														// By multiplying the speed by 5
 													    // you get the amount of segments past
 														// on the encoder per second. 
 													    // Each segment is +/- 0.25mm. So by 
@@ -70,12 +70,12 @@ int assignCrashInfo(void)
 
 void sendCrashInfo(void)
 {
-	writeString("SENDING TO ARDUINO");
+	writeString("SENDING TO ARDUINO\n");
 	I2CTWI_transmit2Bytes(ARDUINO_WRITE_ADDRESS, 1, crashInfoToSend.speed); // In cm/s
 	I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 2, gDataArray[14].GyroX_H, gDataArray[14].GyroX_L);
 	I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 3, gDataArray[14].GyroY_H, gDataArray[14].GyroY_L);
 	I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 4, gDataArray[14].GyroZ_H, gDataArray[14].GyroZ_L);
-	I2CTWI_transmit2Bytes(ARDUINO_WRITE_ADDRESS, 5, crashInfoToSend.sideHit); 	// 1: fromt
+	I2CTWI_transmit2Bytes(ARDUINO_WRITE_ADDRESS, 5, crashInfoToSend.sideHit); 	// 1: front
 																				// 2: right
 																				// 3: left
 																				// 4: back	
@@ -87,20 +87,21 @@ void sendCrashInfo(void)
 
 void buttenChanged(void)
 {
-	stop();
+	writeString("Bumper changed\n");
 
 	if(!pressed)
 	{
-	 	if(getBumperLeft() || getBumperRight())
+		writeString("Bumper was pressed\n");
+	 	if(bumper_left || bumper_right)
 	 		hitSide = 1;
-	 	/*else if(getBumperRightSide(12))
-	 		hitSide = 2;
-	 	else if(getBumperLeftSide(12))
+	 	else if(PINC & IO_PC2)
+	 		hitSide = 4;
+	 	else if(PINC & IO_PC3)
 	 		hitSide = 3;
-	 	else if(getBumperBack(12))
-	 		hitSide = 4;*/
+	 	else if(PINC & IO_PC5)
+	 		hitSide = 2;
 
-		setLEDs(0b1111);
+		setRP6LEDs(0b1111);
 		pressed = true;
 
 		writeSpeed();
@@ -108,6 +109,7 @@ void buttenChanged(void)
 	}
 	else if(pressed)
 	{
+		writeString("Bumper was released\n");
 		pressed = false;
 		crashInfoWasSend = false;
 	}

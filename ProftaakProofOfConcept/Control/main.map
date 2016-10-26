@@ -1,0 +1,1286 @@
+Archive member included because of file (symbol)
+
+/usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixsfsi.o)
+                              Crash.o (__fixsfsi)
+/usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixunssfsi.o)
+                              Crash.o (__fixunssfsi)
+/usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(floatsisf.o)
+                              Crash.o (__floatunsisf)
+/usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_split3.o)
+                              /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixunssfsi.o) (__fp_splitA)
+/usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_zero.o)
+                              /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixunssfsi.o) (__fp_zero)
+/usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3.o)
+                              Crash.o (__mulsf3)
+/usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3x.o)
+                              /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3.o) (__mulsf3x)
+/usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_inf.o)
+                              /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3x.o) (__fp_inf)
+/usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_nan.o)
+                              /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3x.o) (__fp_nan)
+/usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_pscA.o)
+                              /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3x.o) (__fp_pscA)
+/usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_pscB.o)
+                              /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3x.o) (__fp_pscB)
+/usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_round.o)
+                              /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3.o) (__fp_round)
+/usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_udivmodhi4.o)
+                              Drive.o (__udivmodhi4)
+/usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_exit.o)
+                              /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o (exit)
+/usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_copy_data.o)
+                              main.o (__do_copy_data)
+/usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_clear_bss.o)
+                              main.o (__do_clear_bss)
+/usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libc.a(itoa.o)
+                              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o (itoa)
+/usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libc.a(strrev.o)
+                              /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libc.a(itoa.o) (strrev)
+
+Allocating common symbols
+Common symbol       size              file
+
+bumper_left         0x1               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+sensorBuf           0x18              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+mright_des_speed    0x1               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+interrupt_status    0x1               main.o
+timer               0x2               main.o
+mleft_des_speed     0x1               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+hitSide             0x1               Crash.o
+uart_status         0x1               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+transmit_buffer     0xa               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+controlStatus       0x1               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+drive_status        0x1               main.o
+gDataArray          0x5a              MPU9250.o
+crashInfoToSend     0x7               Crash.o
+mleft_power         0x1               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+mleft_speed         0x1               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+lcd_tmp_buffer      0x11              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+sData               0x2               Drive.o
+adc1                0x2               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+adcLSL              0x2               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+mright_power        0x1               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+stopwatches         0x11              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+obstacle_left       0x1               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+statusLEDs          0x1               main.o
+externalPort        0x1               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+sDataArray          0x1e              main.o
+adcLSR              0x2               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+obstacle_right      0x1               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+mright_dist         0x2               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+adc0                0x2               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+delay_timer         0x1               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+adcMotorCurrentRight
+                    0x2               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+ms_timer            0x1               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+mleft_dist          0x2               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+mright_speed        0x1               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+bumper_right        0x1               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+adcBat              0x2               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+uart_receive_buffer
+                    0x21              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+sound_timer         0x2               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+status              0x1               main.o
+adcMotorCurrentLeft
+                    0x2               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+messageBuf          0x10              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+text             0x00000000         0x00020000         xr
+data             0x00800060         0x0000ffa0         rw !x
+eeprom           0x00810000         0x00010000         rw !x
+fuse             0x00820000         0x00000400         rw !x
+lock             0x00830000         0x00000400         rw !x
+signature        0x00840000         0x00000400         rw !x
+user_signatures  0x00850000         0x00000400         rw !x
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+LOAD main.o
+LOAD Drive.o
+LOAD MPU9250.o
+LOAD Crash.o
+LOAD ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+LOAD ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+LOAD ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+LOAD ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+LOAD /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a
+START GROUP
+LOAD /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a
+LOAD /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a
+LOAD /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libc.a
+END GROUP
+
+.hash
+ *(.hash)
+
+.dynsym
+ *(.dynsym)
+
+.dynstr
+ *(.dynstr)
+
+.gnu.version
+ *(.gnu.version)
+
+.gnu.version_d
+ *(.gnu.version_d)
+
+.gnu.version_r
+ *(.gnu.version_r)
+
+.rel.init
+ *(.rel.init)
+
+.rela.init
+ *(.rela.init)
+
+.rel.text
+ *(.rel.text)
+ *(.rel.text.*)
+ *(.rel.gnu.linkonce.t*)
+
+.rela.text
+ *(.rela.text)
+ *(.rela.text.*)
+ *(.rela.gnu.linkonce.t*)
+
+.rel.fini
+ *(.rel.fini)
+
+.rela.fini
+ *(.rela.fini)
+
+.rel.rodata
+ *(.rel.rodata)
+ *(.rel.rodata.*)
+ *(.rel.gnu.linkonce.r*)
+
+.rela.rodata
+ *(.rela.rodata)
+ *(.rela.rodata.*)
+ *(.rela.gnu.linkonce.r*)
+
+.rel.data
+ *(.rel.data)
+ *(.rel.data.*)
+ *(.rel.gnu.linkonce.d*)
+
+.rela.data
+ *(.rela.data)
+ *(.rela.data.*)
+ *(.rela.gnu.linkonce.d*)
+
+.rel.ctors
+ *(.rel.ctors)
+
+.rela.ctors
+ *(.rela.ctors)
+
+.rel.dtors
+ *(.rel.dtors)
+
+.rela.dtors
+ *(.rela.dtors)
+
+.rel.got
+ *(.rel.got)
+
+.rela.got
+ *(.rela.got)
+
+.rel.bss
+ *(.rel.bss)
+
+.rela.bss
+ *(.rela.bss)
+
+.rel.plt
+ *(.rel.plt)
+
+.rela.plt
+ *(.rela.plt)
+
+.text           0x00000000     0x213c
+ *(.vectors)
+ .vectors       0x00000000       0x54 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+                0x00000000                __vectors
+                0x00000000                __vector_default
+ *(.vectors)
+ *(.progmem.gcc*)
+ *(.progmem*)
+ .progmem.data  0x00000054       0x80 main.o
+                0x000000d4                . = ALIGN (0x2)
+                0x000000d4                __trampolines_start = .
+ *(.trampolines)
+ .trampolines   0x000000d4        0x0 linker stubs
+ *(.trampolines*)
+                0x000000d4                __trampolines_end = .
+ *(.jumptables)
+ *(.jumptables*)
+ *(.lowtext)
+ *(.lowtext*)
+                0x000000d4                __ctors_start = .
+ *(.ctors)
+                0x000000d4                __ctors_end = .
+                0x000000d4                __dtors_start = .
+ *(.dtors)
+                0x000000d4                __dtors_end = .
+ SORT(*)(.ctors)
+ SORT(*)(.dtors)
+ *(.init0)
+ .init0         0x000000d4        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+                0x000000d4                __init
+ *(.init0)
+ *(.init1)
+ *(.init1)
+ *(.init2)
+ .init2         0x000000d4        0xc /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+ *(.init2)
+ *(.init3)
+ *(.init3)
+ *(.init4)
+ .init4         0x000000e0       0x16 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_copy_data.o)
+                0x000000e0                __do_copy_data
+ .init4         0x000000f6       0x10 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_clear_bss.o)
+                0x000000f6                __do_clear_bss
+ *(.init4)
+ *(.init5)
+ *(.init5)
+ *(.init6)
+ *(.init6)
+ *(.init7)
+ *(.init7)
+ *(.init8)
+ *(.init8)
+ *(.init9)
+ .init9         0x00000106        0x8 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+ *(.init9)
+ *(.text)
+ .text          0x0000010e        0x4 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+                0x0000010e                __vector_12
+                0x0000010e                __bad_interrupt
+                0x0000010e                __vector_6
+                0x0000010e                __vector_11
+                0x0000010e                __vector_17
+                0x0000010e                __vector_7
+                0x0000010e                __vector_5
+                0x0000010e                __vector_4
+                0x0000010e                __vector_9
+                0x0000010e                __vector_15
+                0x0000010e                __vector_8
+                0x0000010e                __vector_14
+                0x0000010e                __vector_16
+                0x0000010e                __vector_18
+                0x0000010e                __vector_20
+ .text          0x00000112       0x94 main.o
+                0x00000112                I2C_transmissionError
+                0x00000130                watchDogRequest
+                0x00000160                writeButtonPressOnLCD
+ .text          0x000001a6      0x128 Drive.o
+                0x000001a6                saveSpeedData
+                0x000001d4                calculateAverageLeftSpeed
+                0x000001fc                calculateAverageRightSpeed
+                0x00000224                writeSpeed
+ .text          0x000002ce      0x258 MPU9250.o
+                0x000002ce                initMPU9250
+                0x000002d8                getGyroData
+                0x0000034a                saveGyroData
+                0x00000404                writeGyro
+ .text          0x00000526      0x278 Crash.o
+                0x00000526                assignCrashInfo
+                0x000006c4                sendCrashInfo
+                0x00000732                buttenChanged
+ .text          0x0000079e      0x81e ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                0x0000079e                INT0_event_DUMMY
+                0x000007a0                INT1_event_DUMMY
+                0x000007a2                INT2_event_DUMMY
+                0x000007a4                INT0_setEventHandler
+                0x000007ae                __vector_1
+                0x000007fc                INT1_setEventHandler
+                0x00000806                __vector_2
+                0x00000854                INT2_setEventHandler
+                0x0000085e                __vector_3
+                0x000008ac                readADC
+                0x000008ca                writeSPI
+                0x000008d2                readSPI
+                0x000008dc                readWordSPI
+                0x000008fc                writeWordSPI
+                0x0000090e                writeBufferSPI
+                0x00000926                readBufferSPI
+                0x00000942                SPI_EEPROM_readByte
+                0x00000962                SPI_EEPROM_readBytes
+                0x000009a4                SPI_EEPROM_enableWrite
+                0x000009b0                SPI_EEPROM_disableWrite
+                0x000009bc                SPI_EEPROM_getStatus
+                0x000009cc                SPI_EEPROM_writeByte
+                0x00000a00                SPI_EEPROM_writeBytes
+                0x00000a40                outputExt
+                0x00000a52                setLEDs
+                0x00000a64                getPressedKeyNumber
+                0x00000acc                checkPressedKeyEvent
+                0x00000af0                checkReleasedKeyEvent
+                0x00000b18                __vector_10
+                0x00000c6a                beep
+                0x00000c86                setBeeperPitch
+                0x00000ca4                sleep
+                0x00000cba                mSleep
+                0x00000cd4                dischargePeakDetector
+                0x00000ce4                getMicrophonePeak
+                0x00000d10                delayCycles
+                0x00000d1a                setLCDD
+                0x00000d3c                write4BitLCDData
+                0x00000d58                writeLCDCommand
+                0x00000d66                setCursorPosLCD
+                0x00000d74                initLCD
+                0x00000df2                clearLCD
+                0x00000e00                writeCharLCD
+                0x00000e0e                writeNStringLCD_P
+                0x00000e2c                _showScreenLCD_P
+                0x00000e64                writeStringLCD
+                0x00000e7c                writeIntegerLCD
+                0x00000e90                writeStringLengthLCD
+                0x00000eca                writeIntegerLengthLCD
+                0x00000f48                clearPosLCD
+                0x00000f62                initRP6Control
+ .text          0x00000fbc      0x250 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+                0x00000fbc                writeChar
+                0x00000fc4                writeString
+                0x00000fdc                writeNStringP
+                0x00000ffa                writeStringLength
+                0x00001034                writeInteger
+                0x00001070                writeIntegerLength
+                0x000010ee                __vector_13
+                0x0000115c                readChar
+                0x00001198                readChars
+                0x000011e0                getBufferLength
+                0x000011ec                clearReceptionBuffer
+ .text          0x0000120c      0x5c0 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                0x0000120c                I2CTWI_requestedDataReady_DUMMY
+                0x0000120e                I2CTWI_transmissionError_DUMMY
+                0x00001210                __I2CTWI_initMaster
+                0x0000122c                I2CTWI_setRequestedDataReadyHandler
+                0x00001236                I2CTWI_setTransmissionErrorHandler
+                0x00001240                I2CTWI_delay
+                0x00001262                I2CTWI_getReceivedData
+                0x00001288                I2CTWI_getState
+                0x00001294                task_I2CTWI
+                0x00001358                I2CTWI_requestDataFromDevice
+                0x000013a8                I2CTWI_requestRegisterFromDevice
+                0x00001402                I2CTWI_readRegisters
+                0x00001494                I2CTWI_readBytes
+                0x0000150c                I2CTWI_readByte
+                0x00001566                I2CTWI_transmitByte
+                0x000015a2                I2CTWI_transmit2Bytes
+                0x000015e8                I2CTWI_transmit3Bytes
+                0x00001638                I2CTWI_transmit4Bytes
+                0x00001690                I2CTWI_transmitBytes
+                0x000016ee                __vector_19
+ .text          0x000017cc      0x46e ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                0x000017cc                BUMPERS_stateChanged_DUMMY
+                0x000017ce                MOTIONCONTROL_stateChanged_DUMMY
+                0x000017d0                IRCOMM_RC5dataReady_DUMMY
+                0x000017d2                ACS_stateChanged_DUMMY
+                0x000017d4                BATTERY_lowVoltage_DUMMY
+                0x000017d6                WDT_request_DUMMY
+                0x000017d8                I2C_request_DUMMY
+                0x000017da                initI2C_RP6Lib
+                0x000017e8                BUMPERS_setStateChangedHandler
+                0x000017f2                MOTIONCONTROL_setStateChangedHandler
+                0x000017fc                IRCOMM_setRC5DataReadyHandler
+                0x00001806                ACS_setStateChangedHandler
+                0x00001810                BATTERY_setLowVoltageHandler
+                0x0000181a                WDT_setRequestHandler
+                0x00001824                I2C_setTransmissionErrorHandler
+                0x0000182e                getAllSensors
+                0x00001958                getLightSensors
+                0x0000199c                task_checkINT0
+                0x000019bc                checkRP6Status
+                0x00001ae6                I2C_requestedDataReady
+                0x00001aea                waitForTransmitComplete
+                0x00001b20                moveAtSpeed
+                0x00001b48                changeDirection
+                0x00001b6a                stop
+                0x00001b78                rotate
+                0x00001bce                move
+                0x00001c24                updateStatusLEDs
+                0x00001c32                setRP6LEDs
+ .text          0x00001c3a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixsfsi.o)
+ .text          0x00001c3a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixunssfsi.o)
+ .text          0x00001c3a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(floatsisf.o)
+ .text          0x00001c3a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_split3.o)
+ .text          0x00001c3a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_zero.o)
+ .text          0x00001c3a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3.o)
+ .text          0x00001c3a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3x.o)
+ .text          0x00001c3a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_inf.o)
+ .text          0x00001c3a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_nan.o)
+ .text          0x00001c3a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_pscA.o)
+ .text          0x00001c3a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_pscB.o)
+ .text          0x00001c3a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_round.o)
+ .text          0x00001c3a        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_udivmodhi4.o)
+ .text          0x00001c3a        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_exit.o)
+ .text          0x00001c3a        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_copy_data.o)
+ .text          0x00001c3a        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_clear_bss.o)
+ .text          0x00001c3a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libc.a(itoa.o)
+ .text          0x00001c3a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libc.a(strrev.o)
+                0x00001c3a                . = ALIGN (0x2)
+ *(.text.*)
+ .text.startup  0x00001c3a      0x230 main.o
+                0x00001c3a                main
+ .text.avr-libc.fplib
+                0x00001e6a        0xa /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixsfsi.o)
+                0x00001e6a                __fixsfsi
+ .text.avr-libc.fplib
+                0x00001e74       0x58 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixunssfsi.o)
+                0x00001e74                __fixunssfsi
+ .text.avr-libc.fplib
+                0x00001ecc       0x7a /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(floatsisf.o)
+                0x00001ecc                __floatunsisf
+                0x00001ed0                __floatsisf
+ .text.avr-libc.fplib
+                0x00001f46       0x44 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_split3.o)
+                0x00001f46                __fp_split3
+                0x00001f56                __fp_splitA
+ .text.avr-libc.fplib
+                0x00001f8a        0xe /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_zero.o)
+                0x00001f8a                __fp_zero
+                0x00001f8c                __fp_szero
+ .text.avr-libc.fplib
+                0x00001f98        0x4 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3.o)
+                0x00001f98                __mulsf3
+ .text.avr-libc.fplib
+                0x00001f9c       0xc2 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3x.o)
+                0x00001fb0                __mulsf3x
+                0x00001fb4                __mulsf3_pse
+ .text.avr-libc.fplib
+                0x0000205e        0xc /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_inf.o)
+                0x0000205e                __fp_inf
+ .text.avr-libc.fplib
+                0x0000206a        0x6 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_nan.o)
+                0x0000206a                __fp_nan
+ .text.avr-libc.fplib
+                0x00002070        0xe /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_pscA.o)
+                0x00002070                __fp_pscA
+ .text.avr-libc.fplib
+                0x0000207e        0xe /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_pscB.o)
+                0x0000207e                __fp_pscB
+ .text.avr-libc.fplib
+                0x0000208c       0x22 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_round.o)
+                0x0000208c                __fp_round
+ .text.libgcc.mul
+                0x000020ae        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_udivmodhi4.o)
+ .text.libgcc.div
+                0x000020ae       0x28 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_udivmodhi4.o)
+                0x000020ae                __udivmodhi4
+ .text.libgcc   0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_udivmodhi4.o)
+ .text.libgcc.prologue
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_udivmodhi4.o)
+ .text.libgcc.builtins
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_udivmodhi4.o)
+ .text.libgcc.fmul
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_udivmodhi4.o)
+ .text.libgcc.fixed
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_udivmodhi4.o)
+ .text.libgcc.mul
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_exit.o)
+ .text.libgcc.div
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_exit.o)
+ .text.libgcc   0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_exit.o)
+ .text.libgcc.prologue
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_exit.o)
+ .text.libgcc.builtins
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_exit.o)
+ .text.libgcc.fmul
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_exit.o)
+ .text.libgcc.fixed
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_exit.o)
+ .text.libgcc.mul
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_copy_data.o)
+ .text.libgcc.div
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_copy_data.o)
+ .text.libgcc   0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_copy_data.o)
+ .text.libgcc.prologue
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_copy_data.o)
+ .text.libgcc.builtins
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_copy_data.o)
+ .text.libgcc.fmul
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_copy_data.o)
+ .text.libgcc.fixed
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_copy_data.o)
+ .text.libgcc.mul
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_clear_bss.o)
+ .text.libgcc.div
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_clear_bss.o)
+ .text.libgcc   0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_clear_bss.o)
+ .text.libgcc.prologue
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_clear_bss.o)
+ .text.libgcc.builtins
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_clear_bss.o)
+ .text.libgcc.fmul
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_clear_bss.o)
+ .text.libgcc.fixed
+                0x000020d6        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_clear_bss.o)
+ .text.avr-libc
+                0x000020d6       0x42 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libc.a(itoa.o)
+                0x000020d6                itoa
+ .text.avr-libc
+                0x00002118       0x20 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libc.a(strrev.o)
+                0x00002118                strrev
+                0x00002138                . = ALIGN (0x2)
+ *(.fini9)
+ .fini9         0x00002138        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_exit.o)
+                0x00002138                exit
+                0x00002138                _exit
+ *(.fini9)
+ *(.fini8)
+ *(.fini8)
+ *(.fini7)
+ *(.fini7)
+ *(.fini6)
+ *(.fini6)
+ *(.fini5)
+ *(.fini5)
+ *(.fini4)
+ *(.fini4)
+ *(.fini3)
+ *(.fini3)
+ *(.fini2)
+ *(.fini2)
+ *(.fini1)
+ *(.fini1)
+ *(.fini0)
+ .fini0         0x00002138        0x4 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_exit.o)
+ *(.fini0)
+                0x0000213c                _etext = .
+
+.data           0x00800060      0x15c load address 0x0000213c
+                0x00800060                PROVIDE (__data_start, .)
+ *(.data)
+ .data          0x00800060        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+ .data          0x00800060        0x0 main.o
+ .data          0x00800060        0x1 Drive.o
+                0x00800060                speedArraySize
+ .data          0x00800061        0x1 MPU9250.o
+                0x00800061                gyroArraySize
+ .data          0x00800062        0x0 Crash.o
+ .data          0x00800062        0x6 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+ .data          0x00800068        0x0 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+ .data          0x00800068        0x4 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+ .data          0x0080006c        0xe ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+ .data          0x0080007a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixsfsi.o)
+ .data          0x0080007a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixunssfsi.o)
+ .data          0x0080007a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(floatsisf.o)
+ .data          0x0080007a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_split3.o)
+ .data          0x0080007a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_zero.o)
+ .data          0x0080007a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3.o)
+ .data          0x0080007a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3x.o)
+ .data          0x0080007a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_inf.o)
+ .data          0x0080007a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_nan.o)
+ .data          0x0080007a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_pscA.o)
+ .data          0x0080007a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_pscB.o)
+ .data          0x0080007a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_round.o)
+ .data          0x0080007a        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_udivmodhi4.o)
+ .data          0x0080007a        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_exit.o)
+ .data          0x0080007a        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_copy_data.o)
+ .data          0x0080007a        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_clear_bss.o)
+ .data          0x0080007a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libc.a(itoa.o)
+ .data          0x0080007a        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libc.a(strrev.o)
+ *(.data*)
+ *(.rodata)
+ *(.rodata*)
+ .rodata.str1.1
+                0x0080007a       0x57 main.o
+                                 0x59 (size before relaxing)
+ .rodata.str1.1
+                0x008000d1       0x2a Drive.o
+                                 0x31 (size before relaxing)
+ .rodata.str1.1
+                0x008000fb       0x17 MPU9250.o
+                                 0x2f (size before relaxing)
+ .rodata.str1.1
+                0x00800112       0xaa Crash.o
+ *(.gnu.linkonce.d*)
+                0x008001bc                . = ALIGN (0x2)
+                0x008001bc                _edata = .
+                0x008001bc                PROVIDE (__data_end, .)
+
+.bss            0x008001bc      0x179
+                0x008001bc                PROVIDE (__bss_start, .)
+ *(.bss)
+ .bss           0x008001bc        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+ .bss           0x008001bc        0x1 main.o
+ .bss           0x008001bd        0x1 Drive.o
+                0x008001bd                speedArrayIndexToWriteTo
+ .bss           0x008001be        0x2 MPU9250.o
+                0x008001be                doneReadingGyro
+                0x008001bf                gyroArrayIndexToWriteTo
+ .bss           0x008001c0        0x2 Crash.o
+                0x008001c0                crashInfoWasSend
+                0x008001c1                pressed
+ .bss           0x008001c2        0x2 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+ .bss           0x008001c4        0x6 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+                0x008001c4                write_size
+                0x008001c5                read_size
+                0x008001c6                write_pos
+                0x008001c7                read_pos
+ .bss           0x008001ca       0x4a ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                0x008001ca                TWI_operation
+                0x008001cb                I2CTWI_requestID
+                0x008001cd                I2CTWI_request_size
+                0x008001ce                I2CTWI_request_reg
+                0x008001cf                I2CTWI_request_adr
+                0x008001d0                TWI_TWSR_state
+                0x008001d1                TWI_statusReg
+ .bss           0x00800214        0x1 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                0x00800214                block
+ .bss           0x00800215        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixsfsi.o)
+ .bss           0x00800215        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixunssfsi.o)
+ .bss           0x00800215        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(floatsisf.o)
+ .bss           0x00800215        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_split3.o)
+ .bss           0x00800215        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_zero.o)
+ .bss           0x00800215        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3.o)
+ .bss           0x00800215        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3x.o)
+ .bss           0x00800215        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_inf.o)
+ .bss           0x00800215        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_nan.o)
+ .bss           0x00800215        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_pscA.o)
+ .bss           0x00800215        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_pscB.o)
+ .bss           0x00800215        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_round.o)
+ .bss           0x00800215        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_udivmodhi4.o)
+ .bss           0x00800215        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_exit.o)
+ .bss           0x00800215        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_copy_data.o)
+ .bss           0x00800215        0x0 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_clear_bss.o)
+ .bss           0x00800215        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libc.a(itoa.o)
+ .bss           0x00800215        0x0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libc.a(strrev.o)
+ *(.bss*)
+ *(COMMON)
+ COMMON         0x00800215       0x24 main.o
+                0x00800215                interrupt_status
+                0x00800216                timer
+                0x00800218                drive_status
+                0x00800219                statusLEDs
+                0x0080021a                sDataArray
+                0x00800238                status
+ COMMON         0x00800239        0x2 Drive.o
+                0x00800239                sData
+ COMMON         0x0080023b       0x5a MPU9250.o
+                0x0080023b                gDataArray
+ COMMON         0x00800295        0x8 Crash.o
+                0x00800295                hitSide
+                0x00800296                crashInfoToSend
+ COMMON         0x0080029d       0x28 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                0x0080029d                controlStatus
+                0x0080029e                lcd_tmp_buffer
+                0x008002af                stopwatches
+                0x008002c0                externalPort
+                0x008002c1                delay_timer
+                0x008002c2                ms_timer
+                0x008002c3                sound_timer
+ COMMON         0x008002c5       0x22 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+                0x008002c5                uart_status
+                0x008002c6                uart_receive_buffer
+ COMMON         0x008002e7       0x4e ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                0x008002e7                bumper_left
+                0x008002e8                sensorBuf
+                0x00800300                mright_des_speed
+                0x00800301                mleft_des_speed
+                0x00800302                transmit_buffer
+                0x0080030c                mleft_power
+                0x0080030d                mleft_speed
+                0x0080030e                adc1
+                0x00800310                adcLSL
+                0x00800312                mright_power
+                0x00800313                obstacle_left
+                0x00800314                adcLSR
+                0x00800316                obstacle_right
+                0x00800317                mright_dist
+                0x00800319                adc0
+                0x0080031b                adcMotorCurrentRight
+                0x0080031d                mleft_dist
+                0x0080031f                mright_speed
+                0x00800320                bumper_right
+                0x00800321                adcBat
+                0x00800323                adcMotorCurrentLeft
+                0x00800325                messageBuf
+                0x00800335                PROVIDE (__bss_end, .)
+                0x0000213c                __data_load_start = LOADADDR (.data)
+                0x00002298                __data_load_end = (__data_load_start + SIZEOF (.data))
+
+.noinit         0x00800335        0x0
+                0x00800335                PROVIDE (__noinit_start, .)
+ *(.noinit*)
+                0x00800335                PROVIDE (__noinit_end, .)
+                0x00800335                _end = .
+                0x00800335                PROVIDE (__heap_start, .)
+
+.eeprom         0x00810000        0x0
+ *(.eeprom*)
+                0x00810000                __eeprom_end = .
+
+.fuse
+ *(.fuse)
+ *(.lfuse)
+ *(.hfuse)
+ *(.efuse)
+
+.lock
+ *(.lock*)
+
+.signature
+ *(.signature*)
+
+.user_signatures
+ *(.user_signatures*)
+
+.stab           0x00000000     0x1968
+ *(.stab)
+ .stab          0x00000000      0x6cc /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+ .stab          0x000006cc       0x6c /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixsfsi.o)
+                                 0x78 (size before relaxing)
+ .stab          0x00000738      0x240 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixunssfsi.o)
+                                0x24c (size before relaxing)
+ .stab          0x00000978      0x318 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(floatsisf.o)
+                                0x324 (size before relaxing)
+ .stab          0x00000c90      0x1d4 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_split3.o)
+                                0x1e0 (size before relaxing)
+ .stab          0x00000e64       0x90 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_zero.o)
+                                 0x9c (size before relaxing)
+ .stab          0x00000ef4       0x48 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3.o)
+                                 0x54 (size before relaxing)
+ .stab          0x00000f3c      0x4d4 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3x.o)
+                                0x4e0 (size before relaxing)
+ .stab          0x00001410       0x78 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_inf.o)
+                                 0x84 (size before relaxing)
+ .stab          0x00001488       0x54 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_nan.o)
+                                 0x60 (size before relaxing)
+ .stab          0x000014dc       0x84 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_pscA.o)
+                                 0x90 (size before relaxing)
+ .stab          0x00001560       0x84 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_pscB.o)
+                                 0x90 (size before relaxing)
+ .stab          0x000015e4       0xfc /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_round.o)
+                                0x108 (size before relaxing)
+ .stab          0x000016e0      0x1b0 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libc.a(itoa.o)
+                                0x1bc (size before relaxing)
+ .stab          0x00001890       0xd8 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libc.a(strrev.o)
+                                 0xe4 (size before relaxing)
+
+.stabstr        0x00000000      0x2e1
+ *(.stabstr)
+ .stabstr       0x00000000      0x2e1 /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment        0x00000000       0x11
+ *(.comment)
+ .comment       0x00000000       0x11 main.o
+                                 0x12 (size before relaxing)
+ .comment       0x00000000       0x12 Drive.o
+ .comment       0x00000000       0x12 MPU9250.o
+ .comment       0x00000000       0x12 Crash.o
+ .comment       0x00000000       0x12 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+ .comment       0x00000000       0x12 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+ .comment       0x00000000       0x12 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+ .comment       0x00000000       0x12 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges  0x00000000      0x108
+ *(.debug_aranges)
+ .debug_aranges
+                0x00000000       0x28 main.o
+ .debug_aranges
+                0x00000028       0x20 Drive.o
+ .debug_aranges
+                0x00000048       0x20 MPU9250.o
+ .debug_aranges
+                0x00000068       0x20 Crash.o
+ .debug_aranges
+                0x00000088       0x20 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+ .debug_aranges
+                0x000000a8       0x20 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+ .debug_aranges
+                0x000000c8       0x20 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+ .debug_aranges
+                0x000000e8       0x20 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+
+.debug_pubnames
+ *(.debug_pubnames)
+
+.debug_info     0x00000000     0x5066
+ *(.debug_info)
+ .debug_info    0x00000000      0xd26 main.o
+ .debug_info    0x00000d26      0x3e5 Drive.o
+ .debug_info    0x0000110b      0x695 MPU9250.o
+ .debug_info    0x000017a0      0x9d1 Crash.o
+ .debug_info    0x00002171     0x131d ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+ .debug_info    0x0000348e      0x4aa ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+ .debug_info    0x00003938      0x812 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+ .debug_info    0x0000414a      0xf1c ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+ *(.gnu.linkonce.wi.*)
+
+.debug_abbrev   0x00000000     0x1250
+ *(.debug_abbrev)
+ .debug_abbrev  0x00000000      0x23c main.o
+ .debug_abbrev  0x0000023c      0x194 Drive.o
+ .debug_abbrev  0x000003d0      0x18f MPU9250.o
+ .debug_abbrev  0x0000055f      0x1c4 Crash.o
+ .debug_abbrev  0x00000723      0x3fe ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+ .debug_abbrev  0x00000b21      0x1ea ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+ .debug_abbrev  0x00000d0b      0x29b ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+ .debug_abbrev  0x00000fa6      0x2aa ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+
+.debug_line     0x00000000     0x112e
+ *(.debug_line)
+ .debug_line    0x00000000      0x2e0 main.o
+ .debug_line    0x000002e0      0x122 Drive.o
+ .debug_line    0x00000402      0x18f MPU9250.o
+ .debug_line    0x00000591      0x1ef Crash.o
+ .debug_line    0x00000780      0x2fe ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+ .debug_line    0x00000a7e      0x125 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+ .debug_line    0x00000ba3      0x263 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+ .debug_line    0x00000e06      0x328 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+
+.debug_frame    0x00000000      0xda8
+ *(.debug_frame)
+ .debug_frame   0x00000000       0x84 main.o
+ .debug_frame   0x00000084       0x74 Drive.o
+ .debug_frame   0x000000f8       0x98 MPU9250.o
+ .debug_frame   0x00000190       0x80 Crash.o
+ .debug_frame   0x00000210      0x5a0 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+ .debug_frame   0x000007b0      0x168 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+ .debug_frame   0x00000918      0x274 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+ .debug_frame   0x00000b8c      0x21c ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+
+.debug_str      0x00000000     0x1454
+ *(.debug_str)
+ .debug_str     0x00000000      0x5e9 main.o
+                                0x646 (size before relaxing)
+ .debug_str     0x000005e9       0x98 Drive.o
+                                0x246 (size before relaxing)
+ .debug_str     0x00000681       0x9b MPU9250.o
+                                0x2e0 (size before relaxing)
+ .debug_str     0x0000071c       0x94 Crash.o
+                                0x4a1 (size before relaxing)
+ .debug_str     0x000007b0      0x43f ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                                0x6a5 (size before relaxing)
+ .debug_str     0x00000bef      0x106 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+                                0x2d8 (size before relaxing)
+ .debug_str     0x00000cf5      0x2e0 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                                0x4ee (size before relaxing)
+ .debug_str     0x00000fd5      0x47f ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                0x947 (size before relaxing)
+
+.debug_loc      0x00000000     0x28bd
+ *(.debug_loc)
+ .debug_loc     0x00000000      0x2d5 main.o
+ .debug_loc     0x000002d5      0x173 Drive.o
+ .debug_loc     0x00000448      0x157 MPU9250.o
+ .debug_loc     0x0000059f      0x10f Crash.o
+ .debug_loc     0x000006ae      0xfb3 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+ .debug_loc     0x00001661      0x4e1 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+ .debug_loc     0x00001b42      0xa13 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+ .debug_loc     0x00002555      0x368 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_pubtypes
+ *(.debug_pubtypes)
+
+.debug_ranges   0x00000000       0x48
+ *(.debug_ranges)
+ .debug_ranges  0x00000000       0x18 main.o
+ .debug_ranges  0x00000018       0x30 Drive.o
+
+.debug_macro
+ *(.debug_macro)
+OUTPUT(main.elf elf32-avr)
+LOAD linker stubs
+
+Cross Reference Table
+
+Symbol                                            File
+ACS_setStateChangedHandler                        ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+ACS_stateChanged_DUMMY                            ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+BATTERY_lowVoltage_DUMMY                          ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+BATTERY_setLowVoltageHandler                      ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+BUMPERS_setStateChangedHandler                    ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  main.o
+BUMPERS_stateChanged_DUMMY                        ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+I2CTWI_delay                                      ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+I2CTWI_getReceivedData                            ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+I2CTWI_getState                                   ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+I2CTWI_readByte                                   ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                                                  MPU9250.o
+I2CTWI_readBytes                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+I2CTWI_readRegisters                              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+I2CTWI_requestDataFromDevice                      ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+I2CTWI_requestID                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+I2CTWI_requestRegisterFromDevice                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+I2CTWI_request_adr                                ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+I2CTWI_request_reg                                ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+I2CTWI_request_size                               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+I2CTWI_requestedDataReady_DUMMY                   ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+I2CTWI_setRequestedDataReadyHandler               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+I2CTWI_setTransmissionErrorHandler                ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                                                  main.o
+I2CTWI_transmissionError_DUMMY                    ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+I2CTWI_transmit2Bytes                             ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  Crash.o
+                                                  MPU9250.o
+I2CTWI_transmit3Bytes                             ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  Crash.o
+                                                  main.o
+I2CTWI_transmit4Bytes                             ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+I2CTWI_transmitByte                               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  MPU9250.o
+I2CTWI_transmitBytes                              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+I2C_request_DUMMY                                 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+I2C_requestedDataReady                            ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+I2C_setTransmissionErrorHandler                   ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+I2C_transmissionError                             main.o
+INT0_event_DUMMY                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+INT0_setEventHandler                              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+INT1_event_DUMMY                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+INT1_setEventHandler                              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+INT2_event_DUMMY                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+INT2_setEventHandler                              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+IRCOMM_RC5dataReady_DUMMY                         ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+IRCOMM_setRC5DataReadyHandler                     ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+MOTIONCONTROL_setStateChangedHandler              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+MOTIONCONTROL_stateChanged_DUMMY                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+SPI_EEPROM_disableWrite                           ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+SPI_EEPROM_enableWrite                            ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+SPI_EEPROM_getStatus                              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+SPI_EEPROM_readByte                               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+SPI_EEPROM_readBytes                              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+SPI_EEPROM_writeByte                              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+SPI_EEPROM_writeBytes                             ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+TWI_TWSR_state                                    ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+TWI_operation                                     ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+TWI_statusReg                                     ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+WDT_request_DUMMY                                 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+WDT_setRequestHandler                             ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  main.o
+__I2CTWI_initMaster                               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+__bad_interrupt                                   /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__bss_end                                         /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_clear_bss.o)
+__bss_start                                       /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_clear_bss.o)
+__data_end                                        /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_copy_data.o)
+__data_load_start                                 /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_copy_data.o)
+__data_start                                      /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_copy_data.o)
+__do_clear_bss                                    /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_clear_bss.o)
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                                                  Crash.o
+                                                  MPU9250.o
+                                                  Drive.o
+                                                  main.o
+__do_copy_data                                    /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_copy_data.o)
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                                                  Crash.o
+                                                  MPU9250.o
+                                                  Drive.o
+                                                  main.o
+__fixsfsi                                         /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixsfsi.o)
+                                                  Crash.o
+__fixunssfsi                                      /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixunssfsi.o)
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixsfsi.o)
+                                                  Crash.o
+__floatsisf                                       /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(floatsisf.o)
+__floatunsisf                                     /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(floatsisf.o)
+                                                  Crash.o
+__fp_inf                                          /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_inf.o)
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3x.o)
+__fp_nan                                          /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_nan.o)
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3x.o)
+__fp_pscA                                         /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_pscA.o)
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3x.o)
+__fp_pscB                                         /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_pscB.o)
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3x.o)
+__fp_round                                        /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_round.o)
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3.o)
+__fp_split3                                       /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_split3.o)
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3x.o)
+__fp_splitA                                       /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_split3.o)
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixunssfsi.o)
+__fp_szero                                        /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_zero.o)
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3x.o)
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixsfsi.o)
+__fp_zero                                         /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fp_zero.o)
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(fixunssfsi.o)
+__heap_end                                        /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__init                                            /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__mulsf3                                          /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3.o)
+                                                  Crash.o
+__mulsf3_pse                                      /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3x.o)
+__mulsf3x                                         /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3x.o)
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libm.a(mulsf3.o)
+__stack                                           /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__udivmodhi4                                      /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_udivmodhi4.o)
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libc.a(itoa.o)
+                                                  Drive.o
+__vector_1                                        ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_10                                       ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_11                                       /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_12                                       /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_13                                       ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_14                                       /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_15                                       /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_16                                       /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_17                                       /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_18                                       /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_19                                       ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_2                                        ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_20                                       /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_3                                        ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_4                                        /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_5                                        /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_6                                        /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_7                                        /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_8                                        /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_9                                        /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vector_default                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+__vectors                                         /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+_exit                                             /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_exit.o)
+_showScreenLCD_P                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+adc0                                              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+adc1                                              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+adcBat                                            ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+adcLSL                                            ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+adcLSR                                            ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+adcMotorCurrentLeft                               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+adcMotorCurrentRight                              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+assignCrashInfo                                   Crash.o
+                                                  main.o
+beep                                              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+block                                             ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+bumper_left                                       ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  Crash.o
+bumper_right                                      ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  Crash.o
+buttenChanged                                     Crash.o
+                                                  main.o
+calculateAverageLeftSpeed                         Drive.o
+                                                  Crash.o
+calculateAverageRightSpeed                        Drive.o
+                                                  Crash.o
+changeDirection                                   ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  main.o
+checkPressedKeyEvent                              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+checkRP6Status                                    ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+checkReleasedKeyEvent                             ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+clearLCD                                          ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                                                  main.o
+clearPosLCD                                       ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                                                  main.o
+clearReceptionBuffer                              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+controlStatus                                     ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+crashInfoToSend                                   Crash.o
+crashInfoWasSend                                  Crash.o
+                                                  main.o
+delayCycles                                       ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+delay_timer                                       ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+dischargePeakDetector                             ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+doneReadingGyro                                   MPU9250.o
+drive_status                                      ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  Crash.o
+                                                  main.o
+exit                                              /usr/lib/gcc/avr/4.8.2/avr5/libgcc.a(_exit.o)
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+externalPort                                      ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+gDataArray                                        Crash.o
+                                                  MPU9250.o
+getAllSensors                                     ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  main.o
+getBufferLength                                   ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+getGyroData                                       MPU9250.o
+getLightSensors                                   ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+getMicrophonePeak                                 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+getPressedKeyNumber                               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+gyroArrayIndexToWriteTo                           MPU9250.o
+gyroArraySize                                     MPU9250.o
+hitSide                                           Crash.o
+initI2C_RP6Lib                                    ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  main.o
+initLCD                                           ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+initMPU9250                                       MPU9250.o
+                                                  main.o
+initRP6Control                                    ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                                                  main.o
+interrupt_status                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  Crash.o
+                                                  main.o
+itoa                                              /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libc.a(itoa.o)
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+lcd_tmp_buffer                                    ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+mSleep                                            ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+main                                              main.o
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/crtm32.o
+messageBuf                                        ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+mleft_des_speed                                   ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+mleft_dist                                        ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+mleft_power                                       ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+mleft_speed                                       ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  main.o
+move                                              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+moveAtSpeed                                       ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  main.o
+mright_des_speed                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+mright_dist                                       ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+mright_power                                      ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+mright_speed                                      ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  main.o
+ms_timer                                          ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+obstacle_left                                     ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+obstacle_right                                    ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+outputExt                                         ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+pressed                                           Crash.o
+                                                  main.o
+readADC                                           ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+readBufferSPI                                     ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+readChar                                          ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+readChars                                         ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+readSPI                                           ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+readWordSPI                                       ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+read_pos                                          ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+read_size                                         ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+rotate                                            ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+sData                                             Drive.o
+sDataArray                                        Crash.o
+                                                  Drive.o
+                                                  main.o
+saveGyroData                                      MPU9250.o
+                                                  main.o
+saveSpeedData                                     Drive.o
+                                                  main.o
+sendCrashInfo                                     Crash.o
+                                                  main.o
+sensorBuf                                         ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+setBeeperPitch                                    ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+setCursorPosLCD                                   ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                                                  main.o
+setLCDD                                           ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+setLEDs                                           ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                                                  main.o
+setRP6LEDs                                        ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  Crash.o
+sleep                                             ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+sound_timer                                       ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+speedArrayIndexToWriteTo                          Drive.o
+speedArraySize                                    Drive.o
+status                                            ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  Crash.o
+                                                  main.o
+statusLEDs                                        ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  Crash.o
+                                                  main.o
+stop                                              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  main.o
+stopwatches                                       ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                                                  MPU9250.o
+                                                  main.o
+strrev                                            /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libc.a(strrev.o)
+                                                  /usr/lib/gcc/avr/4.8.2/../../../avr/lib/avr5/libc.a(itoa.o)
+task_I2CTWI                                       ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  main.o
+task_checkINT0                                    ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  main.o
+timer                                             ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+                                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                                                  Crash.o
+                                                  main.o
+transmit_buffer                                   ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+uart_receive_buffer                               ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+uart_status                                       ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+updateStatusLEDs                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+waitForTransmitComplete                           ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMasterLib.o
+watchDogRequest                                   main.o
+write4BitLCDData                                  ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+writeBufferSPI                                    ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+writeButtonPressOnLCD                             main.o
+writeChar                                         ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+                                                  Crash.o
+                                                  MPU9250.o
+                                                  Drive.o
+                                                  main.o
+writeCharLCD                                      ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+writeGyro                                         MPU9250.o
+                                                  Crash.o
+writeInteger                                      ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+                                                  Crash.o
+                                                  MPU9250.o
+                                                  Drive.o
+                                                  main.o
+writeIntegerLCD                                   ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                                                  main.o
+writeIntegerLength                                ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+writeIntegerLengthLCD                             ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+writeLCDCommand                                   ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+writeNStringLCD_P                                 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                                                  main.o
+writeNStringP                                     ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+                                                  main.o
+writeSPI                                          ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+writeSpeed                                        Drive.o
+                                                  Crash.o
+writeString                                       ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+                                                  Crash.o
+                                                  MPU9250.o
+                                                  Drive.o
+                                                  main.o
+writeStringLCD                                    ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+                                                  main.o
+writeStringLength                                 ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+writeStringLengthLCD                              ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+writeWordSPI                                      ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6ControlLib.o
+write_pos                                         ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
+write_size                                        ../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.o
