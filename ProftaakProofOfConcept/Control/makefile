@@ -32,7 +32,9 @@ EXTRAINCDIRS = $(RP6_LIB_PATH) $(RP6_LIB_PATH_OTHERS) $(RP6_LIB_PATH_I2C_MASTER)
 #------------------------------------------------
 # Main Source file is _automatically_ added here:
 SRC = $(TARGET).c
-
+SRC += Drive.c
+SRC += MPU9250.c
+SRC += Crash.c
 
 SRC += $(RP6_LIB_PATH_CONTROL)/RP6ControlLib.c
 SRC += $(RP6_LIB_PATH)/RP6common/RP6uart.c

@@ -16,14 +16,6 @@ void saveSpeedData(uint8_t leftSpeed, uint8_t speedRight)
 	sData.speedRight = speedRight;
 	int arraySize = sizeof(sDataArray)/sizeof(sDataArray[0]);
 
-	/*sDataArray[speedArrayIndexToWriteTo] = sData;
-	speedArrayIndexToWriteTo++;
-
-	if(speedArrayIndexToWriteTo == speedArraySize)
-	{
-		speedArrayIndexToWriteTo = 0;
-	}*/
-
 	for (int i = 0; i < (arraySize - 1); i++)
 	{
 		sDataArray[i] = sDataArray[i + 1];
