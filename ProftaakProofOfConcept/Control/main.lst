@@ -9,7 +9,7 @@
    9               		.cfi_sections	.debug_frame
   10               	.global	I2C_transmissionError
   12               	I2C_transmissionError:
-  13               	.LFB7:
+  13               	.LFB8:
   14               		.file 1 "main.c"
    1:main.c        **** #include "RP6ControlLib.h"
    2:main.c        **** #include "RP6I2CmasterTWI.h"
@@ -19,20 +19,95 @@
    6:main.c        **** #include <stdbool.h>
    7:main.c        **** #include "RP6Control_I2CMasterLib.h" 	
    8:main.c        **** 
-   9:main.c        **** 
+   9:main.c        **** #define DEBUG
   10:main.c        **** 
-  11:main.c        **** /**
-  12:main.c        ****  * This function gets called automatically if there was an I2C Error like
-  13:main.c        ****  * the slave sent a "not acknowledge" (NACK, error codes e.g. 0x20 or 0x30).
-  14:main.c        ****  * The most common mistakes are: 
-  15:main.c        ****  *   - using the wrong address for the slave
-  16:main.c        ****  *   - slave not active or not connected to the I2C-Bus
-  17:main.c        ****  *   - too fast requests for a slower slave
-  18:main.c        ****  * Be sure to check this if you get I2C errors!
-  19:main.c        ****  */
-  20:main.c        **** void I2C_transmissionError(uint8_t errorState)
+  11:main.c        **** int lastButton2State = false;
+  12:main.c        **** int lastButton3State = false;
+  13:main.c        **** int lastButton5State = false;
+  14:main.c        **** 
+  15:main.c        **** uint8_t sideHit = 0;
+  16:main.c        **** uint8_t timesPressed2 = 0;
+  17:main.c        **** uint8_t timesPressed3 = 0;
+  18:main.c        **** uint8_t timesPressed5 = 0;
+  19:main.c        **** 
+  20:main.c        **** void task_checkButtonChanged(void)
   21:main.c        **** {
-  15               		.loc 1 21 0
+  22:main.c        **** 	if((PINC & IO_PC2) !=  lastButton2State)
+  23:main.c        **** 			{
+  24:main.c        **** 				buttenChanged();
+  25:main.c        **** 
+  26:main.c        **** 				#ifdef DEBUG
+  27:main.c        **** 					if(PINC & IO_PC2)
+  28:main.c        **** 					{
+  29:main.c        **** 						sideHit = 2;
+  30:main.c        **** 						timesPressed2++;
+  31:main.c        **** 						writeButtonPressOnLCD(sideHit, timesPressed2);
+  32:main.c        **** 
+  33:main.c        **** 						writeString("Button 2 pressed ");
+  34:main.c        **** 						writeInteger(timesPressed2, DEC);
+  35:main.c        **** 						writeString(" times.");
+  36:main.c        **** 						writeString("\n");
+  37:main.c        **** 					}
+  38:main.c        **** 				#endif
+  39:main.c        **** 
+  40:main.c        **** 				lastButton2State = PINC & IO_PC2;
+  41:main.c        **** 			}	
+  42:main.c        **** 
+  43:main.c        **** 			else if((PINC & IO_PC3) !=  lastButton3State)
+  44:main.c        **** 			{
+  45:main.c        **** 				buttenChanged();
+  46:main.c        **** 
+  47:main.c        **** 				#ifdef DEBUG
+  48:main.c        **** 					if(PINC & IO_PC3)
+  49:main.c        **** 					{
+  50:main.c        **** 						sideHit = 3;
+  51:main.c        **** 						timesPressed3++;
+  52:main.c        **** 
+  53:main.c        **** 						writeButtonPressOnLCD(sideHit, timesPressed3);
+  54:main.c        **** 
+  55:main.c        **** 						writeString("Button 3 pressed ");
+  56:main.c        **** 						writeInteger(timesPressed3, DEC);
+  57:main.c        **** 						writeString(" times.");
+  58:main.c        **** 						writeString("\n");
+  59:main.c        **** 					}
+  60:main.c        **** 					#endif
+  61:main.c        **** 
+  62:main.c        **** 				lastButton3State = PINC & IO_PC3;
+  63:main.c        **** 			}	
+  64:main.c        **** 
+  65:main.c        **** 			else if((PINC & IO_PC5) !=  lastButton5State)
+  66:main.c        **** 			{
+  67:main.c        **** 				buttenChanged();
+  68:main.c        **** 
+  69:main.c        **** 				#ifdef DEBUG
+  70:main.c        **** 					if(PINC & IO_PC5)
+  71:main.c        **** 					{
+  72:main.c        **** 						sideHit = 5;
+  73:main.c        **** 						timesPressed5++;
+  74:main.c        **** 						writeButtonPressOnLCD(sideHit, timesPressed5);
+  75:main.c        **** 						writeString("Button 5 pressed ");
+  76:main.c        **** 						writeInteger(timesPressed5, DEC);
+  77:main.c        **** 						writeString(" times.");
+  78:main.c        **** 						writeString("\n");
+  79:main.c        **** 					}
+  80:main.c        **** 				#endif
+  81:main.c        **** 
+  82:main.c        **** 				lastButton5State = PINC & IO_PC5;
+  83:main.c        **** 			}	
+  84:main.c        **** }
+  85:main.c        **** 
+  86:main.c        **** /**
+  87:main.c        ****  * This function gets called automatically if there was an I2C Error like
+  88:main.c        ****  * the slave sent a "not acknowledge" (NACK, error codes e.g. 0x20 or 0x30).
+  89:main.c        ****  * The most common mistakes are: 
+  90:main.c        ****  *   - using the wrong address for the slave
+  91:main.c        ****  *   - slave not active or not connected to the I2C-Bus
+  92:main.c        ****  *   - too fast requests for a slower slave
+  93:main.c        ****  * Be sure to check this if you get I2C errors!
+  94:main.c        ****  */
+  95:main.c        **** void I2C_transmissionError(uint8_t errorState)
+  96:main.c        **** {
+  15               		.loc 1 96 0
   16               		.cfi_startproc
   17               	.LVL0:
   18 0000 CF93      		push r28
@@ -44,96 +119,96 @@
   24               	/* stack size = 1 */
   25               	.L__stack_usage = 1
   26 0002 C82F      		mov r28,r24
-  22:main.c        **** 	writeString_P("\nI2C ERROR - TWI STATE: 0x");
-  27               		.loc 1 22 0
-  28 0004 80E0      		ldi r24,lo8(__c.2400)
-  29 0006 90E0      		ldi r25,hi8(__c.2400)
+  97:main.c        **** 	writeString_P("\nI2C ERROR - TWI STATE: 0x");
+  27               		.loc 1 97 0
+  28 0004 80E0      		ldi r24,lo8(__c.2414)
+  29 0006 90E0      		ldi r25,hi8(__c.2414)
   30               	.LVL1:
   31 0008 0E94 0000 		call writeNStringP
   32               	.LVL2:
-  23:main.c        **** 	writeInteger(errorState, HEX);
-  33               		.loc 1 23 0
+  98:main.c        **** 	writeInteger(errorState, HEX);
+  33               		.loc 1 98 0
   34 000c 60E1      		ldi r22,lo8(16)
   35 000e 8C2F      		mov r24,r28
   36 0010 90E0      		ldi r25,0
   37 0012 0E94 0000 		call writeInteger
   38               	.LVL3:
-  24:main.c        **** 	writeChar('\n');
-  39               		.loc 1 24 0
+  99:main.c        **** 	writeChar('\n');
+  39               		.loc 1 99 0
   40 0016 8AE0      		ldi r24,lo8(10)
   41               	/* epilogue start */
-  25:main.c        **** }
-  42               		.loc 1 25 0
+ 100:main.c        **** }
+  42               		.loc 1 100 0
   43 0018 CF91      		pop r28
   44               	.LVL4:
-  24:main.c        **** 	writeChar('\n');
-  45               		.loc 1 24 0
+  99:main.c        **** 	writeChar('\n');
+  45               		.loc 1 99 0
   46 001a 0C94 0000 		jmp writeChar
   47               	.LVL5:
   48               		.cfi_endproc
-  49               	.LFE7:
+  49               	.LFE8:
   51               	.global	watchDogRequest
   53               	watchDogRequest:
-  54               	.LFB8:
-  26:main.c        **** 
-  27:main.c        **** 
-  28:main.c        **** /**
-  29:main.c        ****  * Timed Watchdog display only - the other heartbeat function
-  30:main.c        ****  * does not work in this example as we use blocked moving functions here.
-  31:main.c        ****  */
-  32:main.c        **** void watchDogRequest(void)
-  33:main.c        **** {	
-  55               		.loc 1 33 0
+  54               	.LFB9:
+ 101:main.c        **** 
+ 102:main.c        **** 
+ 103:main.c        **** /**
+ 104:main.c        ****  * Timed Watchdog display only - the other heartbeat function
+ 105:main.c        ****  * does not work in this example as we use blocked moving functions here.
+ 106:main.c        ****  */
+ 107:main.c        **** void watchDogRequest(void)
+ 108:main.c        **** {	
+  55               		.loc 1 108 0
   56               		.cfi_startproc
   57               	/* prologue: function */
   58               	/* frame size = 0 */
   59               	/* stack size = 0 */
   60               	.L__stack_usage = 0
-  34:main.c        **** 	static uint8_t heartbeat2 = false;
-  35:main.c        **** 	if(heartbeat2)
-  61               		.loc 1 35 0
-  62 001e 8091 0000 		lds r24,heartbeat2.2405
+ 109:main.c        **** 	static uint8_t heartbeat2 = false;
+ 110:main.c        **** 	if(heartbeat2)
+  61               		.loc 1 110 0
+  62 001e 8091 0000 		lds r24,heartbeat2.2419
   63 0022 8823      		tst r24
   64 0024 01F0      		breq .L3
   65               	.LBB7:
   66               	.LBB8:
-  36:main.c        **** 	{
-  37:main.c        **** 		clearPosLCD(0, 14, 1);
-  67               		.loc 1 37 0
+ 111:main.c        **** 	{
+ 112:main.c        **** 		clearPosLCD(0, 14, 1);
+  67               		.loc 1 112 0
   68 0026 41E0      		ldi r20,lo8(1)
   69 0028 6EE0      		ldi r22,lo8(14)
   70 002a 80E0      		ldi r24,0
   71 002c 0E94 0000 		call clearPosLCD
   72               	.LVL6:
-  38:main.c        **** 		heartbeat2 = false;
-  73               		.loc 1 38 0
-  74 0030 1092 0000 		sts heartbeat2.2405,__zero_reg__
+ 113:main.c        **** 		heartbeat2 = false;
+  73               		.loc 1 113 0
+  74 0030 1092 0000 		sts heartbeat2.2419,__zero_reg__
   75 0034 0895      		ret
   76               	.L3:
   77               	.LBE8:
   78               	.LBE7:
-  39:main.c        **** 	}
-  40:main.c        **** 	else
-  41:main.c        **** 	{
-  42:main.c        **** 		setCursorPosLCD(0, 14);
-  79               		.loc 1 42 0
+ 114:main.c        **** 	}
+ 115:main.c        **** 	else
+ 116:main.c        **** 	{
+ 117:main.c        **** 		setCursorPosLCD(0, 14);
+  79               		.loc 1 117 0
   80 0036 6EE0      		ldi r22,lo8(14)
   81 0038 80E0      		ldi r24,0
   82 003a 0E94 0000 		call setCursorPosLCD
   83               	.LVL7:
-  43:main.c        **** 		writeStringLCD_P("#"); 
-  84               		.loc 1 43 0
-  85 003e 80E0      		ldi r24,lo8(__c.2406)
-  86 0040 90E0      		ldi r25,hi8(__c.2406)
+ 118:main.c        **** 		writeStringLCD_P("#"); 
+  84               		.loc 1 118 0
+  85 003e 80E0      		ldi r24,lo8(__c.2420)
+  86 0040 90E0      		ldi r25,hi8(__c.2420)
   87 0042 0E94 0000 		call writeNStringLCD_P
   88               	.LVL8:
-  44:main.c        **** 		heartbeat2 = true;
-  89               		.loc 1 44 0
+ 119:main.c        **** 		heartbeat2 = true;
+  89               		.loc 1 119 0
   90 0046 81E0      		ldi r24,lo8(1)
-  91 0048 8093 0000 		sts heartbeat2.2405,r24
+  91 0048 8093 0000 		sts heartbeat2.2419,r24
   92 004c 0895      		ret
   93               		.cfi_endproc
-  94               	.LFE8:
+  94               	.LFE9:
   96               		.section	.rodata.str1.1,"aMS",@progbits,1
   97               	.LC0:
   98 0000 6274 6E3A 		.string	"btn:     times:"
@@ -147,14 +222,14 @@
  101               		.text
  102               	.global	writeButtonPressOnLCD
  104               	writeButtonPressOnLCD:
- 105               	.LFB9:
-  45:main.c        **** 	}
-  46:main.c        **** }
-  47:main.c        **** 
-  48:main.c        **** 
-  49:main.c        **** void writeButtonPressOnLCD(uint8_t button, int pressed)
-  50:main.c        **** {
- 106               		.loc 1 50 0
+ 105               	.LFB10:
+ 120:main.c        **** 	}
+ 121:main.c        **** }
+ 122:main.c        **** 
+ 123:main.c        **** 
+ 124:main.c        **** void writeButtonPressOnLCD(uint8_t button, int pressed)
+ 125:main.c        **** {
+ 106               		.loc 1 125 0
  107               		.cfi_startproc
  108               	.LVL9:
  109 004e 1F93      		push r17
@@ -175,59 +250,59 @@
  124               	.L__stack_usage = 3
  125 0054 182F      		mov r17,r24
  126 0056 EB01      		movw r28,r22
-  51:main.c        **** 	clearLCD();
- 127               		.loc 1 51 0
+ 126:main.c        **** 	clearLCD();
+ 127               		.loc 1 126 0
  128 0058 0E94 0000 		call clearLCD
  129               	.LVL10:
-  52:main.c        **** 	setCursorPosLCD(0,0);
- 130               		.loc 1 52 0
+ 127:main.c        **** 	setCursorPosLCD(0,0);
+ 130               		.loc 1 127 0
  131 005c 60E0      		ldi r22,0
  132 005e 80E0      		ldi r24,0
  133 0060 0E94 0000 		call setCursorPosLCD
  134               	.LVL11:
-  53:main.c        **** 	writeStringLCD("btn:     times:");
- 135               		.loc 1 53 0
+ 128:main.c        **** 	writeStringLCD("btn:     times:");
+ 135               		.loc 1 128 0
  136 0064 80E0      		ldi r24,lo8(.LC0)
  137 0066 90E0      		ldi r25,hi8(.LC0)
  138 0068 0E94 0000 		call writeStringLCD
  139               	.LVL12:
-  54:main.c        **** 	setCursorPosLCD(1,0);
- 140               		.loc 1 54 0
+ 129:main.c        **** 	setCursorPosLCD(1,0);
+ 140               		.loc 1 129 0
  141 006c 60E0      		ldi r22,0
  142 006e 81E0      		ldi r24,lo8(1)
  143 0070 0E94 0000 		call setCursorPosLCD
  144               	.LVL13:
-  55:main.c        **** 	writeIntegerLCD(button, DEC);
- 145               		.loc 1 55 0
+ 130:main.c        **** 	writeIntegerLCD(button, DEC);
+ 145               		.loc 1 130 0
  146 0074 6AE0      		ldi r22,lo8(10)
  147 0076 812F      		mov r24,r17
  148 0078 90E0      		ldi r25,0
  149 007a 0E94 0000 		call writeIntegerLCD
  150               	.LVL14:
-  56:main.c        **** 	writeStringLCD("        ");
- 151               		.loc 1 56 0
+ 131:main.c        **** 	writeStringLCD("        ");
+ 151               		.loc 1 131 0
  152 007e 80E0      		ldi r24,lo8(.LC1)
  153 0080 90E0      		ldi r25,hi8(.LC1)
  154 0082 0E94 0000 		call writeStringLCD
  155               	.LVL15:
-  57:main.c        **** 	writeIntegerLCD(pressed, DEC);
- 156               		.loc 1 57 0
+ 132:main.c        **** 	writeIntegerLCD(pressed, DEC);
+ 156               		.loc 1 132 0
  157 0086 6AE0      		ldi r22,lo8(10)
  158 0088 CE01      		movw r24,r28
  159               	/* epilogue start */
-  58:main.c        **** }
- 160               		.loc 1 58 0
+ 133:main.c        **** }
+ 160               		.loc 1 133 0
  161 008a DF91      		pop r29
  162 008c CF91      		pop r28
  163               	.LVL16:
  164 008e 1F91      		pop r17
  165               	.LVL17:
-  57:main.c        **** 	writeIntegerLCD(pressed, DEC);
- 166               		.loc 1 57 0
+ 132:main.c        **** 	writeIntegerLCD(pressed, DEC);
+ 166               		.loc 1 132 0
  167 0090 0C94 0000 		jmp writeIntegerLCD
  168               	.LVL18:
  169               		.cfi_endproc
- 170               	.LFE9:
+ 170               	.LFE10:
  172               		.section	.rodata.str1.1
  173               	.LC2:
  174 0019 4275 7474 		.string	"Button 2 pressed "
@@ -252,648 +327,660 @@
  182      2070 7265 
  182      7373 6564 
  182      2000 
- 183               		.section	.text.startup,"ax",@progbits
- 184               	.global	main
- 186               	main:
- 187               	.LFB10:
-  59:main.c        **** 
-  60:main.c        **** 
-  61:main.c        **** /************************************************************************************/
-  62:main.c        **** //====================================================================================
-  63:main.c        **** // Main - The program starts here:
-  64:main.c        **** //====================================================================================
-  65:main.c        **** /************************************************************************************/
-  66:main.c        **** 
-  67:main.c        **** int main(void)
-  68:main.c        **** {
- 188               		.loc 1 68 0
+ 183               		.text
+ 184               	.global	task_checkButtonChanged
+ 186               	task_checkButtonChanged:
+ 187               	.LFB7:
+  21:main.c        **** {
+ 188               		.loc 1 21 0
  189               		.cfi_startproc
- 190 0000 CF93      		push r28
- 191               	.LCFI4:
- 192               		.cfi_def_cfa_offset 3
- 193               		.cfi_offset 28, -2
- 194 0002 DF93      		push r29
- 195               	.LCFI5:
- 196               		.cfi_def_cfa_offset 4
- 197               		.cfi_offset 29, -3
- 198 0004 00D0      		rcall .
- 199 0006 00D0      		rcall .
- 200 0008 00D0      		rcall .
- 201               	.LCFI6:
- 202               		.cfi_def_cfa_offset 10
- 203 000a CDB7      		in r28,__SP_L__
- 204 000c DEB7      		in r29,__SP_H__
- 205               	.LCFI7:
- 206               		.cfi_def_cfa_register 28
- 207               	/* prologue: function */
- 208               	/* frame size = 6 */
- 209               	/* stack size = 8 */
- 210               	.L__stack_usage = 8
-  69:main.c        **** 	initRP6Control(); 	
- 211               		.loc 1 69 0
- 212 000e 0E94 0000 		call initRP6Control
- 213               	.LVL19:
-  70:main.c        **** 	initI2C_RP6Lib();
- 214               		.loc 1 70 0
- 215 0012 0E94 0000 		call initI2C_RP6Lib
- 216               	.LVL20:
-  71:main.c        **** 	I2CTWI_setTransmissionErrorHandler(I2C_transmissionError);
- 217               		.loc 1 71 0
- 218 0016 80E0      		ldi r24,lo8(gs(I2C_transmissionError))
- 219 0018 90E0      		ldi r25,hi8(gs(I2C_transmissionError))
- 220 001a 0E94 0000 		call I2CTWI_setTransmissionErrorHandler
- 221               	.LVL21:
-  72:main.c        **** 
-  73:main.c        **** 	WDT_setRequestHandler(watchDogRequest); 
- 222               		.loc 1 73 0
- 223 001e 80E0      		ldi r24,lo8(gs(watchDogRequest))
- 224 0020 90E0      		ldi r25,hi8(gs(watchDogRequest))
- 225 0022 0E94 0000 		call WDT_setRequestHandler
- 226               	.LVL22:
-  74:main.c        **** 
-  75:main.c        **** 	uint8_t sideHit = 0;
-  76:main.c        **** 	uint8_t timesPressed2 = 0;
-  77:main.c        **** 	uint8_t timesPressed3 = 0;
-  78:main.c        **** 	uint8_t timesPressed5 = 0;
-  79:main.c        **** 		
-  80:main.c        **** 	DDRC &= ~IO_PC2; 
- 227               		.loc 1 80 0
- 228 0026 A298      		cbi 0x14,2
-  81:main.c        **** 	DDRC &= ~IO_PC3;  
- 229               		.loc 1 81 0
- 230 0028 A398      		cbi 0x14,3
-  82:main.c        **** 	DDRC &= ~IO_PC5; 
- 231               		.loc 1 82 0
- 232 002a A598      		cbi 0x14,5
- 233               	.LVL23:
-  83:main.c        **** 
-  84:main.c        **** 	int lastButton2State = false;
-  85:main.c        **** 	int lastButton3State = false;
-  86:main.c        **** 	int lastButton5State = false;
-  87:main.c        **** 
-  88:main.c        **** 	if(PINC & IO_PC2) 
- 234               		.loc 1 88 0
- 235 002c 9A9B      		sbis 0x13,2
- 236 002e 00C0      		rjmp .L8
-  89:main.c        **** 		writeString_P("\n\nPC2 is HIGH!\n\n");
- 237               		.loc 1 89 0
- 238 0030 80E0      		ldi r24,lo8(__c.2422)
- 239 0032 90E0      		ldi r25,hi8(__c.2422)
- 240 0034 00C0      		rjmp .L34
- 241               	.L8:
-  90:main.c        **** 	else
-  91:main.c        **** 		writeString_P("\n\nPC2 is LOW!\n\n");
- 242               		.loc 1 91 0
- 243 0036 80E0      		ldi r24,lo8(__c.2424)
- 244 0038 90E0      		ldi r25,hi8(__c.2424)
- 245               	.L34:
- 246 003a 0E94 0000 		call writeNStringP
- 247               	.LVL24:
-  92:main.c        **** 
-  93:main.c        **** 	if(PINC & IO_PC3) 
- 248               		.loc 1 93 0
- 249 003e 9B9B      		sbis 0x13,3
- 250 0040 00C0      		rjmp .L10
-  94:main.c        **** 		writeString_P("\n\nPC3 is HIGH!\n\n");
- 251               		.loc 1 94 0
- 252 0042 80E0      		ldi r24,lo8(__c.2426)
- 253 0044 90E0      		ldi r25,hi8(__c.2426)
- 254 0046 00C0      		rjmp .L35
- 255               	.L10:
-  95:main.c        **** 	else
-  96:main.c        **** 		writeString_P("\n\nPC3 is LOW!\n\n");
- 256               		.loc 1 96 0
- 257 0048 80E0      		ldi r24,lo8(__c.2428)
- 258 004a 90E0      		ldi r25,hi8(__c.2428)
- 259               	.L35:
- 260 004c 0E94 0000 		call writeNStringP
- 261               	.LVL25:
-  97:main.c        **** 
-  98:main.c        **** 	if(PINC & IO_PC5) 
- 262               		.loc 1 98 0
- 263 0050 9D9B      		sbis 0x13,5
- 264 0052 00C0      		rjmp .L12
-  99:main.c        **** 		writeString_P("\n\nPC5 is HIGH!\n\n");
- 265               		.loc 1 99 0
- 266 0054 80E0      		ldi r24,lo8(__c.2430)
- 267 0056 90E0      		ldi r25,hi8(__c.2430)
- 268 0058 00C0      		rjmp .L36
- 269               	.L12:
- 100:main.c        **** 	else
- 101:main.c        **** 		writeString_P("\n\nPC5 is LOW!\n\n");
- 270               		.loc 1 101 0
- 271 005a 80E0      		ldi r24,lo8(__c.2432)
- 272 005c 90E0      		ldi r25,hi8(__c.2432)
- 273               	.L36:
- 274 005e 0E94 0000 		call writeNStringP
- 275               	.LVL26:
- 102:main.c        **** 
- 103:main.c        **** 	
- 104:main.c        **** 
- 105:main.c        **** 	startStopwatch1();
- 276               		.loc 1 105 0
- 277 0062 8091 0000 		lds r24,stopwatches
- 278 0066 8160      		ori r24,lo8(1)
- 279 0068 8093 0000 		sts stopwatches,r24
- 106:main.c        **** 	startStopwatch2();	
- 280               		.loc 1 106 0
- 281 006c 8091 0000 		lds r24,stopwatches
- 282 0070 8260      		ori r24,lo8(2)
- 283 0072 8093 0000 		sts stopwatches,r24
- 107:main.c        **** 
- 108:main.c        **** 	// Setup ACS power:
- 109:main.c        **** 	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_ACS_POWER, ACS_PWR_MED);
- 284               		.loc 1 109 0
- 285 0076 22E0      		ldi r18,lo8(2)
- 286 0078 49E0      		ldi r20,lo8(9)
- 287 007a 60E0      		ldi r22,0
- 288 007c 8AE0      		ldi r24,lo8(10)
- 289 007e 0E94 0000 		call I2CTWI_transmit3Bytes
- 290               	.LVL27:
- 110:main.c        **** 	// Enable Watchdog for Interrupt requests:
- 111:main.c        **** 	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_WDT, true);
- 291               		.loc 1 111 0
- 292 0082 21E0      		ldi r18,lo8(1)
- 293 0084 4BE0      		ldi r20,lo8(11)
- 294 0086 60E0      		ldi r22,0
- 295 0088 8AE0      		ldi r24,lo8(10)
- 296 008a 0E94 0000 		call I2CTWI_transmit3Bytes
- 297               	.LVL28:
- 112:main.c        **** 	// Enable timed watchdog requests:
- 113:main.c        **** 	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_WDT_RQ, true);
- 298               		.loc 1 113 0
- 299 008e 21E0      		ldi r18,lo8(1)
- 300 0090 4CE0      		ldi r20,lo8(12)
- 301 0092 60E0      		ldi r22,0
- 302 0094 8AE0      		ldi r24,lo8(10)
- 303 0096 0E94 0000 		call I2CTWI_transmit3Bytes
- 304               	.LVL29:
- 114:main.c        **** 	
- 115:main.c        **** 	BUMPERS_setStateChangedHandler(buttenChanged);
- 305               		.loc 1 115 0
- 306 009a 80E0      		ldi r24,lo8(gs(buttenChanged))
- 307 009c 90E0      		ldi r25,hi8(gs(buttenChanged))
- 308 009e 0E94 0000 		call BUMPERS_setStateChangedHandler
- 309               	.LVL30:
- 116:main.c        **** 
- 117:main.c        **** 	initMPU9250();
- 310               		.loc 1 117 0
- 311 00a2 0E94 0000 		call initMPU9250
- 312               	.LVL31:
- 118:main.c        **** 
- 119:main.c        **** 	gyroData gData;
- 120:main.c        **** 
- 121:main.c        **** 	bool arrayIsFilled = false;
- 122:main.c        **** 	uint8_t counter = 0;
- 123:main.c        **** 
- 124:main.c        **** 	changeDirection(FWD);
- 313               		.loc 1 124 0
- 314 00a6 80E0      		ldi r24,0
- 315 00a8 0E94 0000 		call changeDirection
- 316               	.LVL32:
-  86:main.c        **** 	int lastButton5State = false;
- 317               		.loc 1 86 0
- 318 00ac A12C      		mov r10,__zero_reg__
- 319 00ae B12C      		mov r11,__zero_reg__
-  85:main.c        **** 	int lastButton3State = false;
- 320               		.loc 1 85 0
- 321 00b0 E12C      		mov r14,__zero_reg__
- 322 00b2 F12C      		mov r15,__zero_reg__
-  84:main.c        **** 	int lastButton2State = false;
- 323               		.loc 1 84 0
- 324 00b4 00E0      		ldi r16,0
- 325 00b6 10E0      		ldi r17,0
-  78:main.c        **** 	uint8_t timesPressed5 = 0;
- 326               		.loc 1 78 0
- 327 00b8 712C      		mov r7,__zero_reg__
-  77:main.c        **** 	uint8_t timesPressed3 = 0;
- 328               		.loc 1 77 0
- 329 00ba 812C      		mov r8,__zero_reg__
-  76:main.c        **** 	uint8_t timesPressed2 = 0;
- 330               		.loc 1 76 0
- 331 00bc 912C      		mov r9,__zero_reg__
- 332               	.LVL33:
- 333               	.L14:
- 125:main.c        **** 
- 126:main.c        **** 	while(true)
- 127:main.c        **** 	{
- 128:main.c        **** 		task_checkINT0();
- 334               		.loc 1 128 0
- 335 00be 0E94 0000 		call task_checkINT0
- 336               	.LVL34:
- 129:main.c        **** 	    task_I2CTWI();
- 337               		.loc 1 129 0
- 338 00c2 0E94 0000 		call task_I2CTWI
- 339               	.LVL35:
- 130:main.c        **** 
- 131:main.c        **** 
- 132:main.c        **** 		if(getStopwatch1() > 300)
- 340               		.loc 1 132 0
- 341 00c6 8091 0000 		lds r24,stopwatches+1
- 342 00ca 9091 0000 		lds r25,stopwatches+1+1
- 343 00ce 8D32      		cpi r24,45
- 344 00d0 9140      		sbci r25,1
- 345 00d2 00F4      		brsh .+2
- 346 00d4 00C0      		rjmp .L15
- 133:main.c        **** 		{
- 134:main.c        **** 			if((PINC & IO_PC2) !=  lastButton2State)
- 347               		.loc 1 134 0
- 348 00d6 83B3      		in r24,0x13
- 349 00d8 8470      		andi r24,lo8(4)
- 350 00da C82E      		mov r12,r24
- 351 00dc D12C      		mov r13,__zero_reg__
- 352 00de C016      		cp r12,r16
- 353 00e0 D106      		cpc r13,r17
- 354 00e2 01F0      		breq .L16
- 135:main.c        **** 			{
- 136:main.c        **** 				buttenChanged();
- 355               		.loc 1 136 0
- 356 00e4 0E94 0000 		call buttenChanged
- 357               	.LVL36:
- 137:main.c        **** 
- 138:main.c        **** 				if(PINC & IO_PC2)
- 358               		.loc 1 138 0
- 359 00e8 9A9B      		sbis 0x13,2
- 360 00ea 00C0      		rjmp .L17
- 361               	.LVL37:
- 139:main.c        **** 				{
- 140:main.c        **** 					sideHit = 2;
- 141:main.c        **** 					timesPressed2++;
- 362               		.loc 1 141 0
- 363 00ec 9394      		inc r9
- 364               	.LVL38:
- 142:main.c        **** 					writeButtonPressOnLCD(sideHit, timesPressed2);
- 365               		.loc 1 142 0
- 366 00ee 092D      		mov r16,r9
- 367               	.LVL39:
- 368 00f0 10E0      		ldi r17,0
- 369 00f2 B801      		movw r22,r16
- 370 00f4 82E0      		ldi r24,lo8(2)
- 371 00f6 0E94 0000 		call writeButtonPressOnLCD
- 372               	.LVL40:
- 143:main.c        **** 
- 144:main.c        **** 					writeString("Button 2 pressed ");
- 373               		.loc 1 144 0
- 374 00fa 80E0      		ldi r24,lo8(.LC2)
- 375 00fc 90E0      		ldi r25,hi8(.LC2)
- 376 00fe 0E94 0000 		call writeString
- 377               	.LVL41:
- 145:main.c        **** 					writeInteger(timesPressed2, DEC);
- 378               		.loc 1 145 0
- 379 0102 6AE0      		ldi r22,lo8(10)
- 380 0104 C801      		movw r24,r16
- 381 0106 0E94 0000 		call writeInteger
- 382               	.LVL42:
- 146:main.c        **** 					writeString(" times.");
- 383               		.loc 1 146 0
- 384 010a 80E0      		ldi r24,lo8(.LC3)
- 385 010c 90E0      		ldi r25,hi8(.LC3)
- 386 010e 0E94 0000 		call writeString
- 387               	.LVL43:
- 147:main.c        **** 					writeString("\n");
- 388               		.loc 1 147 0
- 389 0112 80E0      		ldi r24,lo8(.LC4)
- 390 0114 90E0      		ldi r25,hi8(.LC4)
- 391 0116 0E94 0000 		call writeString
- 392               	.LVL44:
- 393               	.L17:
- 148:main.c        **** 				}
- 149:main.c        **** 				lastButton2State = PINC & IO_PC2;
- 394               		.loc 1 149 0
- 395 011a 83B3      		in r24,0x13
- 396 011c 8470      		andi r24,lo8(4)
- 397 011e C82E      		mov r12,r24
- 398 0120 D12C      		mov r13,__zero_reg__
- 399               	.LVL45:
- 400 0122 8701      		movw r16,r14
- 401 0124 00C0      		rjmp .L18
- 402               	.LVL46:
- 403               	.L16:
- 150:main.c        **** 			}	
- 151:main.c        **** 
- 152:main.c        **** 			else if((PINC & IO_PC3) !=  lastButton3State)
- 404               		.loc 1 152 0
- 405 0126 03B3      		in r16,0x13
- 406               	.LVL47:
- 407 0128 0870      		andi r16,lo8(8)
- 408 012a 10E0      		ldi r17,0
- 409 012c 0E15      		cp r16,r14
- 410 012e 1F05      		cpc r17,r15
- 411 0130 01F0      		breq .L19
- 153:main.c        **** 			{
- 154:main.c        **** 				buttenChanged();
- 412               		.loc 1 154 0
- 413 0132 0E94 0000 		call buttenChanged
- 414               	.LVL48:
+ 190               	/* prologue: function */
+ 191               	/* frame size = 0 */
+ 192               	/* stack size = 0 */
+ 193               	.L__stack_usage = 0
+  22:main.c        **** 	if((PINC & IO_PC2) !=  lastButton2State)
+ 194               		.loc 1 22 0
+ 195 0094 23B3      		in r18,0x13
+ 196 0096 2470      		andi r18,lo8(4)
+ 197 0098 30E0      		ldi r19,0
+ 198 009a 8091 0000 		lds r24,lastButton2State
+ 199 009e 9091 0000 		lds r25,lastButton2State+1
+ 200 00a2 2817      		cp r18,r24
+ 201 00a4 3907      		cpc r19,r25
+ 202 00a6 01F0      		breq .L8
+  24:main.c        **** 				buttenChanged();
+ 203               		.loc 1 24 0
+ 204 00a8 0E94 0000 		call buttenChanged
+ 205               	.LVL19:
+  27:main.c        **** 					if(PINC & IO_PC2)
+ 206               		.loc 1 27 0
+ 207 00ac 9A9B      		sbis 0x13,2
+ 208 00ae 00C0      		rjmp .L9
+ 209               	.LBB9:
+  29:main.c        **** 						sideHit = 2;
+ 210               		.loc 1 29 0
+ 211 00b0 82E0      		ldi r24,lo8(2)
+ 212 00b2 8093 0000 		sts sideHit,r24
+  30:main.c        **** 						timesPressed2++;
+ 213               		.loc 1 30 0
+ 214 00b6 6091 0000 		lds r22,timesPressed2
+ 215 00ba 6F5F      		subi r22,lo8(-(1))
+ 216 00bc 6093 0000 		sts timesPressed2,r22
+  31:main.c        **** 						writeButtonPressOnLCD(sideHit, timesPressed2);
+ 217               		.loc 1 31 0
+ 218 00c0 70E0      		ldi r23,0
+ 219 00c2 82E0      		ldi r24,lo8(2)
+ 220 00c4 90E0      		ldi r25,0
+ 221 00c6 0E94 0000 		call writeButtonPressOnLCD
+ 222               	.LVL20:
+  33:main.c        **** 						writeString("Button 2 pressed ");
+ 223               		.loc 1 33 0
+ 224 00ca 80E0      		ldi r24,lo8(.LC2)
+ 225 00cc 90E0      		ldi r25,hi8(.LC2)
+ 226 00ce 0E94 0000 		call writeString
+ 227               	.LVL21:
+  34:main.c        **** 						writeInteger(timesPressed2, DEC);
+ 228               		.loc 1 34 0
+ 229 00d2 8091 0000 		lds r24,timesPressed2
+ 230 00d6 6AE0      		ldi r22,lo8(10)
+ 231 00d8 90E0      		ldi r25,0
+ 232 00da 0E94 0000 		call writeInteger
+ 233               	.LVL22:
+  35:main.c        **** 						writeString(" times.");
+ 234               		.loc 1 35 0
+ 235 00de 80E0      		ldi r24,lo8(.LC3)
+ 236 00e0 90E0      		ldi r25,hi8(.LC3)
+ 237 00e2 0E94 0000 		call writeString
+ 238               	.LVL23:
+  36:main.c        **** 						writeString("\n");
+ 239               		.loc 1 36 0
+ 240 00e6 80E0      		ldi r24,lo8(.LC4)
+ 241 00e8 90E0      		ldi r25,hi8(.LC4)
+ 242 00ea 0E94 0000 		call writeString
+ 243               	.LVL24:
+ 244               	.L9:
+ 245               	.LBE9:
+  40:main.c        **** 				lastButton2State = PINC & IO_PC2;
+ 246               		.loc 1 40 0
+ 247 00ee 83B3      		in r24,0x13
+ 248 00f0 8470      		andi r24,lo8(4)
+ 249 00f2 90E0      		ldi r25,0
+ 250 00f4 9093 0000 		sts lastButton2State+1,r25
+ 251 00f8 8093 0000 		sts lastButton2State,r24
+ 252 00fc 0895      		ret
+ 253               	.L8:
+  43:main.c        **** 			else if((PINC & IO_PC3) !=  lastButton3State)
+ 254               		.loc 1 43 0
+ 255 00fe 23B3      		in r18,0x13
+ 256 0100 2870      		andi r18,lo8(8)
+ 257 0102 30E0      		ldi r19,0
+ 258 0104 8091 0000 		lds r24,lastButton3State
+ 259 0108 9091 0000 		lds r25,lastButton3State+1
+ 260 010c 2817      		cp r18,r24
+ 261 010e 3907      		cpc r19,r25
+ 262 0110 01F0      		breq .L11
+  45:main.c        **** 				buttenChanged();
+ 263               		.loc 1 45 0
+ 264 0112 0E94 0000 		call buttenChanged
+ 265               	.LVL25:
+  48:main.c        **** 					if(PINC & IO_PC3)
+ 266               		.loc 1 48 0
+ 267 0116 9B9B      		sbis 0x13,3
+ 268 0118 00C0      		rjmp .L12
+ 269               	.LBB10:
+  50:main.c        **** 						sideHit = 3;
+ 270               		.loc 1 50 0
+ 271 011a 83E0      		ldi r24,lo8(3)
+ 272 011c 8093 0000 		sts sideHit,r24
+  51:main.c        **** 						timesPressed3++;
+ 273               		.loc 1 51 0
+ 274 0120 6091 0000 		lds r22,timesPressed3
+ 275 0124 6F5F      		subi r22,lo8(-(1))
+ 276 0126 6093 0000 		sts timesPressed3,r22
+  53:main.c        **** 						writeButtonPressOnLCD(sideHit, timesPressed3);
+ 277               		.loc 1 53 0
+ 278 012a 70E0      		ldi r23,0
+ 279 012c 83E0      		ldi r24,lo8(3)
+ 280 012e 90E0      		ldi r25,0
+ 281 0130 0E94 0000 		call writeButtonPressOnLCD
+ 282               	.LVL26:
+  55:main.c        **** 						writeString("Button 3 pressed ");
+ 283               		.loc 1 55 0
+ 284 0134 80E0      		ldi r24,lo8(.LC5)
+ 285 0136 90E0      		ldi r25,hi8(.LC5)
+ 286 0138 0E94 0000 		call writeString
+ 287               	.LVL27:
+  56:main.c        **** 						writeInteger(timesPressed3, DEC);
+ 288               		.loc 1 56 0
+ 289 013c 8091 0000 		lds r24,timesPressed3
+ 290 0140 6AE0      		ldi r22,lo8(10)
+ 291 0142 90E0      		ldi r25,0
+ 292 0144 0E94 0000 		call writeInteger
+ 293               	.LVL28:
+  57:main.c        **** 						writeString(" times.");
+ 294               		.loc 1 57 0
+ 295 0148 80E0      		ldi r24,lo8(.LC3)
+ 296 014a 90E0      		ldi r25,hi8(.LC3)
+ 297 014c 0E94 0000 		call writeString
+ 298               	.LVL29:
+  58:main.c        **** 						writeString("\n");
+ 299               		.loc 1 58 0
+ 300 0150 80E0      		ldi r24,lo8(.LC4)
+ 301 0152 90E0      		ldi r25,hi8(.LC4)
+ 302 0154 0E94 0000 		call writeString
+ 303               	.LVL30:
+ 304               	.L12:
+ 305               	.LBE10:
+  62:main.c        **** 				lastButton3State = PINC & IO_PC3;
+ 306               		.loc 1 62 0
+ 307 0158 83B3      		in r24,0x13
+ 308 015a 8870      		andi r24,lo8(8)
+ 309 015c 90E0      		ldi r25,0
+ 310 015e 9093 0000 		sts lastButton3State+1,r25
+ 311 0162 8093 0000 		sts lastButton3State,r24
+ 312 0166 0895      		ret
+ 313               	.L11:
+  65:main.c        **** 			else if((PINC & IO_PC5) !=  lastButton5State)
+ 314               		.loc 1 65 0
+ 315 0168 23B3      		in r18,0x13
+ 316 016a 2072      		andi r18,lo8(32)
+ 317 016c 30E0      		ldi r19,0
+ 318 016e 8091 0000 		lds r24,lastButton5State
+ 319 0172 9091 0000 		lds r25,lastButton5State+1
+ 320 0176 2817      		cp r18,r24
+ 321 0178 3907      		cpc r19,r25
+ 322 017a 01F0      		breq .L7
+  67:main.c        **** 				buttenChanged();
+ 323               		.loc 1 67 0
+ 324 017c 0E94 0000 		call buttenChanged
+ 325               	.LVL31:
+  70:main.c        **** 					if(PINC & IO_PC5)
+ 326               		.loc 1 70 0
+ 327 0180 9D9B      		sbis 0x13,5
+ 328 0182 00C0      		rjmp .L13
+ 329               	.LBB11:
+  72:main.c        **** 						sideHit = 5;
+ 330               		.loc 1 72 0
+ 331 0184 85E0      		ldi r24,lo8(5)
+ 332 0186 8093 0000 		sts sideHit,r24
+  73:main.c        **** 						timesPressed5++;
+ 333               		.loc 1 73 0
+ 334 018a 6091 0000 		lds r22,timesPressed5
+ 335 018e 6F5F      		subi r22,lo8(-(1))
+ 336 0190 6093 0000 		sts timesPressed5,r22
+  74:main.c        **** 						writeButtonPressOnLCD(sideHit, timesPressed5);
+ 337               		.loc 1 74 0
+ 338 0194 70E0      		ldi r23,0
+ 339 0196 85E0      		ldi r24,lo8(5)
+ 340 0198 90E0      		ldi r25,0
+ 341 019a 0E94 0000 		call writeButtonPressOnLCD
+ 342               	.LVL32:
+  75:main.c        **** 						writeString("Button 5 pressed ");
+ 343               		.loc 1 75 0
+ 344 019e 80E0      		ldi r24,lo8(.LC6)
+ 345 01a0 90E0      		ldi r25,hi8(.LC6)
+ 346 01a2 0E94 0000 		call writeString
+ 347               	.LVL33:
+  76:main.c        **** 						writeInteger(timesPressed5, DEC);
+ 348               		.loc 1 76 0
+ 349 01a6 8091 0000 		lds r24,timesPressed5
+ 350 01aa 6AE0      		ldi r22,lo8(10)
+ 351 01ac 90E0      		ldi r25,0
+ 352 01ae 0E94 0000 		call writeInteger
+ 353               	.LVL34:
+  77:main.c        **** 						writeString(" times.");
+ 354               		.loc 1 77 0
+ 355 01b2 80E0      		ldi r24,lo8(.LC3)
+ 356 01b4 90E0      		ldi r25,hi8(.LC3)
+ 357 01b6 0E94 0000 		call writeString
+ 358               	.LVL35:
+  78:main.c        **** 						writeString("\n");
+ 359               		.loc 1 78 0
+ 360 01ba 80E0      		ldi r24,lo8(.LC4)
+ 361 01bc 90E0      		ldi r25,hi8(.LC4)
+ 362 01be 0E94 0000 		call writeString
+ 363               	.LVL36:
+ 364               	.L13:
+ 365               	.LBE11:
+  82:main.c        **** 				lastButton5State = PINC & IO_PC5;
+ 366               		.loc 1 82 0
+ 367 01c2 83B3      		in r24,0x13
+ 368 01c4 8072      		andi r24,lo8(32)
+ 369 01c6 90E0      		ldi r25,0
+ 370 01c8 9093 0000 		sts lastButton5State+1,r25
+ 371 01cc 8093 0000 		sts lastButton5State,r24
+ 372               	.L7:
+ 373 01d0 0895      		ret
+ 374               		.cfi_endproc
+ 375               	.LFE7:
+ 377               		.section	.text.startup,"ax",@progbits
+ 378               	.global	main
+ 380               	main:
+ 381               	.LFB11:
+ 134:main.c        **** 
+ 135:main.c        **** 
+ 136:main.c        **** /************************************************************************************/
+ 137:main.c        **** //====================================================================================
+ 138:main.c        **** // Main - The program starts here:
+ 139:main.c        **** //====================================================================================
+ 140:main.c        **** /************************************************************************************/
+ 141:main.c        **** 
+ 142:main.c        **** int main(void)
+ 143:main.c        **** {
+ 382               		.loc 1 143 0
+ 383               		.cfi_startproc
+ 384 0000 CF93      		push r28
+ 385               	.LCFI4:
+ 386               		.cfi_def_cfa_offset 3
+ 387               		.cfi_offset 28, -2
+ 388 0002 DF93      		push r29
+ 389               	.LCFI5:
+ 390               		.cfi_def_cfa_offset 4
+ 391               		.cfi_offset 29, -3
+ 392 0004 00D0      		rcall .
+ 393 0006 00D0      		rcall .
+ 394 0008 00D0      		rcall .
+ 395               	.LCFI6:
+ 396               		.cfi_def_cfa_offset 10
+ 397 000a CDB7      		in r28,__SP_L__
+ 398 000c DEB7      		in r29,__SP_H__
+ 399               	.LCFI7:
+ 400               		.cfi_def_cfa_register 28
+ 401               	/* prologue: function */
+ 402               	/* frame size = 6 */
+ 403               	/* stack size = 8 */
+ 404               	.L__stack_usage = 8
+ 144:main.c        **** 	initRP6Control(); 	
+ 405               		.loc 1 144 0
+ 406 000e 0E94 0000 		call initRP6Control
+ 407               	.LVL37:
+ 145:main.c        **** 	initI2C_RP6Lib();
+ 408               		.loc 1 145 0
+ 409 0012 0E94 0000 		call initI2C_RP6Lib
+ 410               	.LVL38:
+ 146:main.c        **** 	I2CTWI_setTransmissionErrorHandler(I2C_transmissionError);
+ 411               		.loc 1 146 0
+ 412 0016 80E0      		ldi r24,lo8(gs(I2C_transmissionError))
+ 413 0018 90E0      		ldi r25,hi8(gs(I2C_transmissionError))
+ 414 001a 0E94 0000 		call I2CTWI_setTransmissionErrorHandler
+ 415               	.LVL39:
+ 147:main.c        **** 
+ 148:main.c        **** 	WDT_setRequestHandler(watchDogRequest); 
+ 416               		.loc 1 148 0
+ 417 001e 80E0      		ldi r24,lo8(gs(watchDogRequest))
+ 418 0020 90E0      		ldi r25,hi8(gs(watchDogRequest))
+ 419 0022 0E94 0000 		call WDT_setRequestHandler
+ 420               	.LVL40:
+ 149:main.c        **** 
+ 150:main.c        **** 	DDRC &= ~IO_PC2; 
+ 421               		.loc 1 150 0
+ 422 0026 A298      		cbi 0x14,2
+ 151:main.c        **** 	DDRC &= ~IO_PC3;  
+ 423               		.loc 1 151 0
+ 424 0028 A398      		cbi 0x14,3
+ 152:main.c        **** 	DDRC &= ~IO_PC5; 
+ 425               		.loc 1 152 0
+ 426 002a A598      		cbi 0x14,5
+ 153:main.c        **** 
+ 154:main.c        **** 	DDRA &= ~ADC5; 
+ 427               		.loc 1 154 0
+ 428 002c D598      		cbi 0x1a,5
  155:main.c        **** 
- 156:main.c        **** 				if(PINC & IO_PC3)
- 415               		.loc 1 156 0
- 416 0136 9B9B      		sbis 0x13,3
- 417 0138 00C0      		rjmp .L20
- 418               	.LVL49:
- 157:main.c        **** 				{
- 158:main.c        **** 					sideHit = 3;
- 159:main.c        **** 					timesPressed3++;
- 419               		.loc 1 159 0
- 420 013a 8394      		inc r8
- 421               	.LVL50:
- 160:main.c        **** 
- 161:main.c        **** 					writeButtonPressOnLCD(sideHit, timesPressed3);
- 422               		.loc 1 161 0
- 423 013c 082D      		mov r16,r8
- 424 013e 10E0      		ldi r17,0
- 425 0140 B801      		movw r22,r16
- 426 0142 83E0      		ldi r24,lo8(3)
- 427 0144 0E94 0000 		call writeButtonPressOnLCD
- 428               	.LVL51:
- 162:main.c        **** 
- 163:main.c        **** 					writeString("Button 3 pressed ");
- 429               		.loc 1 163 0
- 430 0148 80E0      		ldi r24,lo8(.LC5)
- 431 014a 90E0      		ldi r25,hi8(.LC5)
- 432 014c 0E94 0000 		call writeString
- 433               	.LVL52:
- 164:main.c        **** 					writeInteger(timesPressed3, DEC);
- 434               		.loc 1 164 0
- 435 0150 6AE0      		ldi r22,lo8(10)
- 436 0152 C801      		movw r24,r16
- 437 0154 0E94 0000 		call writeInteger
- 438               	.LVL53:
- 165:main.c        **** 					writeString(" times.");
- 439               		.loc 1 165 0
- 440 0158 80E0      		ldi r24,lo8(.LC3)
- 441 015a 90E0      		ldi r25,hi8(.LC3)
- 442 015c 0E94 0000 		call writeString
- 443               	.LVL54:
- 166:main.c        **** 					writeString("\n");
- 444               		.loc 1 166 0
- 445 0160 80E0      		ldi r24,lo8(.LC4)
- 446 0162 90E0      		ldi r25,hi8(.LC4)
- 447 0164 0E94 0000 		call writeString
- 448               	.LVL55:
- 449               	.L20:
- 167:main.c        **** 				}
- 168:main.c        **** 				lastButton3State = PINC & IO_PC3;
- 450               		.loc 1 168 0
- 451 0168 03B3      		in r16,0x13
- 452 016a 0870      		andi r16,lo8(8)
- 453 016c 10E0      		ldi r17,0
- 454               	.LVL56:
- 455 016e 00C0      		rjmp .L18
- 456               	.LVL57:
- 457               	.L19:
- 169:main.c        **** 			}	
- 170:main.c        **** 
- 171:main.c        **** 			else if((PINC & IO_PC5) !=  lastButton5State)
- 458               		.loc 1 171 0
- 459 0170 83B3      		in r24,0x13
- 460 0172 8072      		andi r24,lo8(32)
- 461 0174 90E0      		ldi r25,0
- 462 0176 8A15      		cp r24,r10
- 463 0178 9B05      		cpc r25,r11
- 464 017a 01F0      		breq .L18
- 172:main.c        **** 			{
- 173:main.c        **** 				buttenChanged();
+ 156:main.c        **** 	
+ 157:main.c        **** 
+ 158:main.c        **** 	#ifdef DEBUG
+ 159:main.c        **** 
+ 160:main.c        **** 		if(PINC & IO_PC2) 
+ 429               		.loc 1 160 0
+ 430 002e 9A9B      		sbis 0x13,2
+ 431 0030 00C0      		rjmp .L24
+ 161:main.c        **** 			writeString_P("\n\nPC2 is HIGH!\n\n");
+ 432               		.loc 1 161 0
+ 433 0032 80E0      		ldi r24,lo8(__c.2429)
+ 434 0034 90E0      		ldi r25,hi8(__c.2429)
+ 435 0036 00C0      		rjmp .L35
+ 436               	.L24:
+ 162:main.c        **** 		else
+ 163:main.c        **** 			writeString_P("\n\nPC2 is LOW!\n\n");
+ 437               		.loc 1 163 0
+ 438 0038 80E0      		ldi r24,lo8(__c.2431)
+ 439 003a 90E0      		ldi r25,hi8(__c.2431)
+ 440               	.L35:
+ 441 003c 0E94 0000 		call writeNStringP
+ 442               	.LVL41:
+ 164:main.c        **** 
+ 165:main.c        **** 		if(PINC & IO_PC3) 
+ 443               		.loc 1 165 0
+ 444 0040 9B9B      		sbis 0x13,3
+ 445 0042 00C0      		rjmp .L26
+ 166:main.c        **** 			writeString_P("\n\nPC3 is HIGH!\n\n");
+ 446               		.loc 1 166 0
+ 447 0044 80E0      		ldi r24,lo8(__c.2433)
+ 448 0046 90E0      		ldi r25,hi8(__c.2433)
+ 449 0048 00C0      		rjmp .L36
+ 450               	.L26:
+ 167:main.c        **** 		else
+ 168:main.c        **** 			writeString_P("\n\nPC3 is LOW!\n\n");
+ 451               		.loc 1 168 0
+ 452 004a 80E0      		ldi r24,lo8(__c.2435)
+ 453 004c 90E0      		ldi r25,hi8(__c.2435)
+ 454               	.L36:
+ 455 004e 0E94 0000 		call writeNStringP
+ 456               	.LVL42:
+ 169:main.c        **** 
+ 170:main.c        **** 		if(PINC & IO_PC5) 
+ 457               		.loc 1 170 0
+ 458 0052 9D9B      		sbis 0x13,5
+ 459 0054 00C0      		rjmp .L28
+ 171:main.c        **** 			writeString_P("\n\nPC5 is HIGH!\n\n");
+ 460               		.loc 1 171 0
+ 461 0056 80E0      		ldi r24,lo8(__c.2437)
+ 462 0058 90E0      		ldi r25,hi8(__c.2437)
+ 463 005a 00C0      		rjmp .L37
+ 464               	.L28:
+ 172:main.c        **** 		else
+ 173:main.c        **** 			writeString_P("\n\nPC5 is LOW!\n\n");
  465               		.loc 1 173 0
- 466 017c 0E94 0000 		call buttenChanged
- 467               	.LVL58:
- 174:main.c        **** 
- 175:main.c        **** 				if(PINC & IO_PC5)
- 468               		.loc 1 175 0
- 469 0180 9D9B      		sbis 0x13,5
- 470 0182 00C0      		rjmp .L21
- 471               	.LVL59:
- 176:main.c        **** 				{
- 177:main.c        **** 					sideHit = 5;
- 178:main.c        **** 					timesPressed5++;
- 472               		.loc 1 178 0
- 473 0184 7394      		inc r7
- 474               	.LVL60:
- 179:main.c        **** 					writeButtonPressOnLCD(sideHit, timesPressed5);
+ 466 005c 80E0      		ldi r24,lo8(__c.2439)
+ 467 005e 90E0      		ldi r25,hi8(__c.2439)
+ 468               	.L37:
+ 469 0060 0E94 0000 		call writeNStringP
+ 470               	.LVL43:
+ 174:main.c        **** 	#endif
+ 175:main.c        **** 
+ 176:main.c        **** 	
+ 177:main.c        **** 
+ 178:main.c        **** 	startStopwatch1();
+ 471               		.loc 1 178 0
+ 472 0064 8091 0000 		lds r24,stopwatches
+ 473 0068 8160      		ori r24,lo8(1)
+ 474 006a 8093 0000 		sts stopwatches,r24
+ 179:main.c        **** 	startStopwatch2();	
  475               		.loc 1 179 0
- 476 0186 E72C      		mov r14,r7
- 477               	.LVL61:
- 478 0188 F12C      		mov r15,__zero_reg__
- 479 018a B701      		movw r22,r14
- 480 018c 85E0      		ldi r24,lo8(5)
- 481 018e 0E94 0000 		call writeButtonPressOnLCD
- 482               	.LVL62:
- 180:main.c        **** 					writeString("Button 5 pressed ");
- 483               		.loc 1 180 0
- 484 0192 80E0      		ldi r24,lo8(.LC6)
- 485 0194 90E0      		ldi r25,hi8(.LC6)
- 486 0196 0E94 0000 		call writeString
- 487               	.LVL63:
- 181:main.c        **** 					writeInteger(timesPressed5, DEC);
- 488               		.loc 1 181 0
- 489 019a 6AE0      		ldi r22,lo8(10)
- 490 019c C701      		movw r24,r14
- 491 019e 0E94 0000 		call writeInteger
- 492               	.LVL64:
- 182:main.c        **** 					writeString(" times.");
- 493               		.loc 1 182 0
- 494 01a2 80E0      		ldi r24,lo8(.LC3)
- 495 01a4 90E0      		ldi r25,hi8(.LC3)
- 496 01a6 0E94 0000 		call writeString
- 497               	.LVL65:
- 183:main.c        **** 					writeString("\n");
- 498               		.loc 1 183 0
- 499 01aa 80E0      		ldi r24,lo8(.LC4)
- 500 01ac 90E0      		ldi r25,hi8(.LC4)
- 501 01ae 0E94 0000 		call writeString
- 502               	.LVL66:
- 503               	.L21:
- 184:main.c        **** 				}
- 185:main.c        **** 				lastButton5State = PINC & IO_PC5;
- 504               		.loc 1 185 0
- 505 01b2 83B3      		in r24,0x13
- 506 01b4 8072      		andi r24,lo8(32)
- 507 01b6 A82E      		mov r10,r24
- 508               	.LVL67:
- 509 01b8 B12C      		mov r11,__zero_reg__
- 510               	.LVL68:
- 511               	.L18:
- 186:main.c        **** 			}	
- 187:main.c        **** 			
- 188:main.c        **** 
- 189:main.c        **** 			setStopwatch1(0);
- 512               		.loc 1 189 0
- 513 01ba 1092 0000 		sts stopwatches+1+1,__zero_reg__
- 514 01be 1092 0000 		sts stopwatches+1,__zero_reg__
- 515 01c2 7801      		movw r14,r16
- 516 01c4 8601      		movw r16,r12
- 517               	.LVL69:
- 518               	.L15:
- 190:main.c        **** 		}
+ 476 006e 8091 0000 		lds r24,stopwatches
+ 477 0072 8260      		ori r24,lo8(2)
+ 478 0074 8093 0000 		sts stopwatches,r24
+ 180:main.c        **** 
+ 181:main.c        **** 	// Setup ACS power:
+ 182:main.c        **** 	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_ACS_POWER, ACS_PWR_MED);
+ 479               		.loc 1 182 0
+ 480 0078 22E0      		ldi r18,lo8(2)
+ 481 007a 49E0      		ldi r20,lo8(9)
+ 482 007c 60E0      		ldi r22,0
+ 483 007e 8AE0      		ldi r24,lo8(10)
+ 484 0080 0E94 0000 		call I2CTWI_transmit3Bytes
+ 485               	.LVL44:
+ 183:main.c        **** 	// Enable Watchdog for Interrupt requests:
+ 184:main.c        **** 	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_WDT, true);
+ 486               		.loc 1 184 0
+ 487 0084 21E0      		ldi r18,lo8(1)
+ 488 0086 4BE0      		ldi r20,lo8(11)
+ 489 0088 60E0      		ldi r22,0
+ 490 008a 8AE0      		ldi r24,lo8(10)
+ 491 008c 0E94 0000 		call I2CTWI_transmit3Bytes
+ 492               	.LVL45:
+ 185:main.c        **** 	// Enable timed watchdog requests:
+ 186:main.c        **** 	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_WDT_RQ, true);
+ 493               		.loc 1 186 0
+ 494 0090 21E0      		ldi r18,lo8(1)
+ 495 0092 4CE0      		ldi r20,lo8(12)
+ 496 0094 60E0      		ldi r22,0
+ 497 0096 8AE0      		ldi r24,lo8(10)
+ 498 0098 0E94 0000 		call I2CTWI_transmit3Bytes
+ 499               	.LVL46:
+ 187:main.c        **** 	
+ 188:main.c        **** 	BUMPERS_setStateChangedHandler(buttenChanged);
+ 500               		.loc 1 188 0
+ 501 009c 80E0      		ldi r24,lo8(gs(buttenChanged))
+ 502 009e 90E0      		ldi r25,hi8(gs(buttenChanged))
+ 503 00a0 0E94 0000 		call BUMPERS_setStateChangedHandler
+ 504               	.LVL47:
+ 189:main.c        **** 
+ 190:main.c        **** 	initMPU9250();
+ 505               		.loc 1 190 0
+ 506 00a4 0E94 0000 		call initMPU9250
+ 507               	.LVL48:
  191:main.c        **** 
- 192:main.c        **** 		if(!pressed)
- 519               		.loc 1 192 0
- 520 01c6 8091 0000 		lds r24,pressed
- 521 01ca 8111      		cpse r24,__zero_reg__
- 522 01cc 00C0      		rjmp .L22
- 193:main.c        **** 		{
- 194:main.c        **** 			setLEDs(0b0);
- 523               		.loc 1 194 0
- 524 01ce 0E94 0000 		call setLEDs
- 525               	.LVL70:
- 195:main.c        **** 
- 196:main.c        **** 			moveAtSpeed(60,60);
- 526               		.loc 1 196 0
- 527 01d2 6CE3      		ldi r22,lo8(60)
- 528 01d4 8CE3      		ldi r24,lo8(60)
- 529 01d6 0E94 0000 		call moveAtSpeed
- 530               	.LVL71:
- 197:main.c        **** 
- 198:main.c        **** 			if(getStopwatch2() > 500)
- 531               		.loc 1 198 0
- 532 01da 8091 0000 		lds r24,stopwatches+3
- 533 01de 9091 0000 		lds r25,stopwatches+3+1
- 534 01e2 853F      		cpi r24,-11
- 535 01e4 9140      		sbci r25,1
- 536 01e6 00F4      		brsh .+2
- 537 01e8 00C0      		rjmp .L14
- 199:main.c        **** 			{
- 200:main.c        **** 				getAllSensors();
- 538               		.loc 1 200 0
- 539 01ea 0E94 0000 		call getAllSensors
- 540               	.LVL72:
- 201:main.c        **** 				saveSpeedData(mleft_speed, mright_speed);
- 541               		.loc 1 201 0
- 542 01ee 6091 0000 		lds r22,mright_speed
- 543 01f2 8091 0000 		lds r24,mleft_speed
- 544 01f6 0E94 0000 		call saveSpeedData
- 545               	.LVL73:
- 202:main.c        **** 				saveGyroData(gData);
- 546               		.loc 1 202 0
- 547 01fa 4981      		ldd r20,Y+1
- 548 01fc 5A81      		ldd r21,Y+2
- 549 01fe 6B81      		ldd r22,Y+3
- 550 0200 7C81      		ldd r23,Y+4
- 551 0202 8D81      		ldd r24,Y+5
- 552 0204 9E81      		ldd r25,Y+6
- 553 0206 0E94 0000 		call saveGyroData
- 554               	.LVL74:
+ 192:main.c        **** 	gyroData gData;
+ 193:main.c        **** 
+ 194:main.c        **** 	bool arrayIsFilled = false;
+ 195:main.c        **** 	uint8_t counter = 0;
+ 196:main.c        **** 
+ 197:main.c        **** 	changeDirection(FWD);
+ 508               		.loc 1 197 0
+ 509 00a8 80E0      		ldi r24,0
+ 510 00aa 0E94 0000 		call changeDirection
+ 511               	.LVL49:
+ 512               	.L30:
+ 198:main.c        **** 
+ 199:main.c        **** 	while(true)
+ 200:main.c        **** 	{
+ 201:main.c        **** 		task_checkINT0();
+ 513               		.loc 1 201 0
+ 514 00ae 0E94 0000 		call task_checkINT0
+ 515               	.LVL50:
+ 202:main.c        **** 	    task_I2CTWI();
+ 516               		.loc 1 202 0
+ 517 00b2 0E94 0000 		call task_I2CTWI
+ 518               	.LVL51:
  203:main.c        **** 
- 204:main.c        **** 				setStopwatch2(0);
- 555               		.loc 1 204 0
- 556 020a 1092 0000 		sts stopwatches+3+1,__zero_reg__
- 557 020e 1092 0000 		sts stopwatches+3,__zero_reg__
- 558 0212 00C0      		rjmp .L14
- 559               	.L22:
- 205:main.c        **** 			}
- 206:main.c        **** 		}
- 207:main.c        **** 		else if(!crashInfoWasSend && pressed)
- 560               		.loc 1 207 0
- 561 0214 8091 0000 		lds r24,crashInfoWasSend
- 562 0218 8111      		cpse r24,__zero_reg__
- 563 021a 00C0      		rjmp .L24
- 208:main.c        **** 		{
- 209:main.c        **** 			crashInfoWasSend = assignCrashInfo();
- 564               		.loc 1 209 0
- 565 021c 0E94 0000 		call assignCrashInfo
- 566               	.LVL75:
- 567 0220 8093 0000 		sts crashInfoWasSend,r24
- 210:main.c        **** 			sendCrashInfo();
- 568               		.loc 1 210 0
- 569 0224 0E94 0000 		call sendCrashInfo
- 570               	.LVL76:
- 571 0228 00C0      		rjmp .L14
- 572               	.L24:
- 211:main.c        **** 		} 
- 212:main.c        **** 		else if(crashInfoWasSend && pressed)
- 213:main.c        **** 		{
- 214:main.c        **** 			stop();
- 573               		.loc 1 214 0
- 574 022a 0E94 0000 		call stop
- 575               	.LVL77:
- 576 022e 00C0      		rjmp .L14
- 577               		.cfi_endproc
- 578               	.LFE10:
- 580               		.section	.progmem.data,"a",@progbits
- 583               	__c.2432:
- 584 0000 0A0A 5043 		.string	"\n\nPC5 is LOW!\n\n"
- 584      3520 6973 
- 584      204C 4F57 
- 584      210A 0A00 
- 587               	__c.2430:
- 588 0010 0A0A 5043 		.string	"\n\nPC5 is HIGH!\n\n"
- 588      3520 6973 
- 588      2048 4947 
- 588      4821 0A0A 
- 588      00
- 591               	__c.2428:
- 592 0021 0A0A 5043 		.string	"\n\nPC3 is LOW!\n\n"
- 592      3320 6973 
- 592      204C 4F57 
- 592      210A 0A00 
- 595               	__c.2426:
- 596 0031 0A0A 5043 		.string	"\n\nPC3 is HIGH!\n\n"
- 596      3320 6973 
- 596      2048 4947 
- 596      4821 0A0A 
- 596      00
- 599               	__c.2424:
- 600 0042 0A0A 5043 		.string	"\n\nPC2 is LOW!\n\n"
- 600      3220 6973 
- 600      204C 4F57 
- 600      210A 0A00 
- 603               	__c.2422:
- 604 0052 0A0A 5043 		.string	"\n\nPC2 is HIGH!\n\n"
- 604      3220 6973 
- 604      2048 4947 
- 604      4821 0A0A 
- 604      00
- 607               	__c.2406:
- 608 0063 2300      		.string	"#"
- 609               		.local	heartbeat2.2405
- 610               		.comm	heartbeat2.2405,1,1
- 613               	__c.2400:
- 614 0065 0A49 3243 		.string	"\nI2C ERROR - TWI STATE: 0x"
- 614      2045 5252 
- 614      4F52 202D 
- 614      2054 5749 
- 614      2053 5441 
- 615               		.comm	statusLEDs,1,1
- 616               		.comm	drive_status,1,1
- 617               		.comm	status,1,1
- 618               		.comm	interrupt_status,1,1
- 619               		.comm	sDataArray,30,1
- 620               		.comm	timer,2,1
- 621               		.text
- 622               	.Letext0:
- 623               		.file 2 "/usr/lib/avr/include/stdint.h"
- 624               		.file 3 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/Stopwatch.h"
- 625               		.file 4 "Drive.h"
- 626               		.file 5 "MPU9250.h"
- 627               		.file 6 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/internal/RP6Control_
- 628               		.file 7 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/internal/Timer_internal.h"
- 629               		.file 8 "Crash.h"
- 630               		.file 9 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.h"
- 631               		.file 10 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/LCD.h"
- 632               		.file 11 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6_control.h"
- 633               		.file 12 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMaste
- 634               		.file 13 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.h"
- 635               		.file 14 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/Leds.h"
+ 204:main.c        **** 		if(getStopwatch1() > 300)
+ 519               		.loc 1 204 0
+ 520 00b6 8091 0000 		lds r24,stopwatches+1
+ 521 00ba 9091 0000 		lds r25,stopwatches+1+1
+ 522 00be 8D32      		cpi r24,45
+ 523 00c0 9140      		sbci r25,1
+ 524 00c2 00F0      		brlo .L31
+ 205:main.c        **** 		{
+ 206:main.c        **** 			
+ 207:main.c        **** 			task_checkButtonChanged();
+ 525               		.loc 1 207 0
+ 526 00c4 0E94 0000 		call task_checkButtonChanged
+ 527               	.LVL52:
+ 208:main.c        **** 			setStopwatch1(0);
+ 528               		.loc 1 208 0
+ 529 00c8 1092 0000 		sts stopwatches+1+1,__zero_reg__
+ 530 00cc 1092 0000 		sts stopwatches+1,__zero_reg__
+ 531               	.L31:
+ 209:main.c        **** 		}
+ 210:main.c        **** 
+ 211:main.c        **** 		if(!pressed)
+ 532               		.loc 1 211 0
+ 533 00d0 8091 0000 		lds r24,pressed
+ 534 00d4 8111      		cpse r24,__zero_reg__
+ 535 00d6 00C0      		rjmp .L32
+ 212:main.c        **** 		{
+ 213:main.c        **** 			setLEDs(0b0);
+ 536               		.loc 1 213 0
+ 537 00d8 0E94 0000 		call setLEDs
+ 538               	.LVL53:
+ 214:main.c        **** 
+ 215:main.c        **** 			moveAtSpeed(60,60);
+ 539               		.loc 1 215 0
+ 540 00dc 6CE3      		ldi r22,lo8(60)
+ 541 00de 8CE3      		ldi r24,lo8(60)
+ 542 00e0 0E94 0000 		call moveAtSpeed
+ 543               	.LVL54:
+ 216:main.c        **** 
+ 217:main.c        **** 			if(getStopwatch2() > 500)
+ 544               		.loc 1 217 0
+ 545 00e4 8091 0000 		lds r24,stopwatches+3
+ 546 00e8 9091 0000 		lds r25,stopwatches+3+1
+ 547 00ec 853F      		cpi r24,-11
+ 548 00ee 9140      		sbci r25,1
+ 549 00f0 00F0      		brlo .L30
+ 218:main.c        **** 			{
+ 219:main.c        **** 				getAllSensors();
+ 550               		.loc 1 219 0
+ 551 00f2 0E94 0000 		call getAllSensors
+ 552               	.LVL55:
+ 220:main.c        **** 				saveSpeedData(mleft_speed, mright_speed);
+ 553               		.loc 1 220 0
+ 554 00f6 6091 0000 		lds r22,mright_speed
+ 555 00fa 8091 0000 		lds r24,mleft_speed
+ 556 00fe 0E94 0000 		call saveSpeedData
+ 557               	.LVL56:
+ 221:main.c        **** 				saveGyroData(gData);
+ 558               		.loc 1 221 0
+ 559 0102 4981      		ldd r20,Y+1
+ 560 0104 5A81      		ldd r21,Y+2
+ 561 0106 6B81      		ldd r22,Y+3
+ 562 0108 7C81      		ldd r23,Y+4
+ 563 010a 8D81      		ldd r24,Y+5
+ 564 010c 9E81      		ldd r25,Y+6
+ 565 010e 0E94 0000 		call saveGyroData
+ 566               	.LVL57:
+ 222:main.c        **** 
+ 223:main.c        **** 				setStopwatch2(0);
+ 567               		.loc 1 223 0
+ 568 0112 1092 0000 		sts stopwatches+3+1,__zero_reg__
+ 569 0116 1092 0000 		sts stopwatches+3,__zero_reg__
+ 570 011a 00C0      		rjmp .L30
+ 571               	.L32:
+ 224:main.c        **** 			}
+ 225:main.c        **** 		}
+ 226:main.c        **** 		else if(!crashInfoWasSend && pressed)
+ 572               		.loc 1 226 0
+ 573 011c 8091 0000 		lds r24,crashInfoWasSend
+ 574 0120 8111      		cpse r24,__zero_reg__
+ 575 0122 00C0      		rjmp .L34
+ 227:main.c        **** 		{
+ 228:main.c        **** 			crashInfoWasSend = assignCrashInfo();
+ 576               		.loc 1 228 0
+ 577 0124 0E94 0000 		call assignCrashInfo
+ 578               	.LVL58:
+ 579 0128 8093 0000 		sts crashInfoWasSend,r24
+ 229:main.c        **** 			sendCrashInfo();
+ 580               		.loc 1 229 0
+ 581 012c 0E94 0000 		call sendCrashInfo
+ 582               	.LVL59:
+ 583 0130 00C0      		rjmp .L30
+ 584               	.L34:
+ 230:main.c        **** 		} 
+ 231:main.c        **** 		else if(crashInfoWasSend && pressed)
+ 232:main.c        **** 		{
+ 233:main.c        **** 			stop();
+ 585               		.loc 1 233 0
+ 586 0132 0E94 0000 		call stop
+ 587               	.LVL60:
+ 588 0136 00C0      		rjmp .L30
+ 589               		.cfi_endproc
+ 590               	.LFE11:
+ 592               		.section	.progmem.data,"a",@progbits
+ 595               	__c.2439:
+ 596 0000 0A0A 5043 		.string	"\n\nPC5 is LOW!\n\n"
+ 596      3520 6973 
+ 596      204C 4F57 
+ 596      210A 0A00 
+ 599               	__c.2437:
+ 600 0010 0A0A 5043 		.string	"\n\nPC5 is HIGH!\n\n"
+ 600      3520 6973 
+ 600      2048 4947 
+ 600      4821 0A0A 
+ 600      00
+ 603               	__c.2435:
+ 604 0021 0A0A 5043 		.string	"\n\nPC3 is LOW!\n\n"
+ 604      3320 6973 
+ 604      204C 4F57 
+ 604      210A 0A00 
+ 607               	__c.2433:
+ 608 0031 0A0A 5043 		.string	"\n\nPC3 is HIGH!\n\n"
+ 608      3320 6973 
+ 608      2048 4947 
+ 608      4821 0A0A 
+ 608      00
+ 611               	__c.2431:
+ 612 0042 0A0A 5043 		.string	"\n\nPC2 is LOW!\n\n"
+ 612      3220 6973 
+ 612      204C 4F57 
+ 612      210A 0A00 
+ 615               	__c.2429:
+ 616 0052 0A0A 5043 		.string	"\n\nPC2 is HIGH!\n\n"
+ 616      3220 6973 
+ 616      2048 4947 
+ 616      4821 0A0A 
+ 616      00
+ 619               	__c.2420:
+ 620 0063 2300      		.string	"#"
+ 621               		.local	heartbeat2.2419
+ 622               		.comm	heartbeat2.2419,1,1
+ 625               	__c.2414:
+ 626 0065 0A49 3243 		.string	"\nI2C ERROR - TWI STATE: 0x"
+ 626      2045 5252 
+ 626      4F52 202D 
+ 626      2054 5749 
+ 626      2053 5441 
+ 627               	.global	timesPressed5
+ 628               		.section .bss
+ 631               	timesPressed5:
+ 632 0000 00        		.zero	1
+ 633               	.global	timesPressed3
+ 636               	timesPressed3:
+ 637 0001 00        		.zero	1
+ 638               	.global	timesPressed2
+ 641               	timesPressed2:
+ 642 0002 00        		.zero	1
+ 643               	.global	sideHit
+ 646               	sideHit:
+ 647 0003 00        		.zero	1
+ 648               	.global	lastButton5State
+ 651               	lastButton5State:
+ 652 0004 0000      		.zero	2
+ 653               	.global	lastButton3State
+ 656               	lastButton3State:
+ 657 0006 0000      		.zero	2
+ 658               	.global	lastButton2State
+ 661               	lastButton2State:
+ 662 0008 0000      		.zero	2
+ 663               		.comm	statusLEDs,1,1
+ 664               		.comm	drive_status,1,1
+ 665               		.comm	status,1,1
+ 666               		.comm	interrupt_status,1,1
+ 667               		.comm	sDataArray,30,1
+ 668               		.comm	timer,2,1
+ 669               		.text
+ 670               	.Letext0:
+ 671               		.file 2 "/usr/lib/avr/include/stdint.h"
+ 672               		.file 3 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/Stopwatch.h"
+ 673               		.file 4 "Drive.h"
+ 674               		.file 5 "MPU9250.h"
+ 675               		.file 6 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/internal/RP6Control_
+ 676               		.file 7 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/internal/Timer_internal.h"
+ 677               		.file 8 "Crash.h"
+ 678               		.file 9 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.h"
+ 679               		.file 10 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/LCD.h"
+ 680               		.file 11 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/RP6_control.h"
+ 681               		.file 12 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/RP6Control_I2CMaste
+ 682               		.file 13 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.h"
+ 683               		.file 14 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/Leds.h"
 DEFINED SYMBOLS
                             *ABS*:00000000 main.c
-     /tmp/ccMEgUFw.s:2      *ABS*:0000003e __SP_H__
-     /tmp/ccMEgUFw.s:3      *ABS*:0000003d __SP_L__
-     /tmp/ccMEgUFw.s:4      *ABS*:0000003f __SREG__
-     /tmp/ccMEgUFw.s:5      *ABS*:00000000 __tmp_reg__
-     /tmp/ccMEgUFw.s:6      *ABS*:00000001 __zero_reg__
-     /tmp/ccMEgUFw.s:12     .text:00000000 I2C_transmissionError
-     /tmp/ccMEgUFw.s:613    .progmem.data:00000065 __c.2400
-     /tmp/ccMEgUFw.s:53     .text:0000001e watchDogRequest
-                             .bss:00000000 heartbeat2.2405
-     /tmp/ccMEgUFw.s:607    .progmem.data:00000063 __c.2406
-     /tmp/ccMEgUFw.s:104    .text:0000004e writeButtonPressOnLCD
-     /tmp/ccMEgUFw.s:186    .text.startup:00000000 main
-     /tmp/ccMEgUFw.s:603    .progmem.data:00000052 __c.2422
-     /tmp/ccMEgUFw.s:599    .progmem.data:00000042 __c.2424
-     /tmp/ccMEgUFw.s:595    .progmem.data:00000031 __c.2426
-     /tmp/ccMEgUFw.s:591    .progmem.data:00000021 __c.2428
-     /tmp/ccMEgUFw.s:587    .progmem.data:00000010 __c.2430
-     /tmp/ccMEgUFw.s:583    .progmem.data:00000000 __c.2432
+     /tmp/ccnSBAZi.s:2      *ABS*:0000003e __SP_H__
+     /tmp/ccnSBAZi.s:3      *ABS*:0000003d __SP_L__
+     /tmp/ccnSBAZi.s:4      *ABS*:0000003f __SREG__
+     /tmp/ccnSBAZi.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/ccnSBAZi.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/ccnSBAZi.s:12     .text:00000000 I2C_transmissionError
+     /tmp/ccnSBAZi.s:625    .progmem.data:00000065 __c.2414
+     /tmp/ccnSBAZi.s:53     .text:0000001e watchDogRequest
+                             .bss:0000000a heartbeat2.2419
+     /tmp/ccnSBAZi.s:619    .progmem.data:00000063 __c.2420
+     /tmp/ccnSBAZi.s:104    .text:0000004e writeButtonPressOnLCD
+     /tmp/ccnSBAZi.s:186    .text:00000094 task_checkButtonChanged
+     /tmp/ccnSBAZi.s:661    .bss:00000008 lastButton2State
+     /tmp/ccnSBAZi.s:646    .bss:00000003 sideHit
+     /tmp/ccnSBAZi.s:641    .bss:00000002 timesPressed2
+     /tmp/ccnSBAZi.s:656    .bss:00000006 lastButton3State
+     /tmp/ccnSBAZi.s:636    .bss:00000001 timesPressed3
+     /tmp/ccnSBAZi.s:651    .bss:00000004 lastButton5State
+     /tmp/ccnSBAZi.s:631    .bss:00000000 timesPressed5
+     /tmp/ccnSBAZi.s:380    .text.startup:00000000 main
+     /tmp/ccnSBAZi.s:615    .progmem.data:00000052 __c.2429
+     /tmp/ccnSBAZi.s:611    .progmem.data:00000042 __c.2431
+     /tmp/ccnSBAZi.s:607    .progmem.data:00000031 __c.2433
+     /tmp/ccnSBAZi.s:603    .progmem.data:00000021 __c.2435
+     /tmp/ccnSBAZi.s:599    .progmem.data:00000010 __c.2437
+     /tmp/ccnSBAZi.s:595    .progmem.data:00000000 __c.2439
                             *COM*:00000001 statusLEDs
                             *COM*:00000001 drive_status
                             *COM*:00000001 status
@@ -911,19 +998,19 @@ writeNStringLCD_P
 clearLCD
 writeStringLCD
 writeIntegerLCD
+buttenChanged
+writeString
 initRP6Control
 initI2C_RP6Lib
 I2CTWI_setTransmissionErrorHandler
 WDT_setRequestHandler
 stopwatches
 I2CTWI_transmit3Bytes
-buttenChanged
 BUMPERS_setStateChangedHandler
 initMPU9250
 changeDirection
 task_checkINT0
 task_I2CTWI
-writeString
 pressed
 setLEDs
 moveAtSpeed

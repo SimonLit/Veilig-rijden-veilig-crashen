@@ -4,7 +4,9 @@
 #include "RP6I2CmasterTWI.h"
 #include "RP6uart.h"
 #include <stdbool.h>
-#include "RP6Control_I2CMasterLib.h" 	
+#include "RP6Control_I2CMasterLib.h" 
+
+#define SERIAL_DEBUG	
 
 //====================================================================================
 // Crash
@@ -18,6 +20,7 @@ struct crashInfo crashInfoToSend;
 uint8_t pressed = false;
 uint8_t crashInfoWasSend = false;
 uint8_t hitSide;
+uint8_t impactGramByteSize[2];
 
 int assignCrashInfo(void)
 {
@@ -32,38 +35,40 @@ int assignCrashInfo(void)
 														// multiplying is by 0.025cm you get the 
 														// amount of cm/s.
 
-	writeString("Average left speed: ");
-	writeInteger(avergeLeftSpeed, DEC);
-	writeChar('\n');
-	writeString("Average right speed: ");
-	writeInteger(avergeRightSpeed, DEC);
-	writeChar('\n');
-	writeString("Average speed: ");
-	writeInteger(averageSpeed, DEC);
-	writeChar('\n');
-	writeString("Average: ");
-	writeInteger(speedCMPerSecond, DEC);
-	writeString(" cm/s");
-	writeChar('\n');
-	writeChar('\n');
+	#ifdef SERIAL_DEBUG
+		writeString("Average left speed: ");
+		writeInteger(avergeLeftSpeed, DEC);
+		writeChar('\n');
+		writeString("Average right speed: ");
+		writeInteger(avergeRightSpeed, DEC);
+		writeChar('\n');
+		writeString("Average speed: ");
+		writeInteger(averageSpeed, DEC);
+		writeChar('\n');
+		writeString("Average: ");
+		writeInteger(speedCMPerSecond, DEC);
+		writeString(" cm/s");
+		writeChar('\n');
+		writeChar('\n');
+
+		writeString("GyX: ");
+		writeInteger(((gDataArray[14].GyroX_H << 8) | gDataArray[14].GyroX_L), DEC);
+		writeChar('\n');
+		writeChar('\n');
+		writeString("GyY: ");
+		writeInteger(((gDataArray[14].GyroY_H << 8) | gDataArray[14].GyroY_L), DEC);
+		writeChar('\n');
+		writeChar('\n');
+		writeString("GyZ: ");
+		writeInteger(((gDataArray[14].GyroZ_H << 8) | gDataArray[14].GyroZ_L), DEC);
+		writeChar('\n');
+		writeChar('\n');
+	#endif
 
 	crashInfoToSend.speed = speedCMPerSecond;
 	crashInfoToSend.sideHit = hitSide;
-	crashInfoToSend.impact = 1;
-
-	writeString("GyX: ");
-	writeInteger(((gDataArray[14].GyroX_H << 8) | gDataArray[14].GyroX_L), DEC);
-	writeChar('\n');
-	writeChar('\n');
-	writeString("GyY: ");
-	writeInteger(((gDataArray[14].GyroY_H << 8) | gDataArray[14].GyroY_L), DEC);
-	writeChar('\n');
-	writeChar('\n');
-	writeString("GyZ: ");
-	writeInteger(((gDataArray[14].GyroZ_H << 8) | gDataArray[14].GyroZ_L), DEC);
-	writeChar('\n');
-	writeChar('\n');
-
+	impactGramByteSize[0] = (crashInfoToSend.impactGram >> 8) & 0xFF;
+	impactGramByteSize[1] = crashInfoToSend.impactGram & 0xFF;
 
 	return true;
 }
@@ -80,18 +85,25 @@ void sendCrashInfo(void)
 																				// 3: left
 																				// 4: back	
 
-	I2CTWI_transmit2Bytes(ARDUINO_WRITE_ADDRESS, 6, crashInfoToSend.impact);
+	I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 6, impactGramByteSize[0], impactGramByteSize[1]);
 }
 
 
 
 void buttenChanged(void)
 {
-	writeString("Bumper changed\n");
+	#ifdef SERIAL_DEBUG
+		writeString("Bumper changed\n");
+	#endif
 
 	if(!pressed)
 	{
-		writeString("Bumper was pressed\n");
+		#ifdef SERIAL_DEBUG
+			writeString("Bumper was pressed\n");
+			writeSpeed();
+			writeGyro();
+		#endif
+
 	 	if(bumper_left || bumper_right)
 	 		hitSide = 1;
 	 	else if(PINC & IO_PC2)
@@ -103,13 +115,13 @@ void buttenChanged(void)
 
 		setRP6LEDs(0b1111);
 		pressed = true;
-
-		writeSpeed();
-		writeGyro();
 	}
 	else if(pressed)
 	{
-		writeString("Bumper was released\n");
+		#ifdef SERIAL_DEBUG
+			writeString("Bumper was released\n");
+		#endif
+
 		pressed = false;
 		crashInfoWasSend = false;
 	}

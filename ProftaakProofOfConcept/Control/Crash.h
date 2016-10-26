@@ -12,7 +12,7 @@ struct crashInfo
 {
 	double speed;
 	uint8_t sideHit;
-	uint16_t impact;
+	uint16_t impactGram;
 };
 
 int assignCrashInfo(void);

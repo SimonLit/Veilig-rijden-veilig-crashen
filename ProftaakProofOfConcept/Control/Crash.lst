@@ -55,24 +55,26 @@
    4:Crash.c       **** #include "RP6I2CmasterTWI.h"
    5:Crash.c       **** #include "RP6uart.h"
    6:Crash.c       **** #include <stdbool.h>
-   7:Crash.c       **** #include "RP6Control_I2CMasterLib.h" 	
+   7:Crash.c       **** #include "RP6Control_I2CMasterLib.h" 
    8:Crash.c       **** 
-   9:Crash.c       **** //====================================================================================
-  10:Crash.c       **** // Crash
+   9:Crash.c       **** #define SERIAL_DEBUG	
+  10:Crash.c       **** 
   11:Crash.c       **** //====================================================================================
-  12:Crash.c       **** 
-  13:Crash.c       **** #define ARDUINO_DEVICE_ADDRESS (42)
-  14:Crash.c       **** #define ARDUINO_WRITE_ADDRESS (ARDUINO_DEVICE_ADDRESS << 1)
-  15:Crash.c       **** #define ARDUINO_READ_ADDRESS (ARDUINO_WRITE_ADDRESS + 1)
-  16:Crash.c       **** 
-  17:Crash.c       **** struct crashInfo crashInfoToSend;
-  18:Crash.c       **** uint8_t pressed = false;
-  19:Crash.c       **** uint8_t crashInfoWasSend = false;
-  20:Crash.c       **** uint8_t hitSide;
-  21:Crash.c       **** 
-  22:Crash.c       **** int assignCrashInfo(void)
-  23:Crash.c       **** {
-  36               		.loc 1 23 0
+  12:Crash.c       **** // Crash
+  13:Crash.c       **** //====================================================================================
+  14:Crash.c       **** 
+  15:Crash.c       **** #define ARDUINO_DEVICE_ADDRESS (42)
+  16:Crash.c       **** #define ARDUINO_WRITE_ADDRESS (ARDUINO_DEVICE_ADDRESS << 1)
+  17:Crash.c       **** #define ARDUINO_READ_ADDRESS (ARDUINO_WRITE_ADDRESS + 1)
+  18:Crash.c       **** 
+  19:Crash.c       **** struct crashInfo crashInfoToSend;
+  20:Crash.c       **** uint8_t pressed = false;
+  21:Crash.c       **** uint8_t crashInfoWasSend = false;
+  22:Crash.c       **** uint8_t hitSide;
+  23:Crash.c       **** 
+  24:Crash.c       **** int assignCrashInfo(void)
+  25:Crash.c       **** {
+  36               		.loc 1 25 0
   37               		.cfi_startproc
   38 0000 AF92      		push r10
   39               	.LCFI0:
@@ -118,28 +120,28 @@
   79               	/* frame size = 0 */
   80               	/* stack size = 10 */
   81               	.L__stack_usage = 10
-  24:Crash.c       **** 	uint16_t avergeLeftSpeed = calculateAverageLeftSpeed();
-  82               		.loc 1 24 0
+  26:Crash.c       **** 	uint16_t avergeLeftSpeed = calculateAverageLeftSpeed();
+  82               		.loc 1 26 0
   83 0014 0E94 0000 		call calculateAverageLeftSpeed
   84               	.LVL0:
   85 0018 8C01      		movw r16,r24
   86               	.LVL1:
-  25:Crash.c       **** 	uint16_t avergeRightSpeed = calculateAverageRightSpeed();
-  87               		.loc 1 25 0
+  27:Crash.c       **** 	uint16_t avergeRightSpeed = calculateAverageRightSpeed();
+  87               		.loc 1 27 0
   88 001a 0E94 0000 		call calculateAverageRightSpeed
   89               	.LVL2:
   90 001e 5C01      		movw r10,r24
   91               	.LVL3:
-  26:Crash.c       **** 	uint16_t averageSpeed = (avergeLeftSpeed + avergeRightSpeed)/2;
-  92               		.loc 1 26 0
+  28:Crash.c       **** 	uint16_t averageSpeed = (avergeLeftSpeed + avergeRightSpeed)/2;
+  92               		.loc 1 28 0
   93 0020 EC01      		movw r28,r24
   94 0022 C00F      		add r28,r16
   95 0024 D11F      		adc r29,r17
   96 0026 D695      		lsr r29
   97 0028 C795      		ror r28
   98               	.LVL4:
-  27:Crash.c       **** 	double speedCMPerSecond = averageSpeed * 5 * 0.025; // One speed point is equal to 5 segments per 
-  99               		.loc 1 27 0
+  29:Crash.c       **** 	double speedCMPerSecond = averageSpeed * 5 * 0.025; // One speed point is equal to 5 segments per 
+  99               		.loc 1 29 0
  100 002a 85E0      		ldi r24,lo8(5)
  101 002c 8C9F      		mul r24,r28
  102 002e B001      		movw r22,r0
@@ -159,72 +161,73 @@
  116 004a 6B01      		movw r12,r22
  117 004c 7C01      		movw r14,r24
  118               	.LVL7:
-  28:Crash.c       **** 														// By multiplying the speed by 5
-  29:Crash.c       **** 													    // you get the amount of segments past
-  30:Crash.c       **** 														// on the encoder per second. 
-  31:Crash.c       **** 													    // Each segment is +/- 0.25mm. So by 
-  32:Crash.c       **** 														// multiplying is by 0.025cm you get the 
-  33:Crash.c       **** 														// amount of cm/s.
-  34:Crash.c       **** 
-  35:Crash.c       **** 	writeString("Average left speed: ");
- 119               		.loc 1 35 0
+  30:Crash.c       **** 														// By multiplying the speed by 5
+  31:Crash.c       **** 													    // you get the amount of segments past
+  32:Crash.c       **** 														// on the encoder per second. 
+  33:Crash.c       **** 													    // Each segment is +/- 0.25mm. So by 
+  34:Crash.c       **** 														// multiplying is by 0.025cm you get the 
+  35:Crash.c       **** 														// amount of cm/s.
+  36:Crash.c       **** 
+  37:Crash.c       **** 	#ifdef SERIAL_DEBUG
+  38:Crash.c       **** 		writeString("Average left speed: ");
+ 119               		.loc 1 38 0
  120 004e 80E0      		ldi r24,lo8(.LC0)
  121 0050 90E0      		ldi r25,hi8(.LC0)
  122 0052 0E94 0000 		call writeString
  123               	.LVL8:
-  36:Crash.c       **** 	writeInteger(avergeLeftSpeed, DEC);
- 124               		.loc 1 36 0
+  39:Crash.c       **** 		writeInteger(avergeLeftSpeed, DEC);
+ 124               		.loc 1 39 0
  125 0056 6AE0      		ldi r22,lo8(10)
  126 0058 C801      		movw r24,r16
  127 005a 0E94 0000 		call writeInteger
  128               	.LVL9:
-  37:Crash.c       **** 	writeChar('\n');
- 129               		.loc 1 37 0
+  40:Crash.c       **** 		writeChar('\n');
+ 129               		.loc 1 40 0
  130 005e 8AE0      		ldi r24,lo8(10)
  131 0060 0E94 0000 		call writeChar
  132               	.LVL10:
-  38:Crash.c       **** 	writeString("Average right speed: ");
- 133               		.loc 1 38 0
+  41:Crash.c       **** 		writeString("Average right speed: ");
+ 133               		.loc 1 41 0
  134 0064 80E0      		ldi r24,lo8(.LC1)
  135 0066 90E0      		ldi r25,hi8(.LC1)
  136 0068 0E94 0000 		call writeString
  137               	.LVL11:
-  39:Crash.c       **** 	writeInteger(avergeRightSpeed, DEC);
- 138               		.loc 1 39 0
+  42:Crash.c       **** 		writeInteger(avergeRightSpeed, DEC);
+ 138               		.loc 1 42 0
  139 006c 6AE0      		ldi r22,lo8(10)
  140 006e C501      		movw r24,r10
  141 0070 0E94 0000 		call writeInteger
  142               	.LVL12:
-  40:Crash.c       **** 	writeChar('\n');
- 143               		.loc 1 40 0
+  43:Crash.c       **** 		writeChar('\n');
+ 143               		.loc 1 43 0
  144 0074 8AE0      		ldi r24,lo8(10)
  145 0076 0E94 0000 		call writeChar
  146               	.LVL13:
-  41:Crash.c       **** 	writeString("Average speed: ");
- 147               		.loc 1 41 0
+  44:Crash.c       **** 		writeString("Average speed: ");
+ 147               		.loc 1 44 0
  148 007a 80E0      		ldi r24,lo8(.LC2)
  149 007c 90E0      		ldi r25,hi8(.LC2)
  150 007e 0E94 0000 		call writeString
  151               	.LVL14:
-  42:Crash.c       **** 	writeInteger(averageSpeed, DEC);
- 152               		.loc 1 42 0
+  45:Crash.c       **** 		writeInteger(averageSpeed, DEC);
+ 152               		.loc 1 45 0
  153 0082 6AE0      		ldi r22,lo8(10)
  154 0084 CE01      		movw r24,r28
  155 0086 0E94 0000 		call writeInteger
  156               	.LVL15:
-  43:Crash.c       **** 	writeChar('\n');
- 157               		.loc 1 43 0
+  46:Crash.c       **** 		writeChar('\n');
+ 157               		.loc 1 46 0
  158 008a 8AE0      		ldi r24,lo8(10)
  159 008c 0E94 0000 		call writeChar
  160               	.LVL16:
-  44:Crash.c       **** 	writeString("Average: ");
- 161               		.loc 1 44 0
+  47:Crash.c       **** 		writeString("Average: ");
+ 161               		.loc 1 47 0
  162 0090 80E0      		ldi r24,lo8(.LC3)
  163 0092 90E0      		ldi r25,hi8(.LC3)
  164 0094 0E94 0000 		call writeString
  165               	.LVL17:
-  45:Crash.c       **** 	writeInteger(speedCMPerSecond, DEC);
- 166               		.loc 1 45 0
+  48:Crash.c       **** 		writeInteger(speedCMPerSecond, DEC);
+ 166               		.loc 1 48 0
  167 0098 C701      		movw r24,r14
  168 009a B601      		movw r22,r12
  169 009c 0E94 0000 		call __fixsfsi
@@ -234,421 +237,428 @@
  173 00a4 6AE0      		ldi r22,lo8(10)
  174 00a6 0E94 0000 		call writeInteger
  175               	.LVL19:
-  46:Crash.c       **** 	writeString(" cm/s");
- 176               		.loc 1 46 0
+  49:Crash.c       **** 		writeString(" cm/s");
+ 176               		.loc 1 49 0
  177 00aa 80E0      		ldi r24,lo8(.LC4)
  178 00ac 90E0      		ldi r25,hi8(.LC4)
  179 00ae 0E94 0000 		call writeString
  180               	.LVL20:
-  47:Crash.c       **** 	writeChar('\n');
- 181               		.loc 1 47 0
+  50:Crash.c       **** 		writeChar('\n');
+ 181               		.loc 1 50 0
  182 00b2 8AE0      		ldi r24,lo8(10)
  183 00b4 0E94 0000 		call writeChar
  184               	.LVL21:
-  48:Crash.c       **** 	writeChar('\n');
- 185               		.loc 1 48 0
+  51:Crash.c       **** 		writeChar('\n');
+ 185               		.loc 1 51 0
  186 00b8 8AE0      		ldi r24,lo8(10)
  187 00ba 0E94 0000 		call writeChar
  188               	.LVL22:
-  49:Crash.c       **** 
-  50:Crash.c       **** 	crashInfoToSend.speed = speedCMPerSecond;
- 189               		.loc 1 50 0
- 190 00be C092 0000 		sts crashInfoToSend,r12
- 191 00c2 D092 0000 		sts crashInfoToSend+1,r13
- 192 00c6 E092 0000 		sts crashInfoToSend+2,r14
- 193 00ca F092 0000 		sts crashInfoToSend+3,r15
-  51:Crash.c       **** 	crashInfoToSend.sideHit = hitSide;
- 194               		.loc 1 51 0
- 195 00ce 8091 0000 		lds r24,hitSide
- 196 00d2 8093 0000 		sts crashInfoToSend+4,r24
-  52:Crash.c       **** 	crashInfoToSend.impact = 1;
- 197               		.loc 1 52 0
- 198 00d6 81E0      		ldi r24,lo8(1)
- 199 00d8 90E0      		ldi r25,0
- 200 00da 9093 0000 		sts crashInfoToSend+5+1,r25
- 201 00de 8093 0000 		sts crashInfoToSend+5,r24
-  53:Crash.c       **** 
-  54:Crash.c       **** 	writeString("GyX: ");
- 202               		.loc 1 54 0
- 203 00e2 80E0      		ldi r24,lo8(.LC5)
- 204 00e4 90E0      		ldi r25,hi8(.LC5)
- 205 00e6 0E94 0000 		call writeString
- 206               	.LVL23:
-  55:Crash.c       **** 	writeInteger(((gDataArray[14].GyroX_H << 8) | gDataArray[14].GyroX_L), DEC);
- 207               		.loc 1 55 0
- 208 00ea 2091 0000 		lds r18,gDataArray+84
- 209 00ee 3327      		clr r19
- 210 00f0 27FD      		sbrc r18,7
- 211 00f2 3095      		com r19
- 212 00f4 322F      		mov r19,r18
- 213 00f6 2227      		clr r18
- 214 00f8 8091 0000 		lds r24,gDataArray+85
- 215 00fc 9927      		clr r25
- 216 00fe 87FD      		sbrc r24,7
- 217 0100 9095      		com r25
- 218 0102 6AE0      		ldi r22,lo8(10)
- 219 0104 822B      		or r24,r18
- 220 0106 932B      		or r25,r19
- 221 0108 0E94 0000 		call writeInteger
- 222               	.LVL24:
-  56:Crash.c       **** 	writeChar('\n');
- 223               		.loc 1 56 0
- 224 010c 8AE0      		ldi r24,lo8(10)
- 225 010e 0E94 0000 		call writeChar
- 226               	.LVL25:
-  57:Crash.c       **** 	writeChar('\n');
- 227               		.loc 1 57 0
- 228 0112 8AE0      		ldi r24,lo8(10)
- 229 0114 0E94 0000 		call writeChar
- 230               	.LVL26:
-  58:Crash.c       **** 	writeString("GyY: ");
- 231               		.loc 1 58 0
- 232 0118 80E0      		ldi r24,lo8(.LC6)
- 233 011a 90E0      		ldi r25,hi8(.LC6)
- 234 011c 0E94 0000 		call writeString
- 235               	.LVL27:
-  59:Crash.c       **** 	writeInteger(((gDataArray[14].GyroY_H << 8) | gDataArray[14].GyroY_L), DEC);
- 236               		.loc 1 59 0
- 237 0120 2091 0000 		lds r18,gDataArray+86
- 238 0124 3327      		clr r19
- 239 0126 27FD      		sbrc r18,7
- 240 0128 3095      		com r19
- 241 012a 322F      		mov r19,r18
- 242 012c 2227      		clr r18
- 243 012e 8091 0000 		lds r24,gDataArray+87
- 244 0132 9927      		clr r25
- 245 0134 87FD      		sbrc r24,7
- 246 0136 9095      		com r25
- 247 0138 6AE0      		ldi r22,lo8(10)
- 248 013a 822B      		or r24,r18
- 249 013c 932B      		or r25,r19
- 250 013e 0E94 0000 		call writeInteger
- 251               	.LVL28:
-  60:Crash.c       **** 	writeChar('\n');
- 252               		.loc 1 60 0
- 253 0142 8AE0      		ldi r24,lo8(10)
- 254 0144 0E94 0000 		call writeChar
- 255               	.LVL29:
-  61:Crash.c       **** 	writeChar('\n');
- 256               		.loc 1 61 0
- 257 0148 8AE0      		ldi r24,lo8(10)
- 258 014a 0E94 0000 		call writeChar
- 259               	.LVL30:
-  62:Crash.c       **** 	writeString("GyZ: ");
- 260               		.loc 1 62 0
- 261 014e 80E0      		ldi r24,lo8(.LC7)
- 262 0150 90E0      		ldi r25,hi8(.LC7)
- 263 0152 0E94 0000 		call writeString
- 264               	.LVL31:
-  63:Crash.c       **** 	writeInteger(((gDataArray[14].GyroZ_H << 8) | gDataArray[14].GyroZ_L), DEC);
- 265               		.loc 1 63 0
- 266 0156 2091 0000 		lds r18,gDataArray+88
- 267 015a 3327      		clr r19
- 268 015c 27FD      		sbrc r18,7
- 269 015e 3095      		com r19
- 270 0160 322F      		mov r19,r18
- 271 0162 2227      		clr r18
- 272 0164 8091 0000 		lds r24,gDataArray+89
- 273 0168 9927      		clr r25
- 274 016a 87FD      		sbrc r24,7
- 275 016c 9095      		com r25
- 276 016e 6AE0      		ldi r22,lo8(10)
- 277 0170 822B      		or r24,r18
- 278 0172 932B      		or r25,r19
- 279 0174 0E94 0000 		call writeInteger
- 280               	.LVL32:
-  64:Crash.c       **** 	writeChar('\n');
- 281               		.loc 1 64 0
- 282 0178 8AE0      		ldi r24,lo8(10)
- 283 017a 0E94 0000 		call writeChar
- 284               	.LVL33:
-  65:Crash.c       **** 	writeChar('\n');
- 285               		.loc 1 65 0
- 286 017e 8AE0      		ldi r24,lo8(10)
- 287 0180 0E94 0000 		call writeChar
- 288               	.LVL34:
+  52:Crash.c       **** 
+  53:Crash.c       **** 		writeString("GyX: ");
+ 189               		.loc 1 53 0
+ 190 00be 80E0      		ldi r24,lo8(.LC5)
+ 191 00c0 90E0      		ldi r25,hi8(.LC5)
+ 192 00c2 0E94 0000 		call writeString
+ 193               	.LVL23:
+  54:Crash.c       **** 		writeInteger(((gDataArray[14].GyroX_H << 8) | gDataArray[14].GyroX_L), DEC);
+ 194               		.loc 1 54 0
+ 195 00c6 2091 0000 		lds r18,gDataArray+84
+ 196 00ca 3327      		clr r19
+ 197 00cc 27FD      		sbrc r18,7
+ 198 00ce 3095      		com r19
+ 199 00d0 322F      		mov r19,r18
+ 200 00d2 2227      		clr r18
+ 201 00d4 8091 0000 		lds r24,gDataArray+85
+ 202 00d8 9927      		clr r25
+ 203 00da 87FD      		sbrc r24,7
+ 204 00dc 9095      		com r25
+ 205 00de 6AE0      		ldi r22,lo8(10)
+ 206 00e0 822B      		or r24,r18
+ 207 00e2 932B      		or r25,r19
+ 208 00e4 0E94 0000 		call writeInteger
+ 209               	.LVL24:
+  55:Crash.c       **** 		writeChar('\n');
+ 210               		.loc 1 55 0
+ 211 00e8 8AE0      		ldi r24,lo8(10)
+ 212 00ea 0E94 0000 		call writeChar
+ 213               	.LVL25:
+  56:Crash.c       **** 		writeChar('\n');
+ 214               		.loc 1 56 0
+ 215 00ee 8AE0      		ldi r24,lo8(10)
+ 216 00f0 0E94 0000 		call writeChar
+ 217               	.LVL26:
+  57:Crash.c       **** 		writeString("GyY: ");
+ 218               		.loc 1 57 0
+ 219 00f4 80E0      		ldi r24,lo8(.LC6)
+ 220 00f6 90E0      		ldi r25,hi8(.LC6)
+ 221 00f8 0E94 0000 		call writeString
+ 222               	.LVL27:
+  58:Crash.c       **** 		writeInteger(((gDataArray[14].GyroY_H << 8) | gDataArray[14].GyroY_L), DEC);
+ 223               		.loc 1 58 0
+ 224 00fc 2091 0000 		lds r18,gDataArray+86
+ 225 0100 3327      		clr r19
+ 226 0102 27FD      		sbrc r18,7
+ 227 0104 3095      		com r19
+ 228 0106 322F      		mov r19,r18
+ 229 0108 2227      		clr r18
+ 230 010a 8091 0000 		lds r24,gDataArray+87
+ 231 010e 9927      		clr r25
+ 232 0110 87FD      		sbrc r24,7
+ 233 0112 9095      		com r25
+ 234 0114 6AE0      		ldi r22,lo8(10)
+ 235 0116 822B      		or r24,r18
+ 236 0118 932B      		or r25,r19
+ 237 011a 0E94 0000 		call writeInteger
+ 238               	.LVL28:
+  59:Crash.c       **** 		writeChar('\n');
+ 239               		.loc 1 59 0
+ 240 011e 8AE0      		ldi r24,lo8(10)
+ 241 0120 0E94 0000 		call writeChar
+ 242               	.LVL29:
+  60:Crash.c       **** 		writeChar('\n');
+ 243               		.loc 1 60 0
+ 244 0124 8AE0      		ldi r24,lo8(10)
+ 245 0126 0E94 0000 		call writeChar
+ 246               	.LVL30:
+  61:Crash.c       **** 		writeString("GyZ: ");
+ 247               		.loc 1 61 0
+ 248 012a 80E0      		ldi r24,lo8(.LC7)
+ 249 012c 90E0      		ldi r25,hi8(.LC7)
+ 250 012e 0E94 0000 		call writeString
+ 251               	.LVL31:
+  62:Crash.c       **** 		writeInteger(((gDataArray[14].GyroZ_H << 8) | gDataArray[14].GyroZ_L), DEC);
+ 252               		.loc 1 62 0
+ 253 0132 2091 0000 		lds r18,gDataArray+88
+ 254 0136 3327      		clr r19
+ 255 0138 27FD      		sbrc r18,7
+ 256 013a 3095      		com r19
+ 257 013c 322F      		mov r19,r18
+ 258 013e 2227      		clr r18
+ 259 0140 8091 0000 		lds r24,gDataArray+89
+ 260 0144 9927      		clr r25
+ 261 0146 87FD      		sbrc r24,7
+ 262 0148 9095      		com r25
+ 263 014a 6AE0      		ldi r22,lo8(10)
+ 264 014c 822B      		or r24,r18
+ 265 014e 932B      		or r25,r19
+ 266 0150 0E94 0000 		call writeInteger
+ 267               	.LVL32:
+  63:Crash.c       **** 		writeChar('\n');
+ 268               		.loc 1 63 0
+ 269 0154 8AE0      		ldi r24,lo8(10)
+ 270 0156 0E94 0000 		call writeChar
+ 271               	.LVL33:
+  64:Crash.c       **** 		writeChar('\n');
+ 272               		.loc 1 64 0
+ 273 015a 8AE0      		ldi r24,lo8(10)
+ 274 015c 0E94 0000 		call writeChar
+ 275               	.LVL34:
+  65:Crash.c       **** 	#endif
   66:Crash.c       **** 
-  67:Crash.c       **** 
-  68:Crash.c       **** 	return true;
-  69:Crash.c       **** }
- 289               		.loc 1 69 0
- 290 0184 81E0      		ldi r24,lo8(1)
- 291 0186 90E0      		ldi r25,0
- 292               	/* epilogue start */
- 293 0188 DF91      		pop r29
- 294 018a CF91      		pop r28
- 295               	.LVL35:
- 296 018c 1F91      		pop r17
- 297 018e 0F91      		pop r16
- 298               	.LVL36:
- 299 0190 FF90      		pop r15
- 300 0192 EF90      		pop r14
- 301 0194 DF90      		pop r13
- 302 0196 CF90      		pop r12
- 303               	.LVL37:
- 304 0198 BF90      		pop r11
- 305 019a AF90      		pop r10
- 306               	.LVL38:
- 307 019c 0895      		ret
- 308               		.cfi_endproc
- 309               	.LFE7:
- 311               		.section	.rodata.str1.1
- 312               	.LC8:
- 313 005d 5345 4E44 		.string	"SENDING TO ARDUINO\n"
- 313      494E 4720 
- 313      544F 2041 
- 313      5244 5549 
- 313      4E4F 0A00 
- 314               	.global	__fixunssfsi
- 315               		.text
- 316               	.global	sendCrashInfo
- 318               	sendCrashInfo:
- 319               	.LFB8:
+  67:Crash.c       **** 	crashInfoToSend.speed = speedCMPerSecond;
+ 276               		.loc 1 67 0
+ 277 0160 C092 0000 		sts crashInfoToSend,r12
+ 278 0164 D092 0000 		sts crashInfoToSend+1,r13
+ 279 0168 E092 0000 		sts crashInfoToSend+2,r14
+ 280 016c F092 0000 		sts crashInfoToSend+3,r15
+  68:Crash.c       **** 	crashInfoToSend.sideHit = hitSide;
+ 281               		.loc 1 68 0
+ 282 0170 8091 0000 		lds r24,hitSide
+ 283 0174 8093 0000 		sts crashInfoToSend+4,r24
+  69:Crash.c       **** 	crashInfoToSend.impact = 1;
+ 284               		.loc 1 69 0
+ 285 0178 81E0      		ldi r24,lo8(1)
+ 286 017a 90E0      		ldi r25,0
+ 287 017c 9093 0000 		sts crashInfoToSend+5+1,r25
+ 288 0180 8093 0000 		sts crashInfoToSend+5,r24
+ 289               	/* epilogue start */
   70:Crash.c       **** 
-  71:Crash.c       **** void sendCrashInfo(void)
-  72:Crash.c       **** {
- 320               		.loc 1 72 0
- 321               		.cfi_startproc
- 322               	/* prologue: function */
- 323               	/* frame size = 0 */
- 324               	/* stack size = 0 */
- 325               	.L__stack_usage = 0
-  73:Crash.c       **** 	writeString("SENDING TO ARDUINO\n");
- 326               		.loc 1 73 0
- 327 019e 80E0      		ldi r24,lo8(.LC8)
- 328 01a0 90E0      		ldi r25,hi8(.LC8)
- 329 01a2 0E94 0000 		call writeString
- 330               	.LVL39:
-  74:Crash.c       **** 	I2CTWI_transmit2Bytes(ARDUINO_WRITE_ADDRESS, 1, crashInfoToSend.speed); // In cm/s
- 331               		.loc 1 74 0
- 332 01a6 6091 0000 		lds r22,crashInfoToSend
- 333 01aa 7091 0000 		lds r23,crashInfoToSend+1
- 334 01ae 8091 0000 		lds r24,crashInfoToSend+2
- 335 01b2 9091 0000 		lds r25,crashInfoToSend+3
- 336 01b6 0E94 0000 		call __fixunssfsi
- 337               	.LVL40:
- 338 01ba 462F      		mov r20,r22
- 339 01bc 61E0      		ldi r22,lo8(1)
- 340 01be 84E5      		ldi r24,lo8(84)
- 341 01c0 0E94 0000 		call I2CTWI_transmit2Bytes
- 342               	.LVL41:
-  75:Crash.c       **** 	I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 2, gDataArray[14].GyroX_H, gDataArray[14].GyroX_L);
- 343               		.loc 1 75 0
- 344 01c4 2091 0000 		lds r18,gDataArray+85
- 345 01c8 4091 0000 		lds r20,gDataArray+84
- 346 01cc 62E0      		ldi r22,lo8(2)
- 347 01ce 84E5      		ldi r24,lo8(84)
- 348 01d0 0E94 0000 		call I2CTWI_transmit3Bytes
- 349               	.LVL42:
-  76:Crash.c       **** 	I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 3, gDataArray[14].GyroY_H, gDataArray[14].GyroY_L);
- 350               		.loc 1 76 0
- 351 01d4 2091 0000 		lds r18,gDataArray+87
- 352 01d8 4091 0000 		lds r20,gDataArray+86
- 353 01dc 63E0      		ldi r22,lo8(3)
- 354 01de 84E5      		ldi r24,lo8(84)
- 355 01e0 0E94 0000 		call I2CTWI_transmit3Bytes
- 356               	.LVL43:
-  77:Crash.c       **** 	I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 4, gDataArray[14].GyroZ_H, gDataArray[14].GyroZ_L);
- 357               		.loc 1 77 0
- 358 01e4 2091 0000 		lds r18,gDataArray+89
- 359 01e8 4091 0000 		lds r20,gDataArray+88
- 360 01ec 64E0      		ldi r22,lo8(4)
- 361 01ee 84E5      		ldi r24,lo8(84)
- 362 01f0 0E94 0000 		call I2CTWI_transmit3Bytes
- 363               	.LVL44:
-  78:Crash.c       **** 	I2CTWI_transmit2Bytes(ARDUINO_WRITE_ADDRESS, 5, crashInfoToSend.sideHit); 	// 1: front
- 364               		.loc 1 78 0
- 365 01f4 4091 0000 		lds r20,crashInfoToSend+4
- 366 01f8 65E0      		ldi r22,lo8(5)
- 367 01fa 84E5      		ldi r24,lo8(84)
- 368 01fc 0E94 0000 		call I2CTWI_transmit2Bytes
- 369               	.LVL45:
-  79:Crash.c       **** 																				// 2: right
-  80:Crash.c       **** 																				// 3: left
-  81:Crash.c       **** 																				// 4: back	
-  82:Crash.c       **** 
-  83:Crash.c       **** 	I2CTWI_transmit2Bytes(ARDUINO_WRITE_ADDRESS, 6, crashInfoToSend.impact);
- 370               		.loc 1 83 0
- 371 0200 4091 0000 		lds r20,crashInfoToSend+5
- 372 0204 66E0      		ldi r22,lo8(6)
- 373 0206 84E5      		ldi r24,lo8(84)
- 374 0208 0C94 0000 		jmp I2CTWI_transmit2Bytes
- 375               	.LVL46:
- 376               		.cfi_endproc
- 377               	.LFE8:
- 379               		.section	.rodata.str1.1
- 380               	.LC9:
- 381 0071 4275 6D70 		.string	"Bumper changed\n"
- 381      6572 2063 
- 381      6861 6E67 
- 381      6564 0A00 
- 382               	.LC10:
- 383 0081 4275 6D70 		.string	"Bumper was pressed\n"
- 383      6572 2077 
- 383      6173 2070 
- 383      7265 7373 
- 383      6564 0A00 
- 384               	.LC11:
- 385 0095 4275 6D70 		.string	"Bumper was released\n"
- 385      6572 2077 
- 385      6173 2072 
- 385      656C 6561 
- 385      7365 640A 
- 386               		.text
- 387               	.global	buttenChanged
- 389               	buttenChanged:
- 390               	.LFB9:
-  84:Crash.c       **** }
-  85:Crash.c       **** 
+  71:Crash.c       **** 
+  72:Crash.c       **** 	return true;
+  73:Crash.c       **** }
+ 290               		.loc 1 73 0
+ 291 0184 DF91      		pop r29
+ 292 0186 CF91      		pop r28
+ 293               	.LVL35:
+ 294 0188 1F91      		pop r17
+ 295 018a 0F91      		pop r16
+ 296               	.LVL36:
+ 297 018c FF90      		pop r15
+ 298 018e EF90      		pop r14
+ 299 0190 DF90      		pop r13
+ 300 0192 CF90      		pop r12
+ 301               	.LVL37:
+ 302 0194 BF90      		pop r11
+ 303 0196 AF90      		pop r10
+ 304               	.LVL38:
+ 305 0198 0895      		ret
+ 306               		.cfi_endproc
+ 307               	.LFE7:
+ 309               		.section	.rodata.str1.1
+ 310               	.LC8:
+ 311 005d 5345 4E44 		.string	"SENDING TO ARDUINO\n"
+ 311      494E 4720 
+ 311      544F 2041 
+ 311      5244 5549 
+ 311      4E4F 0A00 
+ 312               	.global	__fixunssfsi
+ 313               		.text
+ 314               	.global	sendCrashInfo
+ 316               	sendCrashInfo:
+ 317               	.LFB8:
+  74:Crash.c       **** 
+  75:Crash.c       **** void sendCrashInfo(void)
+  76:Crash.c       **** {
+ 318               		.loc 1 76 0
+ 319               		.cfi_startproc
+ 320               	/* prologue: function */
+ 321               	/* frame size = 0 */
+ 322               	/* stack size = 0 */
+ 323               	.L__stack_usage = 0
+  77:Crash.c       **** 	writeString("SENDING TO ARDUINO\n");
+ 324               		.loc 1 77 0
+ 325 019a 80E0      		ldi r24,lo8(.LC8)
+ 326 019c 90E0      		ldi r25,hi8(.LC8)
+ 327 019e 0E94 0000 		call writeString
+ 328               	.LVL39:
+  78:Crash.c       **** 	I2CTWI_transmit2Bytes(ARDUINO_WRITE_ADDRESS, 1, crashInfoToSend.speed); // In cm/s
+ 329               		.loc 1 78 0
+ 330 01a2 6091 0000 		lds r22,crashInfoToSend
+ 331 01a6 7091 0000 		lds r23,crashInfoToSend+1
+ 332 01aa 8091 0000 		lds r24,crashInfoToSend+2
+ 333 01ae 9091 0000 		lds r25,crashInfoToSend+3
+ 334 01b2 0E94 0000 		call __fixunssfsi
+ 335               	.LVL40:
+ 336 01b6 462F      		mov r20,r22
+ 337 01b8 61E0      		ldi r22,lo8(1)
+ 338 01ba 84E5      		ldi r24,lo8(84)
+ 339 01bc 0E94 0000 		call I2CTWI_transmit2Bytes
+ 340               	.LVL41:
+  79:Crash.c       **** 	I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 2, gDataArray[14].GyroX_H, gDataArray[14].GyroX_L);
+ 341               		.loc 1 79 0
+ 342 01c0 2091 0000 		lds r18,gDataArray+85
+ 343 01c4 4091 0000 		lds r20,gDataArray+84
+ 344 01c8 62E0      		ldi r22,lo8(2)
+ 345 01ca 84E5      		ldi r24,lo8(84)
+ 346 01cc 0E94 0000 		call I2CTWI_transmit3Bytes
+ 347               	.LVL42:
+  80:Crash.c       **** 	I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 3, gDataArray[14].GyroY_H, gDataArray[14].GyroY_L);
+ 348               		.loc 1 80 0
+ 349 01d0 2091 0000 		lds r18,gDataArray+87
+ 350 01d4 4091 0000 		lds r20,gDataArray+86
+ 351 01d8 63E0      		ldi r22,lo8(3)
+ 352 01da 84E5      		ldi r24,lo8(84)
+ 353 01dc 0E94 0000 		call I2CTWI_transmit3Bytes
+ 354               	.LVL43:
+  81:Crash.c       **** 	I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 4, gDataArray[14].GyroZ_H, gDataArray[14].GyroZ_L);
+ 355               		.loc 1 81 0
+ 356 01e0 2091 0000 		lds r18,gDataArray+89
+ 357 01e4 4091 0000 		lds r20,gDataArray+88
+ 358 01e8 64E0      		ldi r22,lo8(4)
+ 359 01ea 84E5      		ldi r24,lo8(84)
+ 360 01ec 0E94 0000 		call I2CTWI_transmit3Bytes
+ 361               	.LVL44:
+  82:Crash.c       **** 	I2CTWI_transmit2Bytes(ARDUINO_WRITE_ADDRESS, 5, crashInfoToSend.sideHit); 	// 1: front
+ 362               		.loc 1 82 0
+ 363 01f0 4091 0000 		lds r20,crashInfoToSend+4
+ 364 01f4 65E0      		ldi r22,lo8(5)
+ 365 01f6 84E5      		ldi r24,lo8(84)
+ 366 01f8 0E94 0000 		call I2CTWI_transmit2Bytes
+ 367               	.LVL45:
+  83:Crash.c       **** 																				// 2: right
+  84:Crash.c       **** 																				// 3: left
+  85:Crash.c       **** 																				// 4: back	
   86:Crash.c       **** 
-  87:Crash.c       **** 
-  88:Crash.c       **** void buttenChanged(void)
-  89:Crash.c       **** {
- 391               		.loc 1 89 0
- 392               		.cfi_startproc
- 393               	/* prologue: function */
- 394               	/* frame size = 0 */
- 395               	/* stack size = 0 */
- 396               	.L__stack_usage = 0
-  90:Crash.c       **** 	writeString("Bumper changed\n");
- 397               		.loc 1 90 0
- 398 020c 80E0      		ldi r24,lo8(.LC9)
- 399 020e 90E0      		ldi r25,hi8(.LC9)
- 400 0210 0E94 0000 		call writeString
- 401               	.LVL47:
+  87:Crash.c       **** 	I2CTWI_transmit2Bytes(ARDUINO_WRITE_ADDRESS, 6, crashInfoToSend.impact);
+ 368               		.loc 1 87 0
+ 369 01fc 4091 0000 		lds r20,crashInfoToSend+5
+ 370 0200 66E0      		ldi r22,lo8(6)
+ 371 0202 84E5      		ldi r24,lo8(84)
+ 372 0204 0C94 0000 		jmp I2CTWI_transmit2Bytes
+ 373               	.LVL46:
+ 374               		.cfi_endproc
+ 375               	.LFE8:
+ 377               		.section	.rodata.str1.1
+ 378               	.LC9:
+ 379 0071 4275 6D70 		.string	"Bumper changed\n"
+ 379      6572 2063 
+ 379      6861 6E67 
+ 379      6564 0A00 
+ 380               	.LC10:
+ 381 0081 4275 6D70 		.string	"Bumper was pressed\n"
+ 381      6572 2077 
+ 381      6173 2070 
+ 381      7265 7373 
+ 381      6564 0A00 
+ 382               	.LC11:
+ 383 0095 4275 6D70 		.string	"Bumper was released\n"
+ 383      6572 2077 
+ 383      6173 2072 
+ 383      656C 6561 
+ 383      7365 640A 
+ 384               		.text
+ 385               	.global	buttenChanged
+ 387               	buttenChanged:
+ 388               	.LFB9:
+  88:Crash.c       **** }
+  89:Crash.c       **** 
+  90:Crash.c       **** 
   91:Crash.c       **** 
-  92:Crash.c       **** 	if(!pressed)
- 402               		.loc 1 92 0
- 403 0214 8091 0000 		lds r24,pressed
- 404 0218 8111      		cpse r24,__zero_reg__
- 405 021a 00C0      		rjmp .L4
-  93:Crash.c       **** 	{
-  94:Crash.c       **** 		writeString("Bumper was pressed\n");
- 406               		.loc 1 94 0
- 407 021c 80E0      		ldi r24,lo8(.LC10)
- 408 021e 90E0      		ldi r25,hi8(.LC10)
- 409 0220 0E94 0000 		call writeString
- 410               	.LVL48:
-  95:Crash.c       **** 	 	if(bumper_left || bumper_right)
- 411               		.loc 1 95 0
- 412 0224 8091 0000 		lds r24,bumper_left
- 413 0228 8111      		cpse r24,__zero_reg__
- 414 022a 00C0      		rjmp .L5
- 415               		.loc 1 95 0 is_stmt 0 discriminator 1
- 416 022c 8091 0000 		lds r24,bumper_right
- 417 0230 8823      		tst r24
- 418 0232 01F0      		breq .L6
- 419               	.L5:
-  96:Crash.c       **** 	 		hitSide = 1;
- 420               		.loc 1 96 0 is_stmt 1
- 421 0234 81E0      		ldi r24,lo8(1)
- 422 0236 00C0      		rjmp .L13
- 423               	.L6:
-  97:Crash.c       **** 	 	else if(PINC & IO_PC2)
- 424               		.loc 1 97 0
- 425 0238 9A9B      		sbis 0x13,2
- 426 023a 00C0      		rjmp .L8
-  98:Crash.c       **** 	 		hitSide = 4;
- 427               		.loc 1 98 0
- 428 023c 84E0      		ldi r24,lo8(4)
- 429 023e 00C0      		rjmp .L13
- 430               	.L8:
-  99:Crash.c       **** 	 	else if(PINC & IO_PC3)
- 431               		.loc 1 99 0
- 432 0240 9B9B      		sbis 0x13,3
- 433 0242 00C0      		rjmp .L9
- 100:Crash.c       **** 	 		hitSide = 3;
- 434               		.loc 1 100 0
- 435 0244 83E0      		ldi r24,lo8(3)
- 436 0246 00C0      		rjmp .L13
- 437               	.L9:
- 101:Crash.c       **** 	 	else if(PINC & IO_PC5)
- 438               		.loc 1 101 0
- 439 0248 9D9B      		sbis 0x13,5
- 440 024a 00C0      		rjmp .L7
- 102:Crash.c       **** 	 		hitSide = 2;
- 441               		.loc 1 102 0
- 442 024c 82E0      		ldi r24,lo8(2)
- 443               	.L13:
- 444 024e 8093 0000 		sts hitSide,r24
- 445               	.L7:
- 103:Crash.c       **** 
- 104:Crash.c       **** 		setRP6LEDs(0b1111);
- 446               		.loc 1 104 0 discriminator 1
- 447 0252 8FE0      		ldi r24,lo8(15)
- 448 0254 0E94 0000 		call setRP6LEDs
- 449               	.LVL49:
- 105:Crash.c       **** 		pressed = true;
- 450               		.loc 1 105 0 discriminator 1
- 451 0258 81E0      		ldi r24,lo8(1)
- 452 025a 8093 0000 		sts pressed,r24
- 106:Crash.c       **** 
- 107:Crash.c       **** 		writeSpeed();
- 453               		.loc 1 107 0 discriminator 1
- 454 025e 0E94 0000 		call writeSpeed
- 455               	.LVL50:
- 108:Crash.c       **** 		writeGyro();
- 456               		.loc 1 108 0 discriminator 1
- 457 0262 0C94 0000 		jmp writeGyro
- 458               	.LVL51:
- 459               	.L4:
- 109:Crash.c       **** 	}
- 110:Crash.c       **** 	else if(pressed)
- 111:Crash.c       **** 	{
- 112:Crash.c       **** 		writeString("Bumper was released\n");
- 460               		.loc 1 112 0
- 461 0266 80E0      		ldi r24,lo8(.LC11)
- 462 0268 90E0      		ldi r25,hi8(.LC11)
- 463 026a 0E94 0000 		call writeString
- 464               	.LVL52:
- 113:Crash.c       **** 		pressed = false;
- 465               		.loc 1 113 0
- 466 026e 1092 0000 		sts pressed,__zero_reg__
- 114:Crash.c       **** 		crashInfoWasSend = false;
- 467               		.loc 1 114 0
- 468 0272 1092 0000 		sts crashInfoWasSend,__zero_reg__
- 469 0276 0895      		ret
- 470               		.cfi_endproc
- 471               	.LFE9:
- 473               		.comm	hitSide,1,1
- 474               	.global	crashInfoWasSend
- 475               		.section .bss
- 478               	crashInfoWasSend:
- 479 0000 00        		.zero	1
- 480               	.global	pressed
- 483               	pressed:
- 484 0001 00        		.zero	1
- 485               		.comm	crashInfoToSend,7,1
- 486               		.comm	statusLEDs,1,1
- 487               		.comm	drive_status,1,1
- 488               		.comm	status,1,1
- 489               		.comm	interrupt_status,1,1
- 490               		.comm	timer,2,1
- 491               		.comm	sDataArray,30,1
- 492               		.text
- 493               	.Letext0:
- 494               		.file 2 "/usr/lib/avr/include/stdint.h"
- 495               		.file 3 "MPU9250.h"
- 496               		.file 4 "Crash.h"
- 497               		.file 5 "Drive.h"
- 498               		.file 6 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/internal/RP6Control_
- 499               		.file 7 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/internal/Timer_internal.h"
- 500               		.file 8 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.h"
- 501               		.file 9 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.h"
+  92:Crash.c       **** void buttenChanged(void)
+  93:Crash.c       **** {
+ 389               		.loc 1 93 0
+ 390               		.cfi_startproc
+ 391               	/* prologue: function */
+ 392               	/* frame size = 0 */
+ 393               	/* stack size = 0 */
+ 394               	.L__stack_usage = 0
+  94:Crash.c       **** 	#ifdef SERIAL_DEBUG
+  95:Crash.c       **** 		writeString("Bumper changed\n");
+ 395               		.loc 1 95 0
+ 396 0208 80E0      		ldi r24,lo8(.LC9)
+ 397 020a 90E0      		ldi r25,hi8(.LC9)
+ 398 020c 0E94 0000 		call writeString
+ 399               	.LVL47:
+  96:Crash.c       **** 	#endif
+  97:Crash.c       **** 
+  98:Crash.c       **** 	if(!pressed)
+ 400               		.loc 1 98 0
+ 401 0210 8091 0000 		lds r24,pressed
+ 402 0214 8111      		cpse r24,__zero_reg__
+ 403 0216 00C0      		rjmp .L4
+  99:Crash.c       **** 	{
+ 100:Crash.c       **** 		#ifdef SERIAL_DEBUG
+ 101:Crash.c       **** 			writeString("Bumper was pressed\n");
+ 404               		.loc 1 101 0
+ 405 0218 80E0      		ldi r24,lo8(.LC10)
+ 406 021a 90E0      		ldi r25,hi8(.LC10)
+ 407 021c 0E94 0000 		call writeString
+ 408               	.LVL48:
+ 102:Crash.c       **** 			writeSpeed();
+ 409               		.loc 1 102 0
+ 410 0220 0E94 0000 		call writeSpeed
+ 411               	.LVL49:
+ 103:Crash.c       **** 			writeGyro();
+ 412               		.loc 1 103 0
+ 413 0224 0E94 0000 		call writeGyro
+ 414               	.LVL50:
+ 104:Crash.c       **** 		#endif
+ 105:Crash.c       **** 
+ 106:Crash.c       **** 	 	if(bumper_left || bumper_right)
+ 415               		.loc 1 106 0
+ 416 0228 8091 0000 		lds r24,bumper_left
+ 417 022c 8111      		cpse r24,__zero_reg__
+ 418 022e 00C0      		rjmp .L5
+ 419               		.loc 1 106 0 is_stmt 0 discriminator 1
+ 420 0230 8091 0000 		lds r24,bumper_right
+ 421 0234 8823      		tst r24
+ 422 0236 01F0      		breq .L6
+ 423               	.L5:
+ 107:Crash.c       **** 	 		hitSide = 1;
+ 424               		.loc 1 107 0 is_stmt 1
+ 425 0238 81E0      		ldi r24,lo8(1)
+ 426 023a 00C0      		rjmp .L14
+ 427               	.L6:
+ 108:Crash.c       **** 	 	else if(PINC & IO_PC2)
+ 428               		.loc 1 108 0
+ 429 023c 9A9B      		sbis 0x13,2
+ 430 023e 00C0      		rjmp .L8
+ 109:Crash.c       **** 	 		hitSide = 4;
+ 431               		.loc 1 109 0
+ 432 0240 84E0      		ldi r24,lo8(4)
+ 433 0242 00C0      		rjmp .L14
+ 434               	.L8:
+ 110:Crash.c       **** 	 	else if(PINC & IO_PC3)
+ 435               		.loc 1 110 0
+ 436 0244 9B9B      		sbis 0x13,3
+ 437 0246 00C0      		rjmp .L9
+ 111:Crash.c       **** 	 		hitSide = 3;
+ 438               		.loc 1 111 0
+ 439 0248 83E0      		ldi r24,lo8(3)
+ 440 024a 00C0      		rjmp .L14
+ 441               	.L9:
+ 112:Crash.c       **** 	 	else if(PINC & IO_PC5)
+ 442               		.loc 1 112 0
+ 443 024c 9D9B      		sbis 0x13,5
+ 444 024e 00C0      		rjmp .L7
+ 113:Crash.c       **** 	 		hitSide = 2;
+ 445               		.loc 1 113 0
+ 446 0250 82E0      		ldi r24,lo8(2)
+ 447               	.L14:
+ 448 0252 8093 0000 		sts hitSide,r24
+ 449               	.L7:
+ 114:Crash.c       **** 
+ 115:Crash.c       **** 		setRP6LEDs(0b1111);
+ 450               		.loc 1 115 0 discriminator 1
+ 451 0256 8FE0      		ldi r24,lo8(15)
+ 452 0258 0E94 0000 		call setRP6LEDs
+ 453               	.LVL51:
+ 116:Crash.c       **** 		pressed = true;
+ 454               		.loc 1 116 0 discriminator 1
+ 455 025c 81E0      		ldi r24,lo8(1)
+ 456 025e 8093 0000 		sts pressed,r24
+ 457 0262 0895      		ret
+ 458               	.L4:
+ 117:Crash.c       **** 	}
+ 118:Crash.c       **** 	else if(pressed)
+ 119:Crash.c       **** 	{
+ 120:Crash.c       **** 		#ifdef SERIAL_DEBUG
+ 121:Crash.c       **** 			writeString("Bumper was released\n");
+ 459               		.loc 1 121 0
+ 460 0264 80E0      		ldi r24,lo8(.LC11)
+ 461 0266 90E0      		ldi r25,hi8(.LC11)
+ 462 0268 0E94 0000 		call writeString
+ 463               	.LVL52:
+ 122:Crash.c       **** 		#endif
+ 123:Crash.c       **** 
+ 124:Crash.c       **** 		pressed = false;
+ 464               		.loc 1 124 0
+ 465 026c 1092 0000 		sts pressed,__zero_reg__
+ 125:Crash.c       **** 		crashInfoWasSend = false;
+ 466               		.loc 1 125 0
+ 467 0270 1092 0000 		sts crashInfoWasSend,__zero_reg__
+ 468 0274 0895      		ret
+ 469               		.cfi_endproc
+ 470               	.LFE9:
+ 472               		.comm	hitSide,1,1
+ 473               	.global	crashInfoWasSend
+ 474               		.section .bss
+ 477               	crashInfoWasSend:
+ 478 0000 00        		.zero	1
+ 479               	.global	pressed
+ 482               	pressed:
+ 483 0001 00        		.zero	1
+ 484               		.comm	crashInfoToSend,7,1
+ 485               		.comm	statusLEDs,1,1
+ 486               		.comm	drive_status,1,1
+ 487               		.comm	status,1,1
+ 488               		.comm	interrupt_status,1,1
+ 489               		.comm	timer,2,1
+ 490               		.comm	sDataArray,30,1
+ 491               		.text
+ 492               	.Letext0:
+ 493               		.file 2 "/usr/lib/avr/include/stdint.h"
+ 494               		.file 3 "MPU9250.h"
+ 495               		.file 4 "Crash.h"
+ 496               		.file 5 "Drive.h"
+ 497               		.file 6 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control_I2CMasterLib/internal/RP6Control_
+ 498               		.file 7 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6control/internal/Timer_internal.h"
+ 499               		.file 8 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6uart.h"
+ 500               		.file 9 "../../../../rp6/RP6Examples_20120725f/RP6Lib/RP6common/RP6I2CmasterTWI.h"
 DEFINED SYMBOLS
                             *ABS*:00000000 Crash.c
-     /tmp/cclzTzNI.s:2      *ABS*:0000003e __SP_H__
-     /tmp/cclzTzNI.s:3      *ABS*:0000003d __SP_L__
-     /tmp/cclzTzNI.s:4      *ABS*:0000003f __SREG__
-     /tmp/cclzTzNI.s:5      *ABS*:00000000 __tmp_reg__
-     /tmp/cclzTzNI.s:6      *ABS*:00000001 __zero_reg__
-     /tmp/cclzTzNI.s:33     .text:00000000 assignCrashInfo
+     /tmp/ccKUzBet.s:2      *ABS*:0000003e __SP_H__
+     /tmp/ccKUzBet.s:3      *ABS*:0000003d __SP_L__
+     /tmp/ccKUzBet.s:4      *ABS*:0000003f __SREG__
+     /tmp/ccKUzBet.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/ccKUzBet.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/ccKUzBet.s:33     .text:00000000 assignCrashInfo
                             *COM*:00000007 crashInfoToSend
                             *COM*:00000001 hitSide
-     /tmp/cclzTzNI.s:318    .text:0000019e sendCrashInfo
-     /tmp/cclzTzNI.s:389    .text:0000020c buttenChanged
-     /tmp/cclzTzNI.s:483    .bss:00000001 pressed
-     /tmp/cclzTzNI.s:478    .bss:00000000 crashInfoWasSend
+     /tmp/ccKUzBet.s:316    .text:0000019a sendCrashInfo
+     /tmp/ccKUzBet.s:387    .text:00000208 buttenChanged
+     /tmp/ccKUzBet.s:482    .bss:00000001 pressed
+     /tmp/ccKUzBet.s:477    .bss:00000000 crashInfoWasSend
                             *COM*:00000001 statusLEDs
                             *COM*:00000001 drive_status
                             *COM*:00000001 status
@@ -669,10 +679,10 @@ gDataArray
 __fixunssfsi
 I2CTWI_transmit2Bytes
 I2CTWI_transmit3Bytes
+writeSpeed
+writeGyro
 bumper_left
 bumper_right
 setRP6LEDs
-writeSpeed
-writeGyro
 __do_copy_data
 __do_clear_bss

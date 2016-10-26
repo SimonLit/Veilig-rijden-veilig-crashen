@@ -6,7 +6,113 @@
 #include <stdbool.h>
 #include "RP6Control_I2CMasterLib.h" 	
 
+#define DEBUG
 
+bool lastButton2State = false;
+bool lastButton3State = false;
+bool lastButton5State = false;
+uint16_t FSRRawValue[5];
+uint16_t averageFSRValue;
+
+#ifdef DEBUG
+	uint8_t sideHit = 0;
+	uint8_t timesPressed2 = 0;
+	uint8_t timesPressed3 = 0;
+	uint8_t timesPressed5 = 0;
+#endif
+
+void task_checkButtonChanged(void)
+{
+	if((PINC & IO_PC2) !=  lastButton2State)
+	{
+		buttenChanged();
+
+		#ifdef DEBUG
+			if(PINC & IO_PC2)
+			{
+				sideHit = 2;
+				timesPressed2++;
+				writeButtonPressOnLCD(sideHit, timesPressed2);
+
+				writeString("Button 2 pressed ");
+				writeInteger(timesPressed2, DEC);
+				writeString(" times.");
+				writeString("\n");
+			}
+		#endif
+
+		lastButton2State = PINC & IO_PC2;
+	}	
+
+	else if((PINC & IO_PC3) !=  lastButton3State)
+	{
+		buttenChanged();
+
+		#ifdef DEBUG
+			if(PINC & IO_PC3)
+			{
+				sideHit = 3;
+				timesPressed3++;
+				writeButtonPressOnLCD(sideHit, timesPressed3);
+
+				writeString("Button 3 pressed ");
+				writeInteger(timesPressed3, DEC);
+				writeString(" times.");
+				writeString("\n");
+			}
+			#endif
+
+		lastButton3State = PINC & IO_PC3;
+	}	
+
+	else if((PINC & IO_PC5) !=  lastButton5State)
+	{
+		buttenChanged();
+
+		#ifdef DEBUG
+			if(PINC & IO_PC5)
+			{
+				sideHit = 5;
+				timesPressed5++;
+				writeButtonPressOnLCD(sideHit, timesPressed5);
+
+				writeString("Button 5 pressed ");
+				writeInteger(timesPressed5, DEC);
+				writeString(" times.");
+				writeString("\n");
+			}
+		#endif
+
+		lastButton5State = PINC & IO_PC5;
+	}	
+}
+
+void task_readFSRRawValueAddToArray_AssignAvareFSRValue(void)
+{
+	uint16_t sum = 0;
+	uint16_t arraySize = sizeof(pressureSensorRawValue)/sizeof(pressureSensorRawValue[0]);
+
+	for (uint8_t i = 0; i < (arraySize -1); ++i)
+	{
+		pressureSensorRawValue[i] = pressureSensorRawValue[i + 1];
+		sum += pressureSensorRawValue[i];
+	}
+
+	pressureSensorRawValue[arraySize] = readADC(ADC_5);
+	sum += pressureSensorRawValue[arraySize];
+
+	averageFSRValue = sum/arraySize;
+}
+
+float mapPressureSensorValueToNewton(void)
+{
+	return map(averageFSRValue, 0, 1023, 0.2, 20);
+}
+
+long map(long valueToMap, long in_min, long in_max, long out_min, long out_max)
+{
+	return (valueToMap - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 
 /**
  * This function gets called automatically if there was an I2C Error like
@@ -72,35 +178,28 @@ int main(void)
 
 	WDT_setRequestHandler(watchDogRequest); 
 
-	uint8_t sideHit = 0;
-	uint8_t timesPressed2 = 0;
-	uint8_t timesPressed3 = 0;
-	uint8_t timesPressed5 = 0;
-		
 	DDRC &= ~IO_PC2; 
 	DDRC &= ~IO_PC3;  
 	DDRC &= ~IO_PC5; 
 
 	DDRA &= ~ADC5; 
 
-	int lastButton2State = false;
-	int lastButton3State = false;
-	int lastButton5State = false;
+	#ifdef DEBUG
+		if(PINC & IO_PC2) 
+			writeString_P("\n\nPC2 is HIGH!\n\n");
+		else
+			writeString_P("\n\nPC2 is LOW!\n\n");
 
-	if(PINC & IO_PC2) 
-		writeString_P("\n\nPC2 is HIGH!\n\n");
-	else
-		writeString_P("\n\nPC2 is LOW!\n\n");
+		if(PINC & IO_PC3) 
+			writeString_P("\n\nPC3 is HIGH!\n\n");
+		else
+			writeString_P("\n\nPC3 is LOW!\n\n");
 
-	if(PINC & IO_PC3) 
-		writeString_P("\n\nPC3 is HIGH!\n\n");
-	else
-		writeString_P("\n\nPC3 is LOW!\n\n");
-
-	if(PINC & IO_PC5) 
-		writeString_P("\n\nPC5 is HIGH!\n\n");
-	else
-		writeString_P("\n\nPC5 is LOW!\n\n");
+		if(PINC & IO_PC5) 
+			writeString_P("\n\nPC5 is HIGH!\n\n");
+		else
+			writeString_P("\n\nPC5 is LOW!\n\n");
+	#endif
 
 	
 
@@ -123,6 +222,8 @@ int main(void)
 	bool arrayIsFilled = false;
 	uint8_t counter = 0;
 
+	float earthAcceleration = 9.81;
+
 	changeDirection(FWD);
 
 	while(true)
@@ -130,65 +231,11 @@ int main(void)
 		task_checkINT0();
 	    task_I2CTWI();
 
-	    writeInteger(read)
-
 		if(getStopwatch1() > 300)
 		{
-			if((PINC & IO_PC2) !=  lastButton2State)
-			{
-				buttenChanged();
-
-				if(PINC & IO_PC2)
-				{
-					sideHit = 2;
-					timesPressed2++;
-					writeButtonPressOnLCD(sideHit, timesPressed2);
-
-					writeString("Button 2 pressed ");
-					writeInteger(timesPressed2, DEC);
-					writeString(" times.");
-					writeString("\n");
-				}
-				lastButton2State = PINC & IO_PC2;
-			}	
-
-			else if((PINC & IO_PC3) !=  lastButton3State)
-			{
-				buttenChanged();
-
-				if(PINC & IO_PC3)
-				{
-					sideHit = 3;
-					timesPressed3++;
-
-					writeButtonPressOnLCD(sideHit, timesPressed3);
-
-					writeString("Button 3 pressed ");
-					writeInteger(timesPressed3, DEC);
-					writeString(" times.");
-					writeString("\n");
-				}
-				lastButton3State = PINC & IO_PC3;
-			}	
-
-			else if((PINC & IO_PC5) !=  lastButton5State)
-			{
-				buttenChanged();
-
-				if(PINC & IO_PC5)
-				{
-					sideHit = 5;
-					timesPressed5++;
-					writeButtonPressOnLCD(sideHit, timesPressed5);
-					writeString("Button 5 pressed ");
-					writeInteger(timesPressed5, DEC);
-					writeString(" times.");
-					writeString("\n");
-				}
-				lastButton5State = PINC & IO_PC5;
-			}	
-			
-
+			task_checkButtonChanged();
+			task_readFSRRawValueAddToArray_AssignAvareFSRValue();
+			crashInfo.impactGram = (uint16_t)((mapPressureSensorValueToNewton()/earthAcceleration) * 1000);
 			setStopwatch1(0);
 		}
 
