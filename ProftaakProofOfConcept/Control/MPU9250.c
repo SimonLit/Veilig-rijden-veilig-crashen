@@ -66,13 +66,6 @@ void saveGyroData(gyroData gData)
 	if(doneReadingGyro)
 	{
 		getGyroData(&gData);
-		/*gDataArray[gyroArrayIndexToWriteTo] = gData;
-		gyroArrayIndexToWriteTo++;
-
-		if(gyroArrayIndexToWriteTo == gyroArraySize)
-		{
-			gyroArrayIndexToWriteTo = 0;
-		}*/
 
 		int arraySize = sizeof(gDataArray)/sizeof(gDataArray[0]);
 
@@ -85,14 +78,6 @@ void saveGyroData(gyroData gData)
 	}	
 	
 	doneReadingGyro = false;
-
-	/*for (int i = 0; i < 13; i++)
-	{
-		gDataArray[gyroArrayIndexToWriteTo] = gDataArray[gyroArrayIndexToWriteTo + 1];
-	}
-
-	gDataArray[14] = gData;*/
-
 }
 
 void writeGyro(void)
