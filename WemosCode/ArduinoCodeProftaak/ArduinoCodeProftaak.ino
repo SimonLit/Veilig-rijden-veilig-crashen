@@ -60,8 +60,8 @@ void dmpDataReady()
 const char* ssid = "eversveraa";
 const char* password = "qwerty69";
 
-bool ledState = true;
-long currentMillis = 0;
+bool ledState = false;
+String tempMessage = "";
 
 // ================================================================
 // ===                      MAIN SETUP                          ===
@@ -81,8 +81,7 @@ void setup() {
   // initialize serial communication
   // (115200 chosen because it is required for Teapot Demo output, but it's
   // really up to you depending on your project)
-  Serial.begin(115200);
-  while (!Serial); // wait for Leonardo enumeration, others continue immediately
+  Serial.begin(38400);
 
   // ================================================================
   // ===                     SETUP FOR MPU                        ===
@@ -165,7 +164,7 @@ void setup() {
   }
 
   Serial.println("");
-  Serial.println("WiFi connected");  
+  Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 }
@@ -175,31 +174,13 @@ void setup() {
 // ================================================================
 void loop()
 {
-  /*DMPRoutine();
+  DMPRoutine();
   getIncommingString();
-  prinYawPitchRoll();*/
-  if((millis() - currentMillis) > 1000)
+  if (tempMessage != "")
   {
-    espTestWithLed(ledState);
-    currentMillis = millis();
-    ledState = !ledState;
-    Serial.print("ledState: ");
-    Serial.println(ledState);
+    Serial.println(tempMessage);
+    tempMessage = "";
+    prinYawPitchRoll();
+    changeLedState();
   }
-  
-}
-
-void prinYawPitchRoll(void)
-{
-  mpu.dmpGetQuaternion(&q, fifoBuffer);
-  mpu.dmpGetGravity(&gravity, &q);
-  mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-  Serial.print("ypr\t");
-  Serial.print(ypr[0] * 180 / M_PI);
-  Serial.print("\t");
-  Serial.print(ypr[1] * 180 / M_PI);
-  Serial.print("\t");
-  Serial.println(ypr[2] * 180 / M_PI);
-
-  Serial.println();
 }

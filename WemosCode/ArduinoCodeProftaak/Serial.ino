@@ -15,7 +15,7 @@
 //=================================================================
 
 bool startReading = false;
-String tempMessage = "";
+String internalTempMessage = "";
 
 void getIncommingString(void)
 {
@@ -26,18 +26,18 @@ void getIncommingString(void)
     if (incommingChar == '%')
     {
       startReading = false;
-      Serial.println(tempMessage);
+      tempMessage = internalTempMessage;
     }
 
     if (startReading)
     {
-      tempMessage += incommingChar;
+      internalTempMessage += incommingChar;
     }
 
     if (incommingChar == '#')
     {
       startReading = true;
-      tempMessage = "";
+      internalTempMessage = "";
     }
   }
 }

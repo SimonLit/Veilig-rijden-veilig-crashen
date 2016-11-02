@@ -1,4 +1,4 @@
-const char* host = "192.168.1.101";
+const char* host = "192.168.1.107";
 const int httpPort = 80;
 
 void espTestWithLed(bool LedState)
@@ -40,4 +40,12 @@ void espTestWithLed(bool LedState)
   
   Serial.println();
   Serial.println("closing connection");
+}
+
+void changeLedState(void)
+{
+    ledState = !ledState;
+    espTestWithLed(ledState);
+    Serial.print("ledState: ");
+    Serial.println(ledState);
 }
