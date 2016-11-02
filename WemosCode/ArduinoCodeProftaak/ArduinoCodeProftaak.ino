@@ -47,23 +47,31 @@ float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gra
 // ================================================================
 
 volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
-void dmpDataReady() {
+void dmpDataReady()
+{
   mpuInterrupt = true;
 }
 
+// ================================================================
+// ===                      WIFI VARIABLES                      ===
+// ================================================================
 const char* ssid = "Project";
 const char* password = "123456780";
+/*const char* ssid = "eversveraa";
+  const char* password = "qwerty69";*/
 
-int ledPin = D5;
+int ledPin = 5;
 WiFiServer server(80);
 
-double SPEED; //Register 1
-int VARX;     //Register 2
-int VARY;     //Register 3
-int VARZ;     //Register 4
-int SIDEHIT;  //Register 5
-int IMPACT;   //Register 6
-
+// ================================================================
+// ===               RP6 COMMUNICATION VARIABLES                ===
+// ================================================================
+uint8_t SPEED; //Register 1
+int YAW;
+int TILTY;
+int ROLL;
+uint8_t SIDE_HIT;  //Register 5
+uint16_t IMPACT;   //Register 6
 
 // ================================================================
 // ===                      MAIN SETUP                          ===
@@ -72,18 +80,18 @@ void setup() {
   // join I2C bus (I2Cdev library doesn't do this automatically)
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
   Wire.begin(42);
-  Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
+  //Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
 #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
-  Fastwire::setup(400, true);
+  stwire::setup(400, true);
 #endif
 
-  Wire.onReceive(receiveEvent); // register event
+  //Wire.onReceive(receiveEvent); // register event
   //Wire.onRequest(requestEvent); // register event
 
   // initialize serial communication
   // (115200 chosen because it is required for Teapot Demo output, but it's
   // really up to you depending on your project)
-  Serial.begin(115200);
+  Serial.begin(38400);
   while (!Serial); // wait for Leonardo enumeration, others continue immediately
 
   // ================================================================
@@ -105,12 +113,6 @@ void setup() {
   Serial.println(F("Testing device connections..."));
   Serial.println(mpu.testConnection() ? F("MPU6050 connection successful") : F("MPU6050 connection failed"));
 
-  // wait for ready
-  Serial.println(F("\nSend any character to begin DMP programming and demo: "));
-  while (Serial.available() && Serial.read()); // empty buffer
-  while (!Serial.available());                 // wait for data
-  while (Serial.available() && Serial.read()); // empty buffer again
-
   // load and configure the DMP
   Serial.println(F("Initializing DMP..."));
   devStatus = mpu.dmpInitialize();
@@ -122,7 +124,8 @@ void setup() {
   mpu.setZAccelOffset(1788); // 1688 factory default for my test chip
 
   // make sure it worked (returns 0 if so)
-  if (devStatus == 0) {
+  if (devStatus == 0)
+  {
     // turn on the DMP, now that it's ready
     Serial.println(F("Enabling DMP..."));
     mpu.setDMPEnabled(true);
@@ -138,7 +141,9 @@ void setup() {
 
     // get expected DMP packet size for later comparison
     packetSize = mpu.dmpGetFIFOPacketSize();
-  } else {
+  }
+  else
+  {
     // ERROR!
     // 1 = initial memory load failed
     // 2 = DMP configuration updates failed
@@ -167,10 +172,11 @@ void setup() {
 
   WiFi.begin(ssid, password);
 
-  while (WiFi.status() != WL_CONNECTED) {
+  // If the router isn't available for use comment this while loop.
+  /*while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
-  }
+    }*/
   Serial.println("");
   Serial.println("WiFi connected");
 
@@ -190,12 +196,14 @@ void setup() {
 // ================================================================
 void loop()
 {
-
+  DMPRoutine();
+  getIncommingString();
 }
 
-void receiveEvent(int howMany)
-{
-  uint8_t receivedByte;
+/*void receiveEvent(int howMany)
+  {
+  //Serial.println("Received something");
+  int receivedByte;
   while (0 < Wire.available())
   { // loop through all but the last
     receivedByte = Wire.read();
@@ -208,9 +216,9 @@ void receiveEvent(int howMany)
     }
     else if (receivedByte == 5)
     {
-      SIDEHIT = (int)Wire.read();
-      Serial.print("SIDEHIT: ");
-      Serial.println(SIDEHIT);
+      SIDE_HIT = (int)Wire.read();
+      Serial.print("SIDE_HIT: ");
+      Serial.println(SIDE_HIT);
     }
     else if (receivedByte == 6)
     {
@@ -235,74 +243,4 @@ void receiveEvent(int howMany)
       Serial.println();
     }
   }
-}
-
-void espTestWithLed(void)
-{
-  if (Serial.available() > 0)
-  {
-    char incommingByte = Serial.read();
-    Serial.print("Test confirmed: ");
-    Serial.println(incommingByte);
-
-  }
-
-  // Check if a client has connected
-  WiFiClient client = server.available();
-  if (!client) {
-    return;
-  }
-
-  // Wait until the client sends some data
-  Serial.println("new client");
-  while (!client.available()) {
-    delay(1);
-  }
-
-  // Read the first line of the request
-  String request = client.readStringUntil('\r');
-  Serial.println(request);
-  client.flush();
-
-  // Match the request
-
-  int value = LOW;
-  if (request.indexOf("/LED=ON") != -1) {
-    digitalWrite(ledPin, HIGH);
-    value = HIGH;
-  }
-  if (request.indexOf("/LED=OFF") != -1) {
-    digitalWrite(ledPin, LOW);
-    value = LOW;
-  }
-
-
-
-  // Return the response
-  client.println("HTTP/1.1 200 OK");
-  client.println("Content-Type: text/html");
-  client.println(""); //  do not forget this one
-  client.println("<!DOCTYPE HTML>");
-  client.println("<html>");
-
-  client.print("Led pin is now: ");
-
-  if (value == HIGH) {
-    client.print("On");
-  } else {
-    client.print("Off");
-  }
-  client.println("<br><br>");
-  client.println("Click <a href=\"/LED=ON\">here</a> turn the LED on pin 5 ON<br>");
-  client.println("Click <a href=\"/LED=OFF\">here</a> turn the LED on pin 5 OFF<br>");
-  client.println("<br><br>");
-  client.println("Connect to the dash, to prevent a crash.");
-  client.println("</html>");
-
-  delay(1);
-  Serial.println("Client disconnected");
-  Serial.println("");
-}
-
-
-
+  }*/
