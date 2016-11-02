@@ -8,14 +8,14 @@ extern uint8_t hitSide;
 extern uint8_t pressed;
 extern uint8_t crashInfoWasSend;
 
-struct crashInfo
+typedef struct crashInfo
 {
 	double speed;
 	uint8_t sideHit;
 	uint16_t impactGram;
-};
+}crashInfo;
 
-int assignCrashInfo(void);
+int assignCrashInfo(crashInfo crashInfo);
 
 void sendCrashInfo(void);
 

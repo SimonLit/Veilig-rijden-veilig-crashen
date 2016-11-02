@@ -1,16 +1,17 @@
 #include "RP6ControlLib.h"
 #include "RP6I2CmasterTWI.h"
 #include "Drive.h"
-#include "MPU9250.h"
+//#include "MPU9250.h"
+//#include "MPU_DMP.h"
 #include "Crash.h"
 #include <stdbool.h>
 #include "RP6Control_I2CMasterLib.h" 	
 
-#define DEBUG
+//#define DEBUG
 
-bool lastButton2State = false;
-bool lastButton3State = false;
-bool lastButton5State = false;
+uint8_t lastButton2State = false;
+uint8_t lastButton3State = false;
+uint8_t lastButton5State = false;
 uint16_t FSRRawValue[5];
 uint16_t averageFSRValue;
 
@@ -21,14 +22,30 @@ uint16_t averageFSRValue;
 	uint8_t timesPressed5 = 0;
 #endif
 
+void writeButtonPressOnLCD(uint8_t button, int pressed)
+{
+	clearLCD();
+	setCursorPosLCD(0,0);
+	writeStringLCD("btn:     times:");
+	setCursorPosLCD(1,0);
+	writeIntegerLCD(button, DEC);
+	writeStringLCD("        ");
+	writeIntegerLCD(pressed, DEC);
+}
+
 void task_checkButtonChanged(void)
 {
-	if((PINC & IO_PC2) !=  lastButton2State)
+	uint8_t button2State = PINC & IO_PC2;
+	uint8_t button3State = PINC & IO_PC3;
+	uint8_t button5State = PINC & IO_PC5;
+
+	if(button2State !=  lastButton2State)
 	{
 		buttenChanged();
+		lastButton2State = button2State;
 
 		#ifdef DEBUG
-			if(PINC & IO_PC2)
+			if(button2State)
 			{
 				sideHit = 2;
 				timesPressed2++;
@@ -39,17 +56,20 @@ void task_checkButtonChanged(void)
 				writeString(" times.");
 				writeString("\n");
 			}
-		#endif
 
-		lastButton2State = PINC & IO_PC2;
+			writeString("lastButton2State: ");
+			writeInteger(lastButton2State, DEC);
+			writeChar('\n');
+		#endif
 	}	
 
-	else if((PINC & IO_PC3) !=  lastButton3State)
+	else if(button3State !=  lastButton3State)
 	{
 		buttenChanged();
+		lastButton3State = button3State;
 
 		#ifdef DEBUG
-			if(PINC & IO_PC3)
+			if(button3State)
 			{
 				sideHit = 3;
 				timesPressed3++;
@@ -60,17 +80,20 @@ void task_checkButtonChanged(void)
 				writeString(" times.");
 				writeString("\n");
 			}
-			#endif
 
-		lastButton3State = PINC & IO_PC3;
+			writeString("lastButton32State: ");
+			writeInteger(lastButton3State, DEC);
+			writeChar('\n');
+		#endif	
 	}	
 
-	else if((PINC & IO_PC5) !=  lastButton5State)
+	else if(button5State !=  lastButton5State)
 	{
 		buttenChanged();
+		lastButton5State = button5State;
 
 		#ifdef DEBUG
-			if(PINC & IO_PC5)
+			if(button5State)
 			{
 				sideHit = 5;
 				timesPressed5++;
@@ -81,37 +104,39 @@ void task_checkButtonChanged(void)
 				writeString(" times.");
 				writeString("\n");
 			}
-		#endif
 
-		lastButton5State = PINC & IO_PC5;
+			writeString("lastButton5State: ");
+			writeInteger(lastButton5State, DEC);
+			writeChar('\n');
+		#endif
 	}	
 }
 
 void task_readFSRRawValueAddToArray_AssignAvareFSRValue(void)
 {
 	uint16_t sum = 0;
-	uint16_t arraySize = sizeof(pressureSensorRawValue)/sizeof(pressureSensorRawValue[0]);
+	uint16_t arraySize = sizeof(FSRRawValue)/sizeof(FSRRawValue[0]);
 
 	for (uint8_t i = 0; i < (arraySize -1); ++i)
 	{
-		pressureSensorRawValue[i] = pressureSensorRawValue[i + 1];
-		sum += pressureSensorRawValue[i];
+		FSRRawValue[i] = FSRRawValue[i + 1];
+		sum += FSRRawValue[i];
 	}
 
-	pressureSensorRawValue[arraySize] = readADC(ADC_5);
-	sum += pressureSensorRawValue[arraySize];
+	FSRRawValue[arraySize] = readADC(ADC_5);
+	sum += FSRRawValue[arraySize];
 
 	averageFSRValue = sum/arraySize;
-}
-
-float mapPressureSensorValueToNewton(void)
-{
-	return map(averageFSRValue, 0, 1023, 0.2, 20);
 }
 
 long map(long valueToMap, long in_min, long in_max, long out_min, long out_max)
 {
 	return (valueToMap - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+float mapPressureSensorValueToNewton(void)
+{
+	return map(averageFSRValue, 0, 1023, 0.2, 20);
 }
 
 /**
@@ -150,19 +175,6 @@ void watchDogRequest(void)
 		heartbeat2 = true;
 	}
 }
-
-
-void writeButtonPressOnLCD(uint8_t button, int pressed)
-{
-	clearLCD();
-	setCursorPosLCD(0,0);
-	writeStringLCD("btn:     times:");
-	setCursorPosLCD(1,0);
-	writeIntegerLCD(button, DEC);
-	writeStringLCD("        ");
-	writeIntegerLCD(pressed, DEC);
-}
-
 
 /************************************************************************************/
 //====================================================================================
@@ -205,6 +217,7 @@ int main(void)
 
 	startStopwatch1();
 	startStopwatch2();	
+	startStopwatch3();	
 
 	// Setup ACS power:
 	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_ACS_POWER, ACS_PWR_MED);
@@ -215,53 +228,84 @@ int main(void)
 	
 	BUMPERS_setStateChangedHandler(buttenChanged);
 
-	initMPU9250();
+	//initMPU9250();
 
-	gyroData gData;
-
-	bool arrayIsFilled = false;
-	uint8_t counter = 0;
+	//gyroData gData;
+	crashInfo cInfo;
 
 	float earthAcceleration = 9.81;
 
 	changeDirection(FWD);
+	bool startProgram = false;
 
 	while(true)
 	{
 		task_checkINT0();
-	    task_I2CTWI();
+		task_I2CTWI();
 
-		if(getStopwatch1() > 300)
-		{
-			task_checkButtonChanged();
-			task_readFSRRawValueAddToArray_AssignAvareFSRValue();
-			crashInfo.impactGram = (uint16_t)((mapPressureSensorValueToNewton()/earthAcceleration) * 1000);
-			setStopwatch1(0);
-		}
+		uint8_t pressedButton = checkReleasedKeyEvent();
 
-		if(!pressed)
-		{
-			setLEDs(0b0);
-
-			moveAtSpeed(60,60);
-
-			if(getStopwatch2() > 500)
+		if(startStopwatch3() > 50)
+		{		
+			switch(pressedButton)
 			{
-				getAllSensors();
-				saveSpeedData(mleft_speed, mright_speed);
-				saveGyroData(gData);
-
-				setStopwatch2(0);
+				case 1:
+					writeInteger(pressedButton, DEC);
+					writeChar('\n');
+					clearLCD();
+					if(startProgram)
+					{
+						startProgram = false;
+						writeStringLCD("Stopping Program");
+					}
+					else
+					{   startProgram = true;
+						writeStringLCD("Starting Program");
+					}					
 			}
+			setStopwatch3(0);
 		}
-		else if(!crashInfoWasSend && pressed)
+
+		switch(startProgram)
 		{
-			crashInfoWasSend = assignCrashInfo();
-			sendCrashInfo();
-		} 
-		else if(crashInfoWasSend && pressed)
-		{
-			stop();
-		}
+			case true:	    
+				if(getStopwatch1() > 300)
+				{	
+					task_checkButtonChanged();
+					task_readFSRRawValueAddToArray_AssignAvareFSRValue();
+					cInfo.impactGram = (uint16_t)((mapPressureSensorValueToNewton()/earthAcceleration) * 1000);
+					setStopwatch1(0);
+				}
+
+				if(!pressed)
+				{
+					setLEDs(0b0);
+
+					moveAtSpeed(60,60);
+
+					if(getStopwatch2() > 500)
+					{
+						getAllSensors();
+						saveSpeedData(mleft_speed, mright_speed);
+						//saveGyroData(gData);
+
+						setStopwatch2(0);
+					}
+				}
+				else if(!crashInfoWasSend && pressed)
+				{
+					crashInfoWasSend = assignCrashInfo(cInfo);
+					sendCrashInfo();
+				} 
+				else if(crashInfoWasSend && pressed)
+				{
+					stop();
+				}
+				break;
+
+			case false:
+				stop();
+				break;
+		}	
 	}	
-}
+}	
