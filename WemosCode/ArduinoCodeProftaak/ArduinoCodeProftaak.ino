@@ -55,23 +55,13 @@ void dmpDataReady()
 // ================================================================
 // ===                      WIFI VARIABLES                      ===
 // ================================================================
-const char* ssid = "Project";
-const char* password = "123456780";
-/*const char* ssid = "eversveraa";
-  const char* password = "qwerty69";*/
+/*const char* ssid = "Project";
+  const char* password = "123456780";*/
+const char* ssid = "eversveraa";
+const char* password = "qwerty69";
 
-int ledPin = 5;
-WiFiServer server(80);
-
-// ================================================================
-// ===               RP6 COMMUNICATION VARIABLES                ===
-// ================================================================
-uint8_t SPEED; //Register 1
-int YAW;
-int TILTY;
-int ROLL;
-uint8_t SIDE_HIT;  //Register 5
-uint16_t IMPACT;   //Register 6
+bool ledState = true;
+long currentMillis = 0;
 
 // ================================================================
 // ===                      MAIN SETUP                          ===
@@ -79,7 +69,7 @@ uint16_t IMPACT;   //Register 6
 void setup() {
   // join I2C bus (I2Cdev library doesn't do this automatically)
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
-  Wire.begin(42);
+  Wire.begin();
   //Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
 #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
   stwire::setup(400, true);
@@ -91,7 +81,7 @@ void setup() {
   // initialize serial communication
   // (115200 chosen because it is required for Teapot Demo output, but it's
   // really up to you depending on your project)
-  Serial.begin(38400);
+  Serial.begin(115200);
   while (!Serial); // wait for Leonardo enumeration, others continue immediately
 
   // ================================================================
@@ -160,10 +150,6 @@ void setup() {
   // ================================================================
   // ===                     SETUP FOR ESP                        ===
   // ================================================================
-
-  pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, LOW);
-
   // Connect to WiFi network
   Serial.println();
   Serial.println();
@@ -173,22 +159,15 @@ void setup() {
   WiFi.begin(ssid, password);
 
   // If the router isn't available for use comment this while loop.
-  /*while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
-    }*/
+  }
+
   Serial.println("");
-  Serial.println("WiFi connected");
-
-  // Start the server
-  server.begin();
-  Serial.println("Server started");
-
-  // Print the IP address
-  Serial.print("Use this URL : ");
-  Serial.print("http://");
-  Serial.print(WiFi.localIP());
-  Serial.println("/");
+  Serial.println("WiFi connected");  
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
 }
 
 // ================================================================
@@ -196,51 +175,31 @@ void setup() {
 // ================================================================
 void loop()
 {
-  DMPRoutine();
+  /*DMPRoutine();
   getIncommingString();
+  prinYawPitchRoll();*/
+  if((millis() - currentMillis) > 1000)
+  {
+    espTestWithLed(ledState);
+    currentMillis = millis();
+    ledState = !ledState;
+    Serial.print("ledState: ");
+    Serial.println(ledState);
+  }
+  
 }
 
-/*void receiveEvent(int howMany)
-  {
-  //Serial.println("Received something");
-  int receivedByte;
-  while (0 < Wire.available())
-  { // loop through all but the last
-    receivedByte = Wire.read();
+void prinYawPitchRoll(void)
+{
+  mpu.dmpGetQuaternion(&q, fifoBuffer);
+  mpu.dmpGetGravity(&gravity, &q);
+  mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+  Serial.print("ypr\t");
+  Serial.print(ypr[0] * 180 / M_PI);
+  Serial.print("\t");
+  Serial.print(ypr[1] * 180 / M_PI);
+  Serial.print("\t");
+  Serial.println(ypr[2] * 180 / M_PI);
 
-    if (receivedByte == 1)
-    {
-      SPEED = (double)Wire.read();
-      Serial.print("SPEED: ");
-      Serial.println(SPEED);
-    }
-    else if (receivedByte == 5)
-    {
-      SIDE_HIT = (int)Wire.read();
-      Serial.print("SIDE_HIT: ");
-      Serial.println(SIDE_HIT);
-    }
-    else if (receivedByte == 6)
-    {
-      IMPACT = Wire.read();
-      IMPACT = (IMPACT << 8) | Wire.read();
-      Serial.print("IMPACT: ");
-      Serial.println(IMPACT);
-    }
-    else if (receivedByte == 7)
-    {
-      // display Euler angles in degrees
-      mpu.dmpGetQuaternion(&q, fifoBuffer);
-      mpu.dmpGetGravity(&gravity, &q);
-      mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-      Serial.print("ypr\t");
-      Serial.print(ypr[0] * 180 / M_PI);
-      Serial.print("\t");
-      Serial.print(ypr[1] * 180 / M_PI);
-      Serial.print("\t");
-      Serial.println(ypr[2] * 180 / M_PI);
-
-      Serial.println();
-    }
-  }
-  }*/
+  Serial.println();
+}

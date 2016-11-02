@@ -1,68 +1,43 @@
+const char* host = "192.168.1.101";
+const int httpPort = 80;
 
-
-void espTestWithLed(void)
-  {
-  if (Serial.available() > 0)
-  {
-    char incommingByte = Serial.read();
-    Serial.print("Test confirmed: ");
-    Serial.println(incommingByte);
-
-  }
-
-  // Check if a client has connected
-  WiFiClient client = server.available();
-  if (!client) {
+void espTestWithLed(bool LedState)
+{
+  // Use WiFiClient class to create TCP connections
+  WiFiClient client;
+  const int httpPort = 80;
+  if (!client.connect(host, httpPort)) {
+    Serial.println("connection failed");
     return;
   }
-
-  // Wait until the client sends some data
-  Serial.println("new client");
-  while (!client.available()) {
-    delay(1);
+  if (LedState)
+  {
+      client.print(String("GET ") + "/LED=ON/" + " HTTP/1.1\r\n" +
+               "Host: " + host + "\r\n" + 
+               "Connection: close\r\n\r\n");
+  }
+  else
+  {
+      client.print(String("GET ") + "/LED=OFF/" + " HTTP/1.1\r\n" +
+               "Host: " + host + "\r\n" + 
+               "Connection: close\r\n\r\n");
   }
 
-  // Read the first line of the request
-  String request = client.readStringUntil('\r');
-  Serial.println(request);
-  client.flush();
-
-  // Match the request
-
-  int value = LOW;
-  if (request.indexOf("/LED=ON") != -1) {
-    digitalWrite(ledPin, HIGH);
-    value = HIGH;
+  unsigned long timeout = millis();
+  while (client.available() == 0) {
+    if (millis() - timeout > 5000) {
+      Serial.println(">>> Client Timeout !");
+      client.stop();
+      return;
+    }
   }
-  if (request.indexOf("/LED=OFF") != -1) {
-    digitalWrite(ledPin, LOW);
-    value = LOW;
+  
+  // Read all the lines of the reply from server and print them to Serial
+  while(client.available()){
+    String line = client.readStringUntil('\r');
+    Serial.print(line);
   }
-
-
-
-  // Return the response
-  client.println("HTTP/1.1 200 OK");
-  client.println("Content-Type: text/html");
-  client.println(""); //  do not forget this one
-  client.println("<!DOCTYPE HTML>");
-  client.println("<html>");
-
-  client.print("Led pin is now: ");
-
-  if (value == HIGH) {
-    client.print("On");
-  } else {
-    client.print("Off");
-  }
-  client.println("<br><br>");
-  client.println("Click <a href=\"/LED=ON\">here</a> turn the LED on pin 5 ON<br>");
-  client.println("Click <a href=\"/LED=OFF\">here</a> turn the LED on pin 5 OFF<br>");
-  client.println("<br><br>");
-  client.println("Connect to the dash, to prevent a crash.");
-  client.println("</html>");
-
-  delay(1);
-  Serial.println("Client disconnected");
-  Serial.println("");
-  }
+  
+  Serial.println();
+  Serial.println("closing connection");
+}
