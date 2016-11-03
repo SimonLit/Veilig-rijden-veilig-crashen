@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("boardcomputer_project")]
+[assembly: AssemblyTitle("boardcomputer")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("boardcomputer_project")]
+[assembly: AssemblyProduct("boardcomputer")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("5073f365-643a-4e3e-9385-dd2670cd0f43")]
+[assembly: Guid("87d03f33-e975-409b-841c-aca7f4ff0538")]
 
 // Version information for an assembly consists of the following four values:
 //
