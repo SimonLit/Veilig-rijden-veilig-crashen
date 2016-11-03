@@ -59,7 +59,7 @@ void espTestWithLed(void)
   }
 
   // Read the first line of the request
-  String request = client.readString();
+  String request = client.readStringUntil('\r');
   //Serial.println(request);
   client.flush();
 

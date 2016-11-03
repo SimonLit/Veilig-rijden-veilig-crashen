@@ -176,7 +176,7 @@ void loop()
 {
   DMPRoutine();
   getIncommingString();
-  if (tempMessage != "")
+  if (tempMessage == "ORIENTATION")
   {
     Serial.println(tempMessage);
     tempMessage = "";
