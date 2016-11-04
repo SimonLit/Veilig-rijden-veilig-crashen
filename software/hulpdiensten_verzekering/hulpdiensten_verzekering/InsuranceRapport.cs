@@ -17,16 +17,50 @@ namespace hulpdiensten_verzekering
             {
                 return victimID;
             }
-
             set
             {
+                string stringvalue = Convert.ToString(value);
+                if(stringvalue.Length == 9)
+                {
+                    int insuranceCompanyId;
+                    victimID = Int32.Parse(stringvalue.Remove(0, 3));
+                    insuranceCompanyId = Int32.Parse(stringvalue.Remove(3));
+                    if(insuranceCompanyId == 111)
+                    {
+                        InsuranceCompany = "Ditzo";
+                    }
+                    else if(insuranceCompanyId == 112)
+                    {
+                        InsuranceCompany = "InShared";
+                    }
+                    else if(insuranceCompanyId == 113)
+                    {
+                        InsuranceCompany = "Univé";
+                    }
+                    else if(insuranceCompanyId == 114)
+                    {
+                        InsuranceCompany = "Centraal beheer Achmea";
+                    }
+                    else if(insuranceCompanyId == 115)
+                    {
+                        InsuranceCompany = "FBTO";
+                    }
+                }
             }
         }
 
-        public int insuranceRapportNumber { get; private set; }
+        public int InsuranceRapportNumber { get; private set; }
 
         public string InsuranceDetails { get; private set; }
 
         public int ClaimNr { get; private set; }
+
+        public InsuranceRapport(int InputVictimId, DateTime date, int insuranceRapportNumber, string insuranceDetails, int claimNr): base (date)
+        {
+            InputVictimId = VictimID;
+            InsuranceDetails = insuranceDetails;
+            InsuranceRapportNumber = insuranceRapportNumber;
+            ClaimNr = claimNr;
+        }
     }
 }

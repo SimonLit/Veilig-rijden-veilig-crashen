@@ -8,6 +8,6 @@ namespace hulpdiensten_verzekering
 {
     interface IRapport
     {
-        DateTime Date { get; set; }
+        DateTime Date { get;}
     }
 }

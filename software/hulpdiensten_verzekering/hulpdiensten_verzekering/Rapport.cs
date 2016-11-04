@@ -8,7 +8,7 @@ namespace hulpdiensten_verzekering
 {
     public abstract class Rapport : IRapport
     {
-        public DateTime Date { get; set; }
+        public DateTime Date { get;}
 
         public abstract int VictimID { get; set; }
 
