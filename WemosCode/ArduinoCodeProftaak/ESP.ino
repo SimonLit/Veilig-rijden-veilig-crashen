@@ -1,4 +1,4 @@
-const char* host = "192.168.1.107";
+const char* host = "192.168.1.103";
 const int httpPort = 80;
 
 void espTestWithLed(bool LedState)

@@ -1,3 +1,7 @@
+int8_t yawOffsetValue = 0;
+int8_t pitchOffsetValue = 0;
+int8_t rollOffsetValue = 0;
+
 void DMPRoutine(void)
 {
   // if programming failed, don't try to do anything
@@ -42,17 +46,69 @@ void DMPRoutine(void)
   }
 }
 
-void prinYawPitchRoll(void)
+void getYPR(void)
 {
   mpu.dmpGetQuaternion(&q, fifoBuffer);
   mpu.dmpGetGravity(&gravity, &q);
   mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+}
+
+void prinYawPitchRoll(void)
+{
+  getYPR();
   Serial.print("ypr\t");
-  Serial.print(ypr[0] * 180 / M_PI);
+  Serial.print((ypr[0] * 180 / M_PI) - yawOffsetValue);
   Serial.print("\t");
-  Serial.print(ypr[1] * 180 / M_PI);
+  Serial.print((ypr[1] * 180 / M_PI) - pitchOffsetValue);
   Serial.print("\t");
-  Serial.println(ypr[2] * 180 / M_PI);
+  Serial.println((ypr[2] * 180 / M_PI) - rollOffsetValue);
 
   Serial.println();
 }
+
+bool getMPUIsStabilized(void)
+{
+  uint8_t yaw1 = 0;
+  uint8_t pitch1 = 0;
+  uint8_t roll1 = 0;
+
+  uint8_t yaw2 = 0;
+  uint8_t pitch2 = 0;
+  uint8_t roll2 = 0;
+
+  uint8_t errorMargin = 1;
+
+  DMPRoutine();
+  getYPR();
+  yaw1 = ypr[0] * 180 / M_PI;
+  pitch1 = ypr[1] * 180 / M_PI;
+  roll1 = ypr[2] * 180 / M_PI;
+
+  DMPRoutine();
+  getYPR();
+  yaw2 = ypr[0] * 180 / M_PI;
+  pitch2 = ypr[1] * 180 / M_PI;
+  roll2 = ypr[2] * 180 / M_PI;
+
+  uint8_t yawDifference = yaw1 - yaw2;
+  uint8_t pitchDifference = pitch1 - pitch2;
+  uint8_t rollDifference = roll1 - roll2;
+
+  if ((yawDifference > -errorMargin && yawDifference <  errorMargin)
+      && (pitchDifference > -errorMargin && pitchDifference <  errorMargin)
+      && (rollDifference > -errorMargin && rollDifference <  errorMargin))
+  {
+    return true;
+  }
+  else return false;
+}
+
+void resetYPRValues(void)
+{
+  DMPRoutine();
+  getYPR();
+  yawOffsetValue = ypr[0] * 180 / M_PI;
+  pitchOffsetValue = ypr[1] * 180 / M_PI;
+  rollOffsetValue = ypr[2] * 180 / M_PI;
+}
+

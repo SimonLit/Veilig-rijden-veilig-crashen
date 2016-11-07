@@ -42,6 +42,8 @@ Quaternion q;           // [w, x, y, z]         quaternion container
 VectorFloat gravity;    // [x, y, z]            gravity vector
 float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
+bool MPUIsStable = false;
+
 // ================================================================
 // ===               INTERRUPT DETECTION ROUTINE                ===
 // ================================================================
@@ -55,10 +57,8 @@ void dmpDataReady()
 // ================================================================
 // ===                      WIFI VARIABLES                      ===
 // ================================================================
-/*const char* ssid = "Project";
-  const char* password = "123456780";*/
-const char* ssid = "eversveraa";
-const char* password = "qwerty69";
+const char* ssid = "Project";
+const char* password = "123456780";
 
 bool ledState = false;
 String tempMessage = "";
@@ -99,18 +99,19 @@ void setup() {
   pinMode(INTERRUPT_PIN, INPUT);
 
   // verify connection
+  Serial.println(mpu.getDeviceID(), HEX);
   Serial.println(F("Testing device connections..."));
-  Serial.println(mpu.testConnection() ? F("MPU6050 connection successful") : F("MPU6050 connection failed"));
+  Serial.println(mpu.testConnection() ? F("MPU9250 connection successful") : F("MPU9250 connection failed"));
 
   // load and configure the DMP
   Serial.println(F("Initializing DMP..."));
   devStatus = mpu.dmpInitialize();
 
   // supply your own gyro offsets here, scaled for min sensitivity
-  mpu.setXGyroOffset(220);
-  mpu.setYGyroOffset(76);
-  mpu.setZGyroOffset(-85);
-  mpu.setZAccelOffset(1788); // 1688 factory default for my test chip
+  /*mpu.setXGyroOffset(220);
+    mpu.setYGyroOffset(76);
+    mpu.setZGyroOffset(-85);
+    mpu.setZAccelOffset(1788); // 1688 factory default for my test chip*/
 
   // make sure it worked (returns 0 if so)
   if (devStatus == 0)
@@ -150,23 +151,23 @@ void setup() {
   // ===                     SETUP FOR ESP                        ===
   // ================================================================
   // Connect to WiFi network
-  Serial.println();
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
+  /*Serial.println();
+    Serial.println();
+    Serial.print("Connecting to ");
+    Serial.println(ssid);
 
-  WiFi.begin(ssid, password);
+    WiFi.begin(ssid, password);
 
-  // If the router isn't available for use comment this while loop.
-  while (WiFi.status() != WL_CONNECTED) {
+    // If the router isn't available for use comment this while loop.
+    while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
-  }
+    }
 
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
+    Serial.println("");
+    Serial.println("WiFi connected");
+    Serial.println("IP address: ");
+    Serial.println(WiFi.localIP());*/
 }
 
 // ================================================================
@@ -174,6 +175,23 @@ void setup() {
 // ================================================================
 void loop()
 {
+  while (!MPUIsStable)
+  {
+    if (getMPUIsStabilized())
+    {
+      Serial.println("MPU is stable");
+      MPUIsStable = true;
+    }
+    else return;
+  }
+
+  if (tempMessage == "RESET")
+  {
+    Serial.println(tempMessage);
+    tempMessage = "";
+    resetYPRValues();
+  }
+  
   DMPRoutine();
   getIncommingString();
   if (tempMessage == "ORIENTATION")
