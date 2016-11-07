@@ -63,6 +63,10 @@ const char* password = "123456780";
 bool ledState = false;
 String tempMessage = "";
 
+String protocolToSendArray[4]; // 0 = speed; 1 = sideHit; 2 = impact; 3 = orientation;
+
+bool protocolEndCharReceived = false;
+
 // ================================================================
 // ===                      MAIN SETUP                          ===
 // ================================================================
@@ -152,22 +156,22 @@ void setup() {
   // ================================================================
   // Connect to WiFi network
   /*Serial.println();
-    Serial.println();
-    Serial.print("Connecting to ");
-    Serial.println(ssid);
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
 
-    WiFi.begin(ssid, password);
+  WiFi.begin(ssid, password);
 
-    // If the router isn't available for use comment this while loop.
-    while (WiFi.status() != WL_CONNECTED) {
+  // If the router isn't available for use comment this while loop.
+  while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
-    }
+  }
 
-    Serial.println("");
-    Serial.println("WiFi connected");
-    Serial.println("IP address: ");
-    Serial.println(WiFi.localIP());*/
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());*/
 }
 
 // ================================================================
@@ -191,14 +195,23 @@ void loop()
     tempMessage = "";
     resetYPRValues();
   }
-  
+
   DMPRoutine();
-  getIncommingString();
+  protocolEndCharReceived = getIncommingString();
+  if(protocolEndCharReceived)
+  {
+    formatMessageToProtocol(tempMessage, &protocolToSendArray[0]);
+    protocolEndCharReceived = false;
+  }
+  
   if (tempMessage == "ORIENTATION")
   {
     Serial.println(tempMessage);
     tempMessage = "";
-    prinYawPitchRoll();
-    changeLedState();
+    for(uint8_t index = 0; index < 4; index++)
+    {
+      Serial.println(protocolToSendArray[index]);
+    }
+    //changeLedState();
   }
 }
