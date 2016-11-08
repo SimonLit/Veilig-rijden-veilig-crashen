@@ -1,8 +1,6 @@
 #include "RP6ControlLib.h"
 #include "RP6I2CmasterTWI.h"
 #include "Drive.h"
-//#include "MPU9250.h"
-//#include "MPU_DMP.h"
 #include "Crash.h"
 #include <stdbool.h>
 #include "RP6Control_I2CMasterLib.h" 	
@@ -12,8 +10,6 @@
 uint8_t lastButton2State = false;
 uint8_t lastButton3State = false;
 uint8_t lastButton5State = false;
-uint16_t FSRRawValue[5];
-uint16_t averageFSRValue;
 
 #ifdef DEBUG
 	uint8_t sideHit = 0;
@@ -112,31 +108,17 @@ void task_checkButtonChanged(void)
 	}	
 }
 
-void task_readFSRRawValueAddToArray_AssignAvareFSRValue(void)
-{
-	uint16_t sum = 0;
-	uint16_t arraySize = sizeof(FSRRawValue)/sizeof(FSRRawValue[0]);
-
-	for (uint8_t i = 0; i < (arraySize -1); ++i)
-	{
-		FSRRawValue[i] = FSRRawValue[i + 1];
-		sum += FSRRawValue[i];
-	}
-
-	FSRRawValue[arraySize] = readADC(ADC_5);
-	sum += FSRRawValue[arraySize];
-
-	averageFSRValue = sum/arraySize;
-}
-
-long map(long valueToMap, long in_min, long in_max, long out_min, long out_max)
+int16_t map(int16_t valueToMap, int16_t in_min, int16_t in_max, int16_t out_min, int16_t out_max)
 {
 	return (valueToMap - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-float mapPressureSensorValueToNewton(void)
+uint16_t mapPressureSensorValueToNewton(void)
 {
-	return map(averageFSRValue, 0, 1023, 0.2, 20);
+	// The sensitivity actualy ranges from 0.2 to 20 instead of 0 - 20.
+	// But because this is such a small difference it is much more convenient
+	// To avoid the use of decimal numbers. 
+	return map(readADC(ADC_5), 0, 1023, 0, 20); 
 }
 
 /**
@@ -190,11 +172,11 @@ int main(void)
 
 	WDT_setRequestHandler(watchDogRequest); 
 
-	DDRC &= ~IO_PC2; 
-	DDRC &= ~IO_PC3;  
-	DDRC &= ~IO_PC5; 
+	DDRC &= ~IO_PC2; // Right button
+	DDRC &= ~IO_PC3; // Left button
+	DDRC &= ~IO_PC5; // Back button
 
-	DDRA &= ~ADC5; 
+	DDRA &= ~ADC5; // Force Sensitive Resistor (FSR)
 
 	#ifdef DEBUG
 		if(PINC & IO_PC2) 
@@ -215,9 +197,9 @@ int main(void)
 
 	
 
-	startStopwatch1();
-	startStopwatch2();	
-	startStopwatch3();	
+	startStopwatch1(); // Timer for checking button state and measuring the FSR.
+	startStopwatch2(); // Timer for getting all the sensor data from the RP6 base board.
+	startStopwatch3(); // TImer for checking the start/stop program button.
 
 	// Setup ACS power:
 	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_ACS_POWER, ACS_PWR_MED);
@@ -226,14 +208,11 @@ int main(void)
 	// Enable timed watchdog requests:
 	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_WDT_RQ, true);
 	
-	BUMPERS_setStateChangedHandler(buttenChanged);
+	BUMPERS_setStateChangedHandler(buttenChanged); // Assign the bumper event to the function from Crash.h.
 
-	//initMPU9250();
-
-	//gyroData gData;
 	crashInfo cInfo;
 
-	float earthAcceleration = 9.81;
+	float earthAcceleration = 9.81; // Used for the converting from Newton to grams.
 
 	changeDirection(FWD);
 	bool startProgram = false;
@@ -243,6 +222,7 @@ int main(void)
 		task_checkINT0();
 		task_I2CTWI();
 
+		// Check start/stop program button.
 		uint8_t pressedButton = checkReleasedKeyEvent();
 
 		if(startStopwatch3() > 50)
@@ -253,6 +233,8 @@ int main(void)
 					writeInteger(pressedButton, DEC);
 					writeChar('\n');
 					clearLCD();
+
+					// Set the startProgram value to indecate if the RP6 should do anything.
 					if(startProgram)
 					{
 						startProgram = false;
@@ -266,14 +248,18 @@ int main(void)
 			setStopwatch3(0);
 		}
 
+		// If the program is started.
 		switch(startProgram)
 		{
-			case true:	    
-				if(getStopwatch1() > 300)
+			case true:	
+
+				// Check if one of our self added buttons was pressed.
+				// Read the FSR value, convert it to grams and add it to the crashInfo struct.
+ 				if(getStopwatch1() > 300)
 				{	
 					task_checkButtonChanged();
-					task_readFSRRawValueAddToArray_AssignAvareFSRValue();
-					cInfo.impactGram = (uint16_t)((mapPressureSensorValueToNewton()/earthAcceleration) * 1000);
+					cInfo.impactGram = (mapPressureSensorValueToNewton()/earthAcceleration) * 1000;
+
 					setStopwatch1(0);
 				}
 
@@ -283,26 +269,36 @@ int main(void)
 
 					moveAtSpeed(60,60);
 
+					// Update the variables representing the values of the base board sensors.
+					// Add the current speed values to an array as one speedData struct value.
 					if(getStopwatch2() > 500)
 					{
 						getAllSensors();
 						saveSpeedData(mleft_speed, mright_speed);
-						//saveGyroData(gData);
 
 						setStopwatch2(0);
 					}
 				}
+
+				// One of the (self added) bumpers was pressed but the data wasn't formatted and 
+				// assigned to the crashInfo struct yet
+				//
+				// In that case, format and assign all the data and send it over Serial.
 				else if(!crashInfoWasSend && pressed)
 				{
 					crashInfoWasSend = assignCrashInfo(cInfo);
 					sendCrashInfo();
 				} 
+
+				// If the crash data is assigned and send stop the driving of the RP6.
 				else if(crashInfoWasSend && pressed)
 				{
 					stop();
 				}
 				break;
 
+			// If the program isn't started or the program was stopped/paused, 
+			// Let the RP6 don't do anything.
 			case false:
 				stop();
 				break;

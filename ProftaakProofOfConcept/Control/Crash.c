@@ -1,6 +1,5 @@
 #include "Crash.h"
 #include "Drive.h"
-//#include "MPU9250.h"
 #include "RP6I2CmasterTWI.h"
 #include "RP6uart.h"
 #include <stdbool.h>
@@ -57,19 +56,6 @@ int assignCrashInfo(crashInfo cInfo)
 		writeString(" grams");
 		writeChar('\n');
 		writeChar('\n');
-
-		/*writeString("GyX: ");
-		writeInteger(((gDataArray[14].GyroX_H << 8) | gDataArray[14].GyroX_L), DEC);
-		writeChar('\n');
-		writeChar('\n');
-		writeString("GyY: ");
-		writeInteger(((gDataArray[14].GyroY_H << 8) | gDataArray[14].GyroY_L), DEC);
-		writeChar('\n');
-		writeChar('\n');
-		writeString("GyZ: ");
-		writeInteger(((gDataArray[14].GyroZ_H << 8) | gDataArray[14].GyroZ_L), DEC);
-		writeChar('\n');
-		writeChar('\n');*/
 	#endif
 
 	crashInfoToSend.speed = speedCMPerSecond;
@@ -102,9 +88,6 @@ void sendCrashInfo(void)
 
 	#elif USE_I2C
 		I2CTWI_transmit2Bytes(ARDUINO_DEVICE_ADDRESS, 1, crashInfoToSend.speed); // In cm/s
-		//I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 2, gDataArray[14].GyroX_H, gDataArray[14].GyroX_L);
-		//I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 3, gDataArray[14].GyroY_H, gDataArray[14].GyroY_L);
-		//I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 4, gDataArray[14].GyroZ_H, gDataArray[14].GyroZ_L);
 		I2CTWI_transmit2Bytes(ARDUINO_DEVICE_ADDRESS, 5, crashInfoToSend.sideHit); 	// 1: front
 																					// 2: right
 																					// 3: left
@@ -129,7 +112,6 @@ void buttenChanged(void)
 		#ifdef SERIAL_DEBUG
 			writeString("Bumper was pressed\n");
 			writeSpeed();
-			//writeGyro();
 		#endif
 
 	 	if(bumper_left || bumper_right)

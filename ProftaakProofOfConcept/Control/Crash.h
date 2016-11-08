@@ -2,7 +2,6 @@
 #define CRASH_H
 
 #include <stdint.h>
-#include "MPU9250.h"
 
 extern uint8_t hitSide;
 extern uint8_t pressed;
