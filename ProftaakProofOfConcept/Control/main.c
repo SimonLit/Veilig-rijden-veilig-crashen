@@ -172,6 +172,9 @@ int main(void)
 
 	WDT_setRequestHandler(watchDogRequest); 
 
+	mleft_dist = 0;
+	mright_dist = 0;
+
 	DDRC &= ~IO_PC2; // Right button
 	DDRC &= ~IO_PC3; // Left button
 	DDRC &= ~IO_PC5; // Back button

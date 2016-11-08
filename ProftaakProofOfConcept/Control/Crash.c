@@ -30,13 +30,14 @@ int assignCrashInfo(crashInfo cInfo)
 	uint16_t avergeLeftSpeed = calculateAverageLeftSpeed();
 	uint16_t avergeRightSpeed = calculateAverageRightSpeed();
 	uint16_t averageSpeed = (avergeLeftSpeed + avergeRightSpeed)/2;
-	double speedCMPerSecond = averageSpeed * 5 * 0.025; // One speed point is equal to 5 segments per second.
-														// By multiplying the speed by 5
-													    // you get the amount of segments past
-														// on the encoder per second. 
-													    // Each segment is +/- 0.25mm. So by 
-														// multiplying is by 0.025cm you get the 
-														// amount of cm/s.
+	double speedCMPerSecond = averageSpeed * 5 * ENCODER_RESOLUTION; 	// One speed point is equal to 5 segments per second.
+																		// By multiplying the speed by 5
+																	    // you get the amount of segments past
+																		// on the encoder per second. 
+																	    // Each segment is +/- 0.24mm (= ENCODER_RESOLUTION). 
+																	    // ENCODER_RESOLUTION is defined in the RP6Config.h file.
+																		// So by multiplying is by 0.025cm you get the 
+																		// amount of cm/s.
 
 	#ifdef SERIAL_DEBUG
 		writeString("Average left speed: ");
@@ -60,6 +61,7 @@ int assignCrashInfo(crashInfo cInfo)
 
 	crashInfoToSend.speed = speedCMPerSecond;
 	crashInfoToSend.sideHit = hitSide;
+	crashInfoToSend.distanceDrivenInCM = ((mleft_dist * (ENCODER_RESOLUTION/10)) + (mright_dist * (ENCODER_RESOLUTION/10))) / 2;
 	impactGramByteSize[0] = (crashInfoToSend.impactGram >> 8) & 0xFF;
 	impactGramByteSize[1] = crashInfoToSend.impactGram & 0xFF;
 
@@ -81,6 +83,10 @@ void sendCrashInfo(void)
 
 		writeString("#IMPACT:");
 		writeInteger(crashInfoToSend.impactGram, DEC);
+		writeChar('%');
+
+		writeString("#DIST_DRIVEN:");
+		writeInteger(crashInfoToSend.distanceDrivenInCM, DEC);
 		writeChar('%');
 
 		writeString("#ORIENTATION");
