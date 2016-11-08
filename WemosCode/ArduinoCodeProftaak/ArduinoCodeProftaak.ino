@@ -63,7 +63,7 @@ const char* password = "123456780";
 bool ledState = false;
 String tempMessage = "";
 
-String protocolToSendArray[4]; // 0 = speed; 1 = sideHit; 2 = impact; 3 = orientation;
+String protocolToSendArray[5]; // 0 = speed; 1 = sideHit; 2 = impact; 3 = orientation;
 
 bool protocolEndCharReceived = false;
 
@@ -208,7 +208,7 @@ void loop()
   {
     Serial.println(tempMessage);
     tempMessage = "";
-    for(uint8_t index = 0; index < 4; index++)
+    for(uint8_t index = 0; index < 5; index++)
     {
       Serial.println(protocolToSendArray[index]);
     }
