@@ -48,7 +48,7 @@ namespace boardcomputer
         }
         public void stopHotSpot()
         {
-            Zedfi_Hotspot(SSID, KEY, false);
+            Zedfi_Hotspot(null, null, false);
         }
 
         private void Zedfi_Hotspot(string ssid, string key, bool status)

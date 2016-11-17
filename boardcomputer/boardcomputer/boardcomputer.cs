@@ -23,6 +23,7 @@ namespace boardcomputer
             if (IsAdmin() == false)
             {
                 RestartElevated();
+                Environment.Exit(0);
             }
             handler = new ConsoleEventDelegate(ConsoleEventCallback);
             SetConsoleCtrlHandler(handler, true);
@@ -30,6 +31,7 @@ namespace boardcomputer
             Console.WriteLine("Press enter to start the hotsport.");
             Console.ReadKey();
             hotspotboardcomputer.startHotSpot();
+            startUpServer();
             Console.WriteLine("Hotspot started, press enter to stop the hotspot.");
             Console.ReadKey();
             hotspotboardcomputer.stopHotSpot();
@@ -99,6 +101,11 @@ namespace boardcomputer
             {
                 Console.WriteLine(e.Message);
             }
+        }
+        public static void startUpServer()
+        {
+            transferserver server = new transferserver();
+            server.SetupServer("192.168.173.1");
         }
     }
 }
