@@ -61,6 +61,7 @@ const char* ssid = "Project";
 const char* password = "123456780";
 
 bool ledState = false;
+bool ledState1 = false;
 String tempMessage = "";
 
 String protocolToSendArray[5]; // 0 = speed; 1 = sideHit; 2 = impact; 3 = orientation;

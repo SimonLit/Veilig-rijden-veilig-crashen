@@ -4,7 +4,7 @@ const char* ssid = "Project";
 const char* password = "123456780";
 
 int ledPin = D3;
-WiFiServer server(80);
+WiFiServer server(90);
 
 void setup() {
   Serial.begin(115200);
@@ -69,13 +69,16 @@ void espTestWithLed(void)
   if (request.indexOf("/LED=ON") != -1) {
     digitalWrite(ledPin, HIGH);
     value = HIGH;
-    //client.write('s');
+    client.println("LED is set On\r");
   }
   if (request.indexOf("/LED=OFF") != -1) {
     digitalWrite(ledPin, LOW);
     value = LOW;
+    client.println("LED is set Off\r");
   }
 
+  
+  
   // Return the response
   /*client.println("HTTP/1.1 200 OK");
   client.println("Content-Type: text/html");
