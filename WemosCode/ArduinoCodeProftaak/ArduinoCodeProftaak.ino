@@ -155,7 +155,7 @@ void setup() {
   // ===                     SETUP FOR ESP                        ===
   // ================================================================
   // Connect to WiFi network
-  /*Serial.println();
+  Serial.println();
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
@@ -171,7 +171,7 @@ void setup() {
   Serial.println("");
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());*/
+  Serial.println(WiFi.localIP());
 }
 
 // ================================================================
@@ -198,20 +198,20 @@ void loop()
 
   DMPRoutine();
   protocolEndCharReceived = getIncommingString();
-  if(protocolEndCharReceived)
+  if (protocolEndCharReceived)
   {
     formatMessageToProtocol(tempMessage, &protocolToSendArray[0]);
     protocolEndCharReceived = false;
   }
-  
+
   if (tempMessage == "ORIENTATION")
   {
     Serial.println(tempMessage);
     tempMessage = "";
-    for(uint8_t index = 0; index < 5; index++)
+    /*for (uint8_t index = 0; index < 5; index++)
     {
       Serial.println(protocolToSendArray[index]);
-    }
-    //changeLedState();
+    }*/
+    changeLedState();
   }
 }

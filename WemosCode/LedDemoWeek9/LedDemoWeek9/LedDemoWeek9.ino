@@ -69,6 +69,7 @@ void espTestWithLed(void)
   if (request.indexOf("/LED=ON") != -1) {
     digitalWrite(ledPin, HIGH);
     value = HIGH;
+    //client.write('s');
   }
   if (request.indexOf("/LED=OFF") != -1) {
     digitalWrite(ledPin, LOW);
