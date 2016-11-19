@@ -2,20 +2,20 @@
 #define CRASH_H
 
 #include <stdint.h>
-#include "MPU9250.h"
 
 extern uint8_t hitSide;
 extern uint8_t pressed;
 extern uint8_t crashInfoWasSend;
 
-struct crashInfo
+typedef struct crashInfo
 {
 	double speed;
 	uint8_t sideHit;
 	uint16_t impactGram;
-};
+	uint16_t distanceDrivenInCM;
+}crashInfo;
 
-int assignCrashInfo(void);
+int assignCrashInfo(crashInfo crashInfo);
 
 void sendCrashInfo(void);
 

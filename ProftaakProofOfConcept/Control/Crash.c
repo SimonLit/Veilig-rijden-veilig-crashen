@@ -1,12 +1,13 @@
 #include "Crash.h"
 #include "Drive.h"
-#include "MPU9250.h"
 #include "RP6I2CmasterTWI.h"
 #include "RP6uart.h"
 #include <stdbool.h>
 #include "RP6Control_I2CMasterLib.h" 
 
-#define SERIAL_DEBUG	
+//#define SERIAL_DEBUG
+#define	USE_SERIAL
+//#define	USE_I2C
 
 //====================================================================================
 // Crash
@@ -22,18 +23,21 @@ uint8_t crashInfoWasSend = false;
 uint8_t hitSide;
 uint8_t impactGramByteSize[2];
 
-int assignCrashInfo(void)
+int assignCrashInfo(crashInfo cInfo)
 {
+	crashInfoToSend = cInfo;
+
 	uint16_t avergeLeftSpeed = calculateAverageLeftSpeed();
 	uint16_t avergeRightSpeed = calculateAverageRightSpeed();
 	uint16_t averageSpeed = (avergeLeftSpeed + avergeRightSpeed)/2;
-	double speedCMPerSecond = averageSpeed * 5 * 0.025; // One speed point is equal to 5 segments per second.
-														// By multiplying the speed by 5
-													    // you get the amount of segments past
-														// on the encoder per second. 
-													    // Each segment is +/- 0.25mm. So by 
-														// multiplying is by 0.025cm you get the 
-														// amount of cm/s.
+	double speedCMPerSecond = averageSpeed * 5 * ENCODER_RESOLUTION; 	// One speed point is equal to 5 segments per second.
+																		// By multiplying the speed by 5
+																	    // you get the amount of segments past
+																		// on the encoder per second. 
+																	    // Each segment is +/- 0.24mm (= ENCODER_RESOLUTION). 
+																	    // ENCODER_RESOLUTION is defined in the RP6Config.h file.
+																		// So by multiplying is by 0.025cm you get the 
+																		// amount of cm/s.
 
 	#ifdef SERIAL_DEBUG
 		writeString("Average left speed: ");
@@ -48,25 +52,16 @@ int assignCrashInfo(void)
 		writeString("Average: ");
 		writeInteger(speedCMPerSecond, DEC);
 		writeString(" cm/s");
-		writeChar('\n');
-		writeChar('\n');
-
-		writeString("GyX: ");
-		writeInteger(((gDataArray[14].GyroX_H << 8) | gDataArray[14].GyroX_L), DEC);
-		writeChar('\n');
-		writeChar('\n');
-		writeString("GyY: ");
-		writeInteger(((gDataArray[14].GyroY_H << 8) | gDataArray[14].GyroY_L), DEC);
-		writeChar('\n');
-		writeChar('\n');
-		writeString("GyZ: ");
-		writeInteger(((gDataArray[14].GyroZ_H << 8) | gDataArray[14].GyroZ_L), DEC);
+		writeString("Impact: ");
+		writeInteger(crashInfoToSend.impactGram, DEC);
+		writeString(" grams");
 		writeChar('\n');
 		writeChar('\n');
 	#endif
 
 	crashInfoToSend.speed = speedCMPerSecond;
 	crashInfoToSend.sideHit = hitSide;
+	crashInfoToSend.distanceDrivenInCM = ((mleft_dist * (ENCODER_RESOLUTION/10)) + (mright_dist * (ENCODER_RESOLUTION/10))) / 2;
 	impactGramByteSize[0] = (crashInfoToSend.impactGram >> 8) & 0xFF;
 	impactGramByteSize[1] = crashInfoToSend.impactGram & 0xFF;
 
@@ -76,16 +71,38 @@ int assignCrashInfo(void)
 void sendCrashInfo(void)
 {
 	writeString("SENDING TO ARDUINO\n");
-	I2CTWI_transmit2Bytes(ARDUINO_WRITE_ADDRESS, 1, crashInfoToSend.speed); // In cm/s
-	I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 2, gDataArray[14].GyroX_H, gDataArray[14].GyroX_L);
-	I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 3, gDataArray[14].GyroY_H, gDataArray[14].GyroY_L);
-	I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 4, gDataArray[14].GyroZ_H, gDataArray[14].GyroZ_L);
-	I2CTWI_transmit2Bytes(ARDUINO_WRITE_ADDRESS, 5, crashInfoToSend.sideHit); 	// 1: front
-																				// 2: right
-																				// 3: left
-																				// 4: back	
 
-	I2CTWI_transmit3Bytes(ARDUINO_WRITE_ADDRESS, 6, impactGramByteSize[0], impactGramByteSize[1]);
+	#ifdef USE_SERIAL	
+		writeString("#SPEED:");
+		writeInteger(crashInfoToSend.speed, DEC);
+		writeChar('%');
+
+		writeString("#SIDE_HIT:");
+		writeInteger(crashInfoToSend.sideHit, DEC);
+		writeChar('%');
+
+		writeString("#IMPACT:");
+		writeInteger(crashInfoToSend.impactGram, DEC);
+		writeChar('%');
+
+		writeString("#DIST_DRIVEN:");
+		writeInteger(crashInfoToSend.distanceDrivenInCM, DEC);
+		writeChar('%');
+
+		writeString("#ORIENTATION");
+		writeChar('%');
+
+	#elif USE_I2C
+		I2CTWI_transmit2Bytes(ARDUINO_DEVICE_ADDRESS, 1, crashInfoToSend.speed); // In cm/s
+		I2CTWI_transmit2Bytes(ARDUINO_DEVICE_ADDRESS, 5, crashInfoToSend.sideHit); 	// 1: front
+																					// 2: right
+																					// 3: left
+																					// 4: back	
+
+		I2CTWI_transmit3Bytes(ARDUINO_DEVICE_ADDRESS, 6, impactGramByteSize[0], impactGramByteSize[1]);
+		I2CTWI_transmitByte(ARDUINO_DEVICE_ADDRESS, 7);
+
+	#endif
 }
 
 
@@ -101,7 +118,6 @@ void buttenChanged(void)
 		#ifdef SERIAL_DEBUG
 			writeString("Bumper was pressed\n");
 			writeSpeed();
-			writeGyro();
 		#endif
 
 	 	if(bumper_left || bumper_right)
