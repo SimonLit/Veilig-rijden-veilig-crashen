@@ -1,42 +1,33 @@
 #include "Drive.h"
-#include "RP6uart.h"
 
 //====================================================================================
 // Drive
 //====================================================================================
 
-uint8_t speedArraySize = 15;
 uint8_t speedArrayIndexToWriteTo = 0;
-struct speedData sData;
+const int sDataArraySize = 15;
+speedData sDataArray[15];
 
-uint8_t startReading = 0;
-char writeBufferIndex = 0;
-
-
-void saveSpeedData(uint8_t leftSpeed, uint8_t speedRight) 
+void saveSpeedData(speedData* sData) 
 {
-	sData.speedLeft = leftSpeed;
-	sData.speedRight = speedRight;
-	int arraySize = sizeof(sDataArray)/sizeof(sDataArray[0]);
-
-	for (int i = 0; i < (arraySize - 1); i++)
+	for (int i = 0; i < (sDataArraySize - 1); i++)
 	{
 		sDataArray[i] = sDataArray[i + 1];
 	}
 
-	sDataArray[arraySize - 1] = sData;
+	sDataArray[sDataArraySize - 1] = *sData;
 }
 
 uint16_t calculateAverageLeftSpeed(void)
 {
 	uint16_t sum = 0;
 
-	for(uint8_t i = 0; i < speedArraySize; i++)
+	for(uint8_t i = 0; i < sDataArraySize; i++)
 	{
 		sum += sDataArray[i].speedLeft;
 	}
 
-	uint16_t average = sum/speedArraySize;
+	uint16_t average = sum/sDataArraySize;
 
 	return average;
 }
@@ -45,12 +36,12 @@ uint16_t calculateAverageRightSpeed(void)
 {
 	uint16_t sum = 0;
 
-	for(uint8_t i = 0; i < speedArraySize; i++)
+	for(uint8_t i = 0; i < sDataArraySize; i++)
 	{
 		sum += sDataArray[i].speedRight;
 	}
 
-	uint16_t average = sum/speedArraySize;
+	uint16_t average = sum/sDataArraySize;
 	
 	return average;
 }
@@ -64,7 +55,7 @@ void writeSpeed(void)
 	writeString(" changed.");
 	writeChar('\n');
 
-	for(uint8_t index = 0; index < speedArraySize; index++)
+	for(uint8_t index = 0; index < sDataArraySize; index++)
 	{	
 		writeString("Speed ");
 		writeInteger(index, DEC);

@@ -1,5 +1,4 @@
 #include "Serial.h"
-#include <stdint.h>
 
 #define CONTROLLER_RECEIVE_LEFT_RIGHT "x"
 #define CONTROLLER_RECEIVE_SPEED "SPEED"

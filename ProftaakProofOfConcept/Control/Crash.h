@@ -1,7 +1,10 @@
 #ifndef CRASH_H
 #define CRASH_H
 
-#include <stdint.h>
+#include "stdint.h"
+#include "RP6I2CmasterTWI.h"
+#include "RP6uart.h"
+#include "RP6Control_I2CMasterLib.h"
 
 extern uint8_t hitSide;
 extern uint8_t pressed;
@@ -20,5 +23,7 @@ int assignCrashInfo(crashInfo* cInfo);
 void sendCrashInfo(crashInfo* cInfo);
 
 void buttenChanged(void);
+
+void task_checkButtonChanged(void);
 
 #endif

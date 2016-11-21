@@ -3,14 +3,10 @@
 #include "Drive.h"
 #include "Crash.h"
 #include "Serial.h"
-#include <stdbool.h>
+#include "stdint.h"
 #include "RP6Control_I2CMasterLib.h" 	
 
 //#define DEBUG
-
-uint8_t lastButton2State = false;
-uint8_t lastButton3State = false;
-uint8_t lastButton5State = false;
 
 #ifdef DEBUG
 	uint8_t sideHit = 0;
@@ -30,84 +26,7 @@ void writeButtonPressOnLCD(uint8_t button, int pressed)
 	writeIntegerLCD(pressed, DEC);
 }
 
-void task_checkButtonChanged(void)
-{
-	uint8_t button2State = PINC & IO_PC2;
-	uint8_t button3State = PINC & IO_PC3;
-	uint8_t button5State = PINC & IO_PC5;
 
-	if(button2State !=  lastButton2State)
-	{
-		buttenChanged();
-		lastButton2State = button2State;
-
-		#ifdef DEBUG
-			if(button2State)
-			{
-				sideHit = 2;
-				timesPressed2++;
-				writeButtonPressOnLCD(sideHit, timesPressed2);
-
-				writeString("Button 2 pressed ");
-				writeInteger(timesPressed2, DEC);
-				writeString(" times.");
-				writeString("\n");
-			}
-
-			writeString("lastButton2State: ");
-			writeInteger(lastButton2State, DEC);
-			writeChar('\n');
-		#endif
-	}	
-
-	else if(button3State !=  lastButton3State)
-	{
-		buttenChanged();
-		lastButton3State = button3State;
-
-		#ifdef DEBUG
-			if(button3State)
-			{
-				sideHit = 3;
-				timesPressed3++;
-				writeButtonPressOnLCD(sideHit, timesPressed3);
-
-				writeString("Button 3 pressed ");
-				writeInteger(timesPressed3, DEC);
-				writeString(" times.");
-				writeString("\n");
-			}
-
-			writeString("lastButton32State: ");
-			writeInteger(lastButton3State, DEC);
-			writeChar('\n');
-		#endif	
-	}	
-
-	else if(button5State !=  lastButton5State)
-	{
-		buttenChanged();
-		lastButton5State = button5State;
-
-		#ifdef DEBUG
-			if(button5State)
-			{
-				sideHit = 5;
-				timesPressed5++;
-				writeButtonPressOnLCD(sideHit, timesPressed5);
-
-				writeString("Button 5 pressed ");
-				writeInteger(timesPressed5, DEC);
-				writeString(" times.");
-				writeString("\n");
-			}
-
-			writeString("lastButton5State: ");
-			writeInteger(lastButton5State, DEC);
-			writeChar('\n');
-		#endif
-	}	
-}
 
 int16_t map(int16_t valueToMap, int16_t in_min, int16_t in_max, int16_t out_min, int16_t out_max)
 {
@@ -214,12 +133,12 @@ int main(void)
 	
 	BUMPERS_setStateChangedHandler(buttenChanged); // Assign the bumper event to the function from Crash.h.
 
-	crashInfo cInfo = {0, 0, 0, 0};
+	crashInfo cInfo;
 
 	float earthAcceleration = 9.81; // Used for the converting from Newton to grams.
 
 	changeDirection(FWD);
-	bool startProgram = false;
+	uint8_t startProgram = 1;
 
 	while(true)
 	{
@@ -278,7 +197,8 @@ int main(void)
 					if(getStopwatch2() > 500)
 					{
 						getAllSensors();
-						saveSpeedData(mleft_speed, mright_speed);
+						speedData sData = {mleft_speed, mright_speed};
+						saveSpeedData(&sData);
 
 						setStopwatch2(0);
 					}

@@ -1,9 +1,4 @@
-#include "Crash.h"
-#include "Drive.h"
-#include "RP6I2CmasterTWI.h"
-#include "RP6uart.h"
-#include <stdbool.h>
-#include "RP6Control_I2CMasterLib.h" 
+#include "Crash.h" 
 
 //#define SERIAL_DEBUG
 #define	USE_SERIAL
@@ -16,6 +11,10 @@ uint8_t pressed = false;
 uint8_t crashInfoWasSend = false;
 uint8_t hitSide;
 uint8_t impactGramByteSize[2];
+
+uint8_t lastButton2State = false;
+uint8_t lastButton3State = false;
+uint8_t lastButton5State = false;
 
 int assignCrashInfo(crashInfo* cInfo)
 {
@@ -58,7 +57,7 @@ int assignCrashInfo(crashInfo* cInfo)
 	impactGramByteSize[0] = (cInfo->impactGram >> 8) & 0xFF;
 	impactGramByteSize[1] = cInfo->impactGram & 0xFF;
 
-	return true;
+	return 1;
 }
 
 void sendCrashInfo(crashInfo* cInfo)
@@ -87,8 +86,6 @@ void sendCrashInfo(crashInfo* cInfo)
 	#endif
 }
 
-
-
 void buttenChanged(void)
 {
 	#ifdef SERIAL_DEBUG
@@ -112,7 +109,7 @@ void buttenChanged(void)
 	 		hitSide = 2;
 
 		setRP6LEDs(0b1111);
-		pressed = true;
+		pressed = 1;
 	}
 	else if(pressed)
 	{
@@ -120,7 +117,86 @@ void buttenChanged(void)
 			writeString("Bumper was released\n");
 		#endif
 
-		pressed = false;
-		crashInfoWasSend = false;
+		pressed = 0;
+		crashInfoWasSend = 0;
 	}
+}
+
+void task_checkButtonChanged(void)
+{
+	uint8_t button2State = PINC & IO_PC2;
+	uint8_t button3State = PINC & IO_PC3;
+	uint8_t button5State = PINC & IO_PC5;
+
+	if(button2State !=  lastButton2State)
+	{
+		buttenChanged();
+		lastButton2State = button2State;
+
+		#ifdef DEBUG
+			if(button2State)
+			{
+				sideHit = 2;
+				timesPressed2++;
+				writeButtonPressOnLCD(sideHit, timesPressed2);
+
+				writeString("Button 2 pressed ");
+				writeInteger(timesPressed2, DEC);
+				writeString(" times.");
+				writeString("\n");
+			}
+
+			writeString("lastButton2State: ");
+			writeInteger(lastButton2State, DEC);
+			writeChar('\n');
+		#endif
+	}	
+
+	else if(button3State !=  lastButton3State)
+	{
+		buttenChanged();
+		lastButton3State = button3State;
+
+		#ifdef DEBUG
+			if(button3State)
+			{
+				sideHit = 3;
+				timesPressed3++;
+				writeButtonPressOnLCD(sideHit, timesPressed3);
+
+				writeString("Button 3 pressed ");
+				writeInteger(timesPressed3, DEC);
+				writeString(" times.");
+				writeString("\n");
+			}
+
+			writeString("lastButton32State: ");
+			writeInteger(lastButton3State, DEC);
+			writeChar('\n');
+		#endif	
+	}	
+
+	else if(button5State !=  lastButton5State)
+	{
+		buttenChanged();
+		lastButton5State = button5State;
+
+		#ifdef DEBUG
+			if(button5State)
+			{
+				sideHit = 5;
+				timesPressed5++;
+				writeButtonPressOnLCD(sideHit, timesPressed5);
+
+				writeString("Button 5 pressed ");
+				writeInteger(timesPressed5, DEC);
+				writeString(" times.");
+				writeString("\n");
+			}
+
+			writeString("lastButton5State: ");
+			writeInteger(lastButton5State, DEC);
+			writeChar('\n');
+		#endif
+	}	
 }
