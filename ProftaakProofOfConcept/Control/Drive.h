@@ -13,9 +13,7 @@ struct speedData
 void saveSpeedData(uint8_t leftSpeed, uint8_t speedRight);
 
 uint16_t calculateAverageLeftSpeed(void);
-
 uint16_t calculateAverageRightSpeed(void);
-
 void writeSpeed(void);
 
 #endif

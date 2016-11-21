@@ -7,7 +7,7 @@ extern uint8_t hitSide;
 extern uint8_t pressed;
 extern uint8_t crashInfoWasSend;
 
-typedef struct crashInfo
+typedef struct
 {
 	double speed;
 	uint8_t sideHit;
@@ -15,9 +15,9 @@ typedef struct crashInfo
 	uint16_t distanceDrivenInCM;
 }crashInfo;
 
-int assignCrashInfo(crashInfo crashInfo);
+int assignCrashInfo(crashInfo* cInfo);
 
-void sendCrashInfo(void);
+void sendCrashInfo(crashInfo* cInfo);
 
 void buttenChanged(void);
 

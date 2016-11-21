@@ -2,6 +2,7 @@
 #include "RP6I2CmasterTWI.h"
 #include "Drive.h"
 #include "Crash.h"
+#include "Serial.h"
 #include <stdbool.h>
 #include "RP6Control_I2CMasterLib.h" 	
 
@@ -213,7 +214,7 @@ int main(void)
 	
 	BUMPERS_setStateChangedHandler(buttenChanged); // Assign the bumper event to the function from Crash.h.
 
-	crashInfo cInfo;
+	crashInfo cInfo = {0, 0, 0, 0};
 
 	float earthAcceleration = 9.81; // Used for the converting from Newton to grams.
 
@@ -289,8 +290,8 @@ int main(void)
 				// In that case, format and assign all the data and send it over Serial.
 				else if(!crashInfoWasSend && pressed)
 				{
-					crashInfoWasSend = assignCrashInfo(cInfo);
-					sendCrashInfo();
+					crashInfoWasSend = assignCrashInfo(&cInfo);
+					sendCrashInfo(&cInfo);
 				} 
 
 				// If the crash data is assigned and send stop the driving of the RP6.

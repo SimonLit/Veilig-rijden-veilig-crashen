@@ -9,6 +9,9 @@ uint8_t speedArraySize = 15;
 uint8_t speedArrayIndexToWriteTo = 0;
 struct speedData sData;
 
+uint8_t startReading = 0;
+char writeBufferIndex = 0;
+
 
 void saveSpeedData(uint8_t leftSpeed, uint8_t speedRight) 
 {
@@ -51,6 +54,7 @@ uint16_t calculateAverageRightSpeed(void)
 	
 	return average;
 }
+
 
 void writeSpeed(void)
 {
