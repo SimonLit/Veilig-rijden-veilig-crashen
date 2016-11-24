@@ -62,7 +62,7 @@ int assignCrashInfo(crashInfo* cInfo)
 
 void sendCrashInfo(crashInfo* cInfo)
 {
-	writeString("SENDING TO ARDUINO\n");
+	writeString("\nSENDING TO ARDUINO\n");
 
 	#ifdef USE_SERIAL	
 		writeString("#SPEED:");

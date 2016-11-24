@@ -2,13 +2,17 @@
 
 #define CONTROLLER_RECEIVE_LEFT_RIGHT "x"
 #define CONTROLLER_RECEIVE_SPEED "SPEED"
+#define PROTOCOL_START_CHARACTER '#'
+#define PROTOCOL_END_CHARACTER '%'
+#define PROTOCOL_VALUE_CHARACTER ':'
+
 
 int writeBufferIndex = 0;
 int startReading = 0;
 
-int getRCProtocolValuesToDrive(char* receiveBuffer, int recieveBufferLength)
+int getRCProtocolValuesToDrive(char* receiveBuffer, const int receiveBufferLength)
 {
-	if(receiveBuffer == NULL)
+	if(receiveBuffer == NULL || receiveBufferLength > 10)
 	{
 		return -1;
 	}
@@ -17,7 +21,7 @@ int getRCProtocolValuesToDrive(char* receiveBuffer, int recieveBufferLength)
 	
 	if(getBufferLength() > 0)
 	{
-		if(writeBufferIndex > recieveBufferLength)
+		if(writeBufferIndex > receiveBufferLength)
 		{
 			//Reset the write index so that the next time 
 			//there can be written in the receive buffer.
@@ -29,17 +33,17 @@ int getRCProtocolValuesToDrive(char* receiveBuffer, int recieveBufferLength)
 		
 		if(startReading)
 		{
-			receiveBuffer[writeBufferIndex] = receivedChar;
+			receiveBuffer[writeBufferIndex++] = receivedChar;
 		}
 		
-		if(receivedChar == '%')
+		if(receivedChar == PROTOCOL_END_CHARACTER)
 		{
 			startReading = 0;
 			writeBufferIndex = 0;
 			return 0;
 		}
 		
-		if(receivedChar == '#')
+		if(receivedChar == PROTOCOL_START_CHARACTER)
 		{
 			startReading = 1;
 			return 0;
@@ -51,10 +55,11 @@ int getRCProtocolValuesToDrive(char* receiveBuffer, int recieveBufferLength)
 }
 
 int interpretMessage(char* receivedMessage, const int receivedMessageLength, 
-					int *baseSpeed, int* rightSpeed, int* leftSpeed)
+					int* baseSpeed, int* rightSpeed, int* leftSpeed)
 {	
 	if(receivedMessage == NULL || baseSpeed == NULL
-		 || rightSpeed == NULL || leftSpeed == NULL)
+		 || rightSpeed == NULL || leftSpeed == NULL
+		 || receivedMessageLength > 10)
 	{
 		return -1;
 	}
@@ -69,7 +74,7 @@ int interpretMessage(char* receivedMessage, const int receivedMessageLength,
 	{
 		if(!readMode)
 		{
-			if(receivedMessage[i] == ':')
+			if(receivedMessage[i] == PROTOCOL_VALUE_CHARACTER)
 			{
 				readMode = 1;
 			}
@@ -80,10 +85,21 @@ int interpretMessage(char* receivedMessage, const int receivedMessageLength,
 		}
 		else
 		{
-			if(receivedMessage[i] == '%')
+			if(receivedMessage[i] == PROTOCOL_END_CHARACTER)
 			{
+				// Convert the received value to an int.
 				value = atoi(valueFromBuffer);
-				break;
+
+				clearLCD();
+				setCursorPosLCD(0,0);
+				writeStringLCD(commandFromBuffer);
+				setCursorPosLCD(1,0);
+				writeStringLCD(valueFromBuffer);
+
+				writeString("#");
+				writeString(commandFromBuffer);
+				writeString("%\n");
+				//break;
 			}
 			else
 			{
@@ -114,7 +130,17 @@ int interpretMessage(char* receivedMessage, const int receivedMessageLength,
 	}
 	else if (strcmp(commandFromBuffer, CONTROLLER_RECEIVE_SPEED) == 0)
 	{
-		*baseSpeed = value;
+		int valueToUse = value;
+
+		*baseSpeed = valueToUse;
+
+		if(*baseSpeed < 0)
+		{
+			valueToUse = value * -1;
+		}
+
+		*rightSpeed = valueToUse;
+		*leftSpeed = valueToUse;
 		return 0;
 	}
 	else

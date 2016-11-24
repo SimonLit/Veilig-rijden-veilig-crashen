@@ -15,6 +15,11 @@
 	uint8_t timesPressed5 = 0;
 #endif
 
+int baseSpeed = 0;
+int rightSpeed = 0;
+int leftSpeed = 0;
+
+
 void writeButtonPressOnLCD(uint8_t button, int pressed)
 {
 	clearLCD();
@@ -26,7 +31,16 @@ void writeButtonPressOnLCD(uint8_t button, int pressed)
 	writeIntegerLCD(pressed, DEC);
 }
 
-
+void writeSpeedOnLCD(char* buffer, int rightSpeed, int leftSpeed)
+{
+	clearLCD();
+	setCursorPosLCD(0,0);
+	writeStringLCD(buffer);
+	setCursorPosLCD(1,0);
+	writeIntegerLCD(rightSpeed, DEC);
+	writeStringLCD("        ");
+	writeIntegerLCD(leftSpeed, DEC);
+}
 
 int16_t map(int16_t valueToMap, int16_t in_min, int16_t in_max, int16_t out_min, int16_t out_max)
 {
@@ -39,6 +53,11 @@ uint16_t mapPressureSensorValueToNewton(void)
 	// But because this is such a small difference it is much more convenient
 	// To avoid the use of decimal numbers. 
 	return map(readADC(ADC_5), 0, 1023, 0, 20); 
+}
+
+void serialRC(void)
+{
+	
 }
 
 /**
@@ -137,8 +156,14 @@ int main(void)
 
 	float earthAcceleration = 9.81; // Used for the converting from Newton to grams.
 
-	changeDirection(FWD);
+	const int maxRecieveBufferLength = 10;
+	char receivBuffer[maxRecieveBufferLength];
+
+	memset(receivBuffer, "", maxRecieveBufferLength - 1);
+
 	uint8_t startProgram = 1;
+
+	changeDirection(FWD);
 
 	while(true)
 	{
@@ -188,9 +213,21 @@ int main(void)
 
 				if(!pressed)
 				{
-					setLEDs(0b0);
+					getRCProtocolValuesToDrive(receivBuffer, maxRecieveBufferLength);
+					interpretMessage(receivBuffer, maxRecieveBufferLength, &baseSpeed, &rightSpeed, &leftSpeed);	
 
-					moveAtSpeed(60,60);
+					/*if(baseSpeed < 0)
+					{
+						changeDirection(BWD);
+					}
+					else
+					{
+						changeDirection(FWD);
+					}*/
+
+					//writeSpeedOnLCD(receivBuffer, 2*rightSpeed, 2*leftSpeed);
+					moveAtSpeed(2*rightSpeed, 2*leftSpeed);
+
 
 					// Update the variables representing the values of the base board sensors.
 					// Add the current speed values to an array as one speedData struct value.
