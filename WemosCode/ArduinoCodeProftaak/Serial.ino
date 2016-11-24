@@ -11,6 +11,7 @@ bool getIncommingString(void)
     {
       startReading = false;
       tempMessage = internalTempMessage;
+      Serial.println(tempMessage);
       return true;
     }
 

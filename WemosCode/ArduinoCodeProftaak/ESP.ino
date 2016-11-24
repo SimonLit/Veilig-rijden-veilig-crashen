@@ -1,18 +1,27 @@
-const char* host_sendCrashProtocol = "192.168.1.100";
-const int httpPort = 80;
+WiFiClient client1;
+const char* host_Wemos1 = "192.168.1.100";
+const int httpPort_Wemos1 = 80;
 
+WiFiClient client2;
 const char* host_Wemos2 = "192.168.1.102";
 const int httpPort_Wemos2 = 90;
 
-void changeLedState()/*String* CrashDataProtocol, int numberOfCrashDataDataToSend*/
+void initControllerHost(void)
 {
   // Use WiFiClient class to create TCP connections
-  WiFiClient client1;
-  if (!client1.connect(host_sendCrashProtocol, httpPort)) {
+  if (!client1.connect(host_Wemos1, httpPort_Wemos1)) {
     Serial.println("connection failed");
     return;
   }
 
+  /*if (!client2.connect(host_Wemos2, httpPort_Wemos2)) {
+    Serial.println("connection failed");
+    return;
+  }*/
+}
+
+void changeLedState()/*String* CrashDataProtocol, int numberOfCrashDataDataToSend*/
+{
   /*for(int i = 0; i < numberOfCrashDataDataToSend; i++)
     {
     client.print(String("GET ") + '/'CrashDataProtocol[i]'/' + " HTTP/1.1\r\n" +
@@ -23,16 +32,16 @@ void changeLedState()/*String* CrashDataProtocol, int numberOfCrashDataDataToSen
   if (ledState)
   {
     client1.print(String("GET ") + "/LED=OFF/" + " HTTP/1.1\r\n" +
-                 "Host: " + host_sendCrashProtocol + "\r\n" +
-                 "Connection: close\r\n\r\n");
+                  "Host: " + host_Wemos1 + "\r\n" +
+                  "Connection: close\r\n\r\n");
     ledState = false;
     Serial.println("led OFF");
   }
   else if (!ledState)
   {
     client1.print(String("GET ") + "/LED=ON/" + " HTTP/1.1\r\n" +
-                 "Host: " + host_sendCrashProtocol + "\r\n" +
-                 "Connection: close\r\n\r\n");
+                  "Host: " + host_Wemos1 + "\r\n" +
+                  "Connection: close\r\n\r\n");
     ledState = true;
     Serial.println("led ON");
 
@@ -55,13 +64,6 @@ void changeLedState()/*String* CrashDataProtocol, int numberOfCrashDataDataToSen
   }
 
 
-  
-  WiFiClient client2;
-  if (!client2.connect(host_Wemos2, httpPort_Wemos2)) {
-    Serial.println("connection failed");
-    return;
-  }
-
   /*for(int i = 0; i < numberOfCrashDataDataToSend; i++)
     {
     client.print(String("GET ") + '/'CrashDataProtocol[i]'/' + " HTTP/1.1\r\n" +
@@ -72,16 +74,15 @@ void changeLedState()/*String* CrashDataProtocol, int numberOfCrashDataDataToSen
   if (ledState1)
   {
     client2.print(String("GET ") + "/LED=OFF/" + " HTTP/1.1\r\n" +
-                 "Host: " + host_Wemos2 + "\r\n" +
-                 "Connection: close\r\n\r\n");
+                  "Host: " + host_Wemos2 + "\r\n" +
+                  "Connection: close\r\n\r\n");
     ledState1 = false;
     Serial.println("led OFF");
   }
   else if (!ledState1)
   {
     client2.print(String("GET ") + "/LED=ON/" + " HTTP/1.1\r\n" +
-                 "Host: " + host_Wemos2 + "\r\n" +
-                 "Connection: close\r\n\r\n");
+                  "Host: " + host_Wemos2 + "\r\n");
     ledState1 = true;
     Serial.println("led ON");
 
@@ -104,5 +105,39 @@ void changeLedState()/*String* CrashDataProtocol, int numberOfCrashDataDataToSen
   }
   /*Serial.println();
     Serial.println("closing connection");*/
+}
+
+void getXasController(void)
+{  
+  if (!client1.connect(host_Wemos1, httpPort_Wemos1)) {
+    Serial.println("connection failed");
+    return;
+  }
+  
+  client1.print(String("GET ") + "/GetX/" + " HTTP/1.1\r\n" +
+                "Host: " + host_Wemos1 + "\r\n" +
+                 "Connection: close\r\n\r\n");
+
+  while (client1.available()) {
+    String xProtocolString = client1.readStringUntil('\r');
+    Serial.println(xProtocolString);
+  }
+}
+
+void getSpeedController(void)
+{  
+  if (!client1.connect(host_Wemos1, httpPort_Wemos1)) {
+    Serial.println("connection failed");
+    return;
+  }
+  
+  client1.print(String("GET ") + "/GetSpeed/" + " HTTP/1.1\r\n" +
+                "Host: " + host_Wemos1 + "\r\n" +
+                 "Connection: close\r\n\r\n");
+
+  while (client1.available()) {
+   String speedProtocolString = client1.readStringUntil('\r');
+    Serial.println(speedProtocolString);
+  }
 }
 

@@ -68,6 +68,9 @@ String protocolToSendArray[5]; // 0 = speed; 1 = sideHit; 2 = impact; 3 = orient
 
 bool protocolEndCharReceived = false;
 
+long currentMillis = 0;
+int requestInterval = 20;
+
 // ================================================================
 // ===                      MAIN SETUP                          ===
 // ================================================================
@@ -173,6 +176,8 @@ void setup() {
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+
+  //initControllerHost();
 }
 
 // ================================================================
@@ -201,8 +206,16 @@ void loop()
   protocolEndCharReceived = getIncommingString();
   if (protocolEndCharReceived)
   {
-    formatMessageToProtocol(tempMessage, &protocolToSendArray[0]);
+    //formatMessageToProtocol(tempMessage, &protocolToSendArray[0]);
     protocolEndCharReceived = false;
+  }
+
+  if((millis() - currentMillis) > requestInterval)
+  {
+    getXasController();
+    getSpeedController();
+
+    currentMillis = millis();
   }
 
   if (tempMessage == "ORIENTATION")
@@ -213,6 +226,6 @@ void loop()
     {
       Serial.println(protocolToSendArray[index]);
     }*/
-    changeLedState();
+    //changeLedState();
   }
 }
