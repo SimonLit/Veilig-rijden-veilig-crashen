@@ -1,120 +1,151 @@
 #include "Serial.h"
 
-#define CONTROLLER_RECEIVE_LEFT_RIGHT "x"
+#define CONTROLLER_RECEIVE_LEFT_RIGHT "STEER"
 #define CONTROLLER_RECEIVE_SPEED "SPEED"
 #define PROTOCOL_START_CHARACTER '#'
 #define PROTOCOL_END_CHARACTER '%'
 #define PROTOCOL_VALUE_CHARACTER ':'
 
+int START_READING_COMMAND = 0;
+int START_READING_VALUE = 0;
+int STOP_READING = 0;
 
-int writeBufferIndex = 0;
-int startReading = 0;
-
-int getRCProtocolValuesToDrive(char* receiveBuffer, const int receiveBufferLength)
+int getRCProtocolValuesToDrive(char* receiveBufferCommand, char* receiveBufferValue, const int receiveCommandBufferLength, const int receiveValueBufferLength)
 {
-	if(receiveBuffer == NULL || receiveBufferLength > 10)
+
+	if(receiveBufferCommand == NULL || receiveBufferValue == NULL || receiveCommandBufferLength > 6 || receiveValueBufferLength > 5)
 	{
 		return -1;
 	}
 	
 	char receivedChar;
+	uint8_t nrOfCharsReceived = getBufferLength();
 	
-	if(getBufferLength() > 0)
-	{
-		if(writeBufferIndex > receiveBufferLength)
-		{
-			//Reset the write index so that the next time 
-			//there can be written in the receive buffer.
-			writeBufferIndex = 0;
-			return -1;
-		}
-		
-		receivedChar = readChar();
-		
-		if(startReading)
-		{
-			receiveBuffer[writeBufferIndex++] = receivedChar;
-		}
-		
-		if(receivedChar == PROTOCOL_END_CHARACTER)
-		{
-			startReading = 0;
-			writeBufferIndex = 0;
-			return 0;
-		}
-		
-		if(receivedChar == PROTOCOL_START_CHARACTER)
-		{
-			startReading = 1;
-			return 0;
-		}
-		
-	}
+	// check if no data was received
+	if (nrOfCharsReceived == 0) return -1;
 	
-	return -1;
-}
+	char storeReceiveBufferCommand[receiveCommandBufferLength];
+	char storeReceiveBufferValue[receiveValueBufferLength];
+	
+	int commandWriteIndex = 0;
+	int valueWriteIndex = 0;
 
-int interpretMessage(char* receivedMessage, const int receivedMessageLength, 
-					int* baseSpeed, int* rightSpeed, int* leftSpeed)
-{	
-	if(receivedMessage == NULL || baseSpeed == NULL
-		 || rightSpeed == NULL || leftSpeed == NULL
-		 || receivedMessageLength > 10)
+	while(getBufferLength() > 0)
 	{
-		return -1;
-	}
-	
-	char commandFromBuffer[receivedMessageLength];
-	char valueFromBuffer[receivedMessageLength];
-	int value = 0;
-	
-	int readMode = 0;
-	
-	for (int i = 0; i < receivedMessageLength; i++)
-	{
-		if(!readMode)
+		if(commandWriteIndex < receiveCommandBufferLength && valueWriteIndex < receiveValueBufferLength)
 		{
-			if(receivedMessage[i] == PROTOCOL_VALUE_CHARACTER)
+			receivedChar = readChar(); // Char read from the buffer.
+
+			// Was the last read character in the buffer a '%'? 
+			// If yes then stop reading and interpret the message/act on the message.
+			if(receivedChar == PROTOCOL_END_CHARACTER)
 			{
-				readMode = 1;
+				writeString("Stop reading\n");
+				START_READING_COMMAND = 0;
+				START_READING_VALUE = 0;
+				STOP_READING = 1;
+				
+				strncpy(receiveBufferCommand, storeReceiveBufferCommand, receiveCommandBufferLength);
+				strncpy(receiveBufferValue, storeReceiveBufferValue, receiveValueBufferLength);
+			
+				return 0;
 			}
-			else
+
+			// Is the boolean START_READING_VALUE set to true?. (was ':' the last received character).
+			if(START_READING_VALUE)
 			{
-				commandFromBuffer[i] = receivedMessage[i];
+				writeString("Writing value\n");
+				writeChar(receivedChar);
+				writeString("\n");
+				
+				storeReceiveBufferValue[valueWriteIndex] = receivedChar;
+				
+				valueWriteIndex++;
+			}
+
+			// Was the last read character in the buffer a ':'? 
+			// If yes then set the boolean START_READING_VALUE to true. This means the value array will start filling.
+			// The value can be a digit with a maximum of 3 digits. Max value is 999. 
+			if(receivedChar == PROTOCOL_VALUE_CHARACTER)
+			{
+				writeString("Start reading value\n");
+				START_READING_COMMAND = 0;
+				START_READING_VALUE = 1;
+				STOP_READING = 0;
+			}
+
+			// Is the boolean START_READING_COMMAND set to true?. (was '#' the last received character).
+			if(START_READING_COMMAND)
+			{
+				writeString("Writing command\n");
+				writeChar(receivedChar);
+				writeString("\n");
+				
+				storeReceiveBufferCommand[commandWriteIndex] = receivedChar;
+				
+				commandWriteIndex++;
+			}
+
+			// Was the last read character in the buffer a '#'? 
+			// If yes then set the boolean START_READING_COMMAND to true. This means the command array will start filling.
+			// Also clear all the arrays to be sure only the currend command is used while interpreting.
+			if(receivedChar == PROTOCOL_START_CHARACTER)
+			{
+				writeString("Start reading command\n");
+				START_READING_COMMAND = 1;
+				START_READING_VALUE = 0;
+				STOP_READING = 0;
+				
+				commandWriteIndex = 0;
+				valueWriteIndex = 0;
+
+				memset(storeReceiveBufferCommand, 0, receiveCommandBufferLength);
+				memset(storeReceiveBufferValue, 0, receiveValueBufferLength);
 			}
 		}
 		else
 		{
-			if(receivedMessage[i] == PROTOCOL_END_CHARACTER)
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
+int interpretMessage(char* receivedCommand, char* receivedValue, 
+					const int receiveCommandBufferLength, const int receiveValueBufferLength,
+					int* baseSpeed, uint8_t* rightSpeed, uint8_t* leftSpeed)
+{	
+	if(receivedCommand == NULL || receivedValue == NULL
+		|| baseSpeed == NULL || rightSpeed == NULL || leftSpeed == NULL)
+	{
+		return -1;
+	}
+
+	// Convert the value char array to an int.
+	int value = atoi(receivedValue);
+ 	
+	if(strcmp(receivedCommand, CONTROLLER_RECEIVE_LEFT_RIGHT) == 0)
+	{		
+		int baseSpeedToUse = *baseSpeed;
+	
+		if(baseSpeedToUse < 0)
+		{
+			baseSpeedToUse = baseSpeedToUse * -1;
+		}
+		
+		int relativeValueOfValueFromBaseSpeed = baseSpeedToUse*value/100;
+		
+		if(baseSpeedToUse == 0)
+		{
+			if(value < 0)
 			{
-				// Convert the received value to an int.
-				value = atoi(valueFromBuffer);
-
-				clearLCD();
-				setCursorPosLCD(0,0);
-				writeStringLCD(commandFromBuffer);
-				setCursorPosLCD(1,0);
-				writeStringLCD(valueFromBuffer);
-
-				writeString("#");
-				writeString(commandFromBuffer);
-				writeString("%\n");
-				//break;
+				*rightSpeed = value * -1;
 			}
 			else
 			{
-				valueFromBuffer[i] = receivedMessage[i];
+				*leftSpeed = value;
 			}
-		}
- 	}
- 	
-	if(strcmp(commandFromBuffer, CONTROLLER_RECEIVE_LEFT_RIGHT) == 0)
-	{		
-		if(*baseSpeed == 0)
-		{
-			*rightSpeed = value * -1;
-			*leftSpeed = value;
-			return 0;
 		}
 		else
 		{
@@ -123,24 +154,45 @@ int interpretMessage(char* receivedMessage, const int receivedMessageLength,
 			//
 			//Then calculate the percentage of the current base speed to 
 			//calculate the new left and right speed.
-			*rightSpeed = ((*baseSpeed)/2) - ((*baseSpeed) * (value/100));
-			*leftSpeed = ((*baseSpeed)/2) + ((*baseSpeed) * (value/100));
-			return 0;
+			if(value > 0)
+			{
+				*rightSpeed = baseSpeedToUse - relativeValueOfValueFromBaseSpeed;
+				*leftSpeed =  baseSpeedToUse;
+			}
+			else if (value < 0)
+			{
+				*rightSpeed = baseSpeedToUse;
+				*leftSpeed =  baseSpeedToUse + relativeValueOfValueFromBaseSpeed;
+			}
+			else
+			{
+				*rightSpeed = baseSpeedToUse;
+				*leftSpeed = baseSpeedToUse;
+			}
 		}
+
+		memset(receivedCommand, 0, receiveCommandBufferLength);
+		memset(receivedValue, 0, receiveValueBufferLength);
+
+		return 0;
 	}
-	else if (strcmp(commandFromBuffer, CONTROLLER_RECEIVE_SPEED) == 0)
+	else if (strcmp(receivedCommand, CONTROLLER_RECEIVE_SPEED) == 0)
 	{
-		int valueToUse = value;
+		*baseSpeed = value; // set the base speed between -100 and 100.
 
-		*baseSpeed = valueToUse;
-
-		if(*baseSpeed < 0)
+		// When the value is less than 0 it has to be multiplied by -1 to 
+		// get a positve value. This way the right and left speed are ready for use.
+		if(value < 0)
 		{
-			valueToUse = value * -1;
+			value = value * -1;
 		}
 
-		*rightSpeed = valueToUse;
-		*leftSpeed = valueToUse;
+		*rightSpeed = value;
+		*leftSpeed = value;
+
+		memset(receivedCommand, 0, receiveCommandBufferLength);
+		memset(receivedValue, 0, receiveValueBufferLength);
+
 		return 0;
 	}
 	else

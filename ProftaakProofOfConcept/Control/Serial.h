@@ -5,18 +5,15 @@
 #include "stdint.h"
 #include "string.h"
 
-#include "RP6ControlLib.h"
-
-int getRCProtocolValuesToDrive(char* receiveBuffer, const int receiveBufferLength);
+int getRCProtocolValuesToDrive(char* receiveBufferCommand, char* receiveBufferValue, const int receiveCommandBufferLength, const int receiveValueBufferLength);
 // The receiveBufferLength is the maximum length of the buffer.
 // 
 //Pre: the recieveBuffer pointer is not NULL.
 //Post: a message over serial read from '#' to '%' is stored in the receiveBuffer
-//Return: -1 if the recieveBuffer is full, recieve buffer was a NULL pointer, there are no serial messages or 
-//			receivedMessageLength was greater than the buffer (=10).
-//		   0 if a character was read that was '#', '%' or something after '#' and before '%'.
+//Return: -1 if there in no serial data to read, one of the char pointers is NULL or receiveBufferLength > 10.
+//		   0 if '%' was received.
 
-int interpretMessage(char* receivedMessage, const int receivedMessageLength, int *baseSpeed, int* rightSpeed, int* leftSpeed);
+int interpretMessage(char* receivedCommand, char* receivedValue, const int receiveCommandBufferLength, const int receiveValueBufferLength, int* baseSpeed, uint8_t* rightSpeed, uint8_t* leftSpeed);
 // The receivedMessageLength is the maximum length of the buffer.
 //
 //Pre: the receivedMessage, baseSpeed, rightSpeed and leftSpeed pointer is not NULL.

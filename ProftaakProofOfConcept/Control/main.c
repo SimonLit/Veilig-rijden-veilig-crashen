@@ -16,8 +16,8 @@
 #endif
 
 int baseSpeed = 0;
-int rightSpeed = 0;
-int leftSpeed = 0;
+uint8_t rightSpeed = 0;
+uint8_t leftSpeed = 0;
 
 
 void writeButtonPressOnLCD(uint8_t button, int pressed)
@@ -156,10 +156,14 @@ int main(void)
 
 	float earthAcceleration = 9.81; // Used for the converting from Newton to grams.
 
-	const int maxRecieveBufferLength = 10;
-	char receivBuffer[maxRecieveBufferLength];
+	const int maxRecieveCommandBufferLength = 6;
+	const int maxRecieveValueBufferLength = 5;
 
-	memset(receivBuffer, "", maxRecieveBufferLength - 1);
+	char receivBufferCommand[maxRecieveCommandBufferLength];
+	char receivBufferValue[maxRecieveValueBufferLength];
+
+	memset(receivBufferCommand, 0, sizeof(receivBufferCommand)/sizeof(receivBufferCommand[0]));
+	memset(receivBufferValue, 0, sizeof(receivBufferValue)/sizeof(receivBufferValue[0]));
 
 	uint8_t startProgram = 1;
 
@@ -208,26 +212,26 @@ int main(void)
 					task_checkButtonChanged();
 					cInfo.impactGram = (mapPressureSensorValueToNewton()/earthAcceleration) * 1000;
 
+					writeSpeedOnLCD(receivBufferCommand, 2*leftSpeed, 2*rightSpeed);
+
 					setStopwatch1(0);
 				}
 
 				if(!pressed)
 				{
-					getRCProtocolValuesToDrive(receivBuffer, maxRecieveBufferLength);
-					interpretMessage(receivBuffer, maxRecieveBufferLength, &baseSpeed, &rightSpeed, &leftSpeed);	
+					getRCProtocolValuesToDrive(receivBufferCommand, receivBufferValue, maxRecieveCommandBufferLength, maxRecieveValueBufferLength);
+					interpretMessage(receivBufferCommand, receivBufferValue, maxRecieveCommandBufferLength, maxRecieveValueBufferLength, &baseSpeed, &rightSpeed, &leftSpeed);	
 
-					/*if(baseSpeed < 0)
+					if(baseSpeed < 0)
 					{
 						changeDirection(BWD);
 					}
 					else
 					{
 						changeDirection(FWD);
-					}*/
+					}
 
-					//writeSpeedOnLCD(receivBuffer, 2*rightSpeed, 2*leftSpeed);
-					moveAtSpeed(2*rightSpeed, 2*leftSpeed);
-
+					moveAtSpeed(2*leftSpeed, 2*rightSpeed);
 
 					// Update the variables representing the values of the base board sensors.
 					// Add the current speed values to an array as one speedData struct value.
