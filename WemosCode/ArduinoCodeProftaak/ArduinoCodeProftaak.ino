@@ -57,6 +57,9 @@ void dmpDataReady()
 // ================================================================
 // ===                      WIFI VARIABLES                      ===
 // ================================================================
+//const char* ssid = "HotSpotBoardComputer";
+//const char* password = "1234567890";
+
 const char* ssid = "Project";
 const char* password = "123456780";
 
@@ -74,7 +77,7 @@ int requestInterval = 20;
 // ================================================================
 // ===                      MAIN SETUP                          ===
 // ================================================================
-void setup() {
+void setup() {  
   // join I2C bus (I2Cdev library doesn't do this automatically)
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
   Wire.begin();
@@ -226,6 +229,6 @@ void loop()
     {
       Serial.println(protocolToSendArray[index]);
     }*/
-    //changeLedState();
+    changeLedState();
   }
 }
