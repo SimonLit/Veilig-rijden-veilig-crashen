@@ -40,7 +40,6 @@ int getRCProtocolValuesToDrive(char* receiveBufferCommand, char* receiveBufferVa
 			// If yes then stop reading and interpret the message/act on the message.
 			if(receivedChar == PROTOCOL_END_CHARACTER)
 			{
-				writeString("Stop reading\n");
 				START_READING_COMMAND = 0;
 				START_READING_VALUE = 0;
 				STOP_READING = 1;
@@ -54,12 +53,7 @@ int getRCProtocolValuesToDrive(char* receiveBufferCommand, char* receiveBufferVa
 			// Is the boolean START_READING_VALUE set to true?. (was ':' the last received character).
 			if(START_READING_VALUE)
 			{
-				writeString("Writing value\n");
-				writeChar(receivedChar);
-				writeString("\n");
-				
 				storeReceiveBufferValue[valueWriteIndex] = receivedChar;
-				
 				valueWriteIndex++;
 			}
 
@@ -68,7 +62,6 @@ int getRCProtocolValuesToDrive(char* receiveBufferCommand, char* receiveBufferVa
 			// The value can be a digit with a maximum of 3 digits. Max value is 999. 
 			if(receivedChar == PROTOCOL_VALUE_CHARACTER)
 			{
-				writeString("Start reading value\n");
 				START_READING_COMMAND = 0;
 				START_READING_VALUE = 1;
 				STOP_READING = 0;
@@ -76,13 +69,8 @@ int getRCProtocolValuesToDrive(char* receiveBufferCommand, char* receiveBufferVa
 
 			// Is the boolean START_READING_COMMAND set to true?. (was '#' the last received character).
 			if(START_READING_COMMAND)
-			{
-				writeString("Writing command\n");
-				writeChar(receivedChar);
-				writeString("\n");
-				
+			{				
 				storeReceiveBufferCommand[commandWriteIndex] = receivedChar;
-				
 				commandWriteIndex++;
 			}
 
@@ -91,7 +79,6 @@ int getRCProtocolValuesToDrive(char* receiveBufferCommand, char* receiveBufferVa
 			// Also clear all the arrays to be sure only the currend command is used while interpreting.
 			if(receivedChar == PROTOCOL_START_CHARACTER)
 			{
-				writeString("Start reading command\n");
 				START_READING_COMMAND = 1;
 				START_READING_VALUE = 0;
 				STOP_READING = 0;

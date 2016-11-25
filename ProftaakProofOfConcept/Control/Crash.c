@@ -1,8 +1,5 @@
 #include "Crash.h" 
 
-//#define SERIAL_DEBUG
-#define	USE_SERIAL
-
 //====================================================================================
 // Crash
 //====================================================================================
@@ -10,17 +7,35 @@
 uint8_t pressed = false;
 uint8_t crashInfoWasSend = false;
 uint8_t hitSide;
-uint8_t impactGramByteSize[2];
 
 uint8_t lastButton2State = false;
 uint8_t lastButton3State = false;
 uint8_t lastButton5State = false;
 
+// Used for the converting from Newton to grams.
+float earthAcceleration = 9.81; 
+
+int16_t map(int16_t valueToMap, int16_t in_min, int16_t in_max, int16_t out_min, int16_t out_max)
+{
+	return (valueToMap - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+uint16_t mapPressureSensorValueToNewton(void)
+{
+	// The sensitivity actualy ranges from 0.2 to 20 instead of 0 - 20.
+	// But because this is such a small difference it is much more convenient
+	// To avoid the use of decimal numbers. 
+	return map(readADC(ADC_5), 0, 1023, 0, 20); 
+}
+
 int assignCrashInfo(crashInfo* cInfo)
 {
-	uint16_t avergeLeftSpeed = calculateAverageLeftSpeed();
-	uint16_t avergeRightSpeed = calculateAverageRightSpeed();
-	uint16_t averageSpeed = (avergeLeftSpeed + avergeRightSpeed)/2;
+	if(cInfo == NULL)
+	{
+		return -1;
+	}
+
+	uint16_t averageSpeed = calculateAverageSpeed();
 	
 	// One speed point is equal to 5 segments per second.
 	// By multiplying the speed by 5
@@ -31,98 +46,74 @@ int assignCrashInfo(crashInfo* cInfo)
 	// So by multiplying is by 0.025cm you get the amount of cm/s.
 	double speedCMPerSecond = averageSpeed * 5 * ENCODER_RESOLUTION; 	
 
-	#ifdef SERIAL_DEBUG
-		writeString("Average left speed: ");
-		writeInteger(avergeLeftSpeed, DEC);
-		writeChar('\n');
-		writeString("Average right speed: ");
-		writeInteger(avergeRightSpeed, DEC);
-		writeChar('\n');
-		writeString("Average speed: ");
-		writeInteger(averageSpeed, DEC);
-		writeChar('\n');
-		writeString("Average: ");
-		writeInteger(speedCMPerSecond, DEC);
-		writeString(" cm/s");
-		writeString("Impact: ");
-		writeInteger(cInfo->impactGram, DEC);
-		writeString(" grams");
-		writeChar('\n');
-		writeChar('\n');
-	#endif
-
 	cInfo->speed = speedCMPerSecond;
 	cInfo->sideHit = hitSide;
+	cInfo->impactGram = (mapPressureSensorValueToNewton()/earthAcceleration) * 1000;
 	cInfo->distanceDrivenInCM = ((mleft_dist * (ENCODER_RESOLUTION/10)) + (mright_dist * (ENCODER_RESOLUTION/10))) / 2;
-	impactGramByteSize[0] = (cInfo->impactGram >> 8) & 0xFF;
-	impactGramByteSize[1] = cInfo->impactGram & 0xFF;
 
-	return 1;
+	return 0;
 }
 
-void sendCrashInfo(crashInfo* cInfo)
+int sendCrashInfo(crashInfo* cInfo)
 {
-	writeString("\nSENDING TO ARDUINO\n");
+	if(cInfo == NULL)
+	{
+		return -1;
+	}
 
-	#ifdef USE_SERIAL	
-		writeString("#SPEED:");
-		writeInteger(cInfo->speed, DEC);
-		writeChar('%');
+	writeString("#SPEED:");
+	writeInteger(cInfo->speed, DEC);
+	writeChar('%');
 
-		writeString("#SIDE_HIT:");
-		writeInteger(cInfo->sideHit, DEC);
-		writeChar('%');
+	writeString("#SIDE_HIT:");
+	writeInteger(cInfo->sideHit, DEC);
+	writeChar('%');
 
-		writeString("#IMPACT:");
-		writeInteger(cInfo->impactGram, DEC);
-		writeChar('%');
+	writeString("#IMPACT:");
+	writeInteger(cInfo->impactGram, DEC);
+	writeChar('%');
 
-		writeString("#DIST_DRIVEN:");
-		writeInteger(cInfo->distanceDrivenInCM, DEC);
-		writeChar('%');
+	writeString("#DIST_DRIVEN:");
+	writeInteger(cInfo->distanceDrivenInCM, DEC);
+	writeChar('%');
 
-		writeString("#ORIENTATION");
-		writeChar('%');
-	#endif
+	writeString("#ORIENTATION");
+	writeChar('%');
+
+	return 0;
 }
 
 void buttenChanged(void)
 {
-	#ifdef SERIAL_DEBUG
-		writeString("Bumper changed\n");
-	#endif
-
 	if(!pressed)
 	{
-		#ifdef SERIAL_DEBUG
-			writeString("Bumper was pressed\n");
-			writeSpeed();
-		#endif
-
 	 	if(bumper_left || bumper_right)
+	 	{
 	 		hitSide = 1;
+	 	}
 	 	else if(PINC & IO_PC2)
+	 	{
 	 		hitSide = 4;
+	 	}
 	 	else if(PINC & IO_PC3)
+	 	{
 	 		hitSide = 3;
+	 	}
 	 	else if(PINC & IO_PC5)
+	 	{
 	 		hitSide = 2;
+	 	}
 
-		setRP6LEDs(0b1111);
 		pressed = 1;
 	}
-	else if(pressed)
+	else
 	{
-		#ifdef SERIAL_DEBUG
-			writeString("Bumper was released\n");
-		#endif
-
-		pressed = 0;
-		crashInfoWasSend = 0;
+		pressed = false;
+		crashInfoWasSend = false;
 	}
 }
 
-void task_checkButtonChanged(void)
+int task_checkButtonChanged(void)
 {
 	uint8_t button2State = PINC & IO_PC2;
 	uint8_t button3State = PINC & IO_PC3;
@@ -133,23 +124,7 @@ void task_checkButtonChanged(void)
 		buttenChanged();
 		lastButton2State = button2State;
 
-		#ifdef DEBUG
-			if(button2State)
-			{
-				sideHit = 2;
-				timesPressed2++;
-				writeButtonPressOnLCD(sideHit, timesPressed2);
-
-				writeString("Button 2 pressed ");
-				writeInteger(timesPressed2, DEC);
-				writeString(" times.");
-				writeString("\n");
-			}
-
-			writeString("lastButton2State: ");
-			writeInteger(lastButton2State, DEC);
-			writeChar('\n');
-		#endif
+		return 0;
 	}	
 
 	else if(button3State !=  lastButton3State)
@@ -157,23 +132,7 @@ void task_checkButtonChanged(void)
 		buttenChanged();
 		lastButton3State = button3State;
 
-		#ifdef DEBUG
-			if(button3State)
-			{
-				sideHit = 3;
-				timesPressed3++;
-				writeButtonPressOnLCD(sideHit, timesPressed3);
-
-				writeString("Button 3 pressed ");
-				writeInteger(timesPressed3, DEC);
-				writeString(" times.");
-				writeString("\n");
-			}
-
-			writeString("lastButton32State: ");
-			writeInteger(lastButton3State, DEC);
-			writeChar('\n');
-		#endif	
+		return 0;
 	}	
 
 	else if(button5State !=  lastButton5State)
@@ -181,22 +140,8 @@ void task_checkButtonChanged(void)
 		buttenChanged();
 		lastButton5State = button5State;
 
-		#ifdef DEBUG
-			if(button5State)
-			{
-				sideHit = 5;
-				timesPressed5++;
-				writeButtonPressOnLCD(sideHit, timesPressed5);
-
-				writeString("Button 5 pressed ");
-				writeInteger(timesPressed5, DEC);
-				writeString(" times.");
-				writeString("\n");
-			}
-
-			writeString("lastButton5State: ");
-			writeInteger(lastButton5State, DEC);
-			writeChar('\n');
-		#endif
+		return 0;
 	}	
+
+	return -1;
 }

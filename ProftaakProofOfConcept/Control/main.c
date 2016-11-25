@@ -6,58 +6,19 @@
 #include "stdint.h"
 #include "RP6Control_I2CMasterLib.h" 	
 
-//#define DEBUG
-
-#ifdef DEBUG
-	uint8_t sideHit = 0;
-	uint8_t timesPressed2 = 0;
-	uint8_t timesPressed3 = 0;
-	uint8_t timesPressed5 = 0;
-#endif
-
 int baseSpeed = 0;
 uint8_t rightSpeed = 0;
 uint8_t leftSpeed = 0;
-
-
-void writeButtonPressOnLCD(uint8_t button, int pressed)
-{
-	clearLCD();
-	setCursorPosLCD(0,0);
-	writeStringLCD("btn:     times:");
-	setCursorPosLCD(1,0);
-	writeIntegerLCD(button, DEC);
-	writeStringLCD("        ");
-	writeIntegerLCD(pressed, DEC);
-}
 
 void writeSpeedOnLCD(char* buffer, int rightSpeed, int leftSpeed)
 {
 	clearLCD();
 	setCursorPosLCD(0,0);
-	writeStringLCD(buffer);
+	writeStringLCD("Rs      Ls      ");
 	setCursorPosLCD(1,0);
 	writeIntegerLCD(rightSpeed, DEC);
-	writeStringLCD("        ");
+	setCursorPosLCD(1,8);
 	writeIntegerLCD(leftSpeed, DEC);
-}
-
-int16_t map(int16_t valueToMap, int16_t in_min, int16_t in_max, int16_t out_min, int16_t out_max)
-{
-	return (valueToMap - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
-
-uint16_t mapPressureSensorValueToNewton(void)
-{
-	// The sensitivity actualy ranges from 0.2 to 20 instead of 0 - 20.
-	// But because this is such a small difference it is much more convenient
-	// To avoid the use of decimal numbers. 
-	return map(readADC(ADC_5), 0, 1023, 0, 20); 
-}
-
-void serialRC(void)
-{
-	
 }
 
 /**
@@ -111,33 +72,19 @@ int main(void)
 
 	WDT_setRequestHandler(watchDogRequest); 
 
+	// Set the distance values of the RP6 to 0;
+	// When being crashed the distence driven is measured.
 	mleft_dist = 0;
 	mright_dist = 0;
 
-	DDRC &= ~IO_PC2; // Right button
-	DDRC &= ~IO_PC3; // Left button
-	DDRC &= ~IO_PC5; // Back button
-
-	DDRA &= ~ADC5; // Force Sensitive Resistor (FSR)
-
-	#ifdef DEBUG
-		if(PINC & IO_PC2) 
-			writeString_P("\n\nPC2 is HIGH!\n\n");
-		else
-			writeString_P("\n\nPC2 is LOW!\n\n");
-
-		if(PINC & IO_PC3) 
-			writeString_P("\n\nPC3 is HIGH!\n\n");
-		else
-			writeString_P("\n\nPC3 is LOW!\n\n");
-
-		if(PINC & IO_PC5) 
-			writeString_P("\n\nPC5 is HIGH!\n\n");
-		else
-			writeString_P("\n\nPC5 is LOW!\n\n");
-	#endif
-
-	
+	// Right button
+	DDRC &= ~IO_PC2;
+	// Left button
+	DDRC &= ~IO_PC3; 
+	// Back button
+	DDRC &= ~IO_PC5; 
+	// Force Sensitive Resistor (FSR)
+	DDRA &= ~ADC5; 	
 
 	startStopwatch1(); // Timer for checking button state and measuring the FSR.
 	startStopwatch2(); // Timer for getting all the sensor data from the RP6 base board.
@@ -150,23 +97,20 @@ int main(void)
 	// Enable timed watchdog requests:
 	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_WDT_RQ, true);
 	
-	BUMPERS_setStateChangedHandler(buttenChanged); // Assign the bumper event to the function from Crash.h.
+	// Assign the bumper event to the function from Crash.h.
+	BUMPERS_setStateChangedHandler(buttenChanged); 
 
 	crashInfo cInfo;
 
-	float earthAcceleration = 9.81; // Used for the converting from Newton to grams.
-
 	const int maxRecieveCommandBufferLength = 6;
 	const int maxRecieveValueBufferLength = 5;
-
 	char receivBufferCommand[maxRecieveCommandBufferLength];
 	char receivBufferValue[maxRecieveValueBufferLength];
 
-	memset(receivBufferCommand, 0, sizeof(receivBufferCommand)/sizeof(receivBufferCommand[0]));
-	memset(receivBufferValue, 0, sizeof(receivBufferValue)/sizeof(receivBufferValue[0]));
-
+	// User to inidcate if program runs or not.
 	uint8_t startProgram = 1;
 
+	// Initial driving direction.
 	changeDirection(FWD);
 
 	while(true)
@@ -210,10 +154,7 @@ int main(void)
  				if(getStopwatch1() > 300)
 				{	
 					task_checkButtonChanged();
-					cInfo.impactGram = (mapPressureSensorValueToNewton()/earthAcceleration) * 1000;
-
 					writeSpeedOnLCD(receivBufferCommand, 2*leftSpeed, 2*rightSpeed);
-
 					setStopwatch1(0);
 				}
 
@@ -238,8 +179,7 @@ int main(void)
 					if(getStopwatch2() > 500)
 					{
 						getAllSensors();
-						speedData sData = {mleft_speed, mright_speed};
-						saveSpeedData(&sData);
+						saveSpeedData();
 
 						setStopwatch2(0);
 					}
