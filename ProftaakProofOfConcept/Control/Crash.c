@@ -61,7 +61,7 @@ int sendCrashInfo(crashInfo* cInfo)
 		return -1;
 	}
 
-	writeString("#SPEED:");
+	writeString("\n#SPEED:");
 	writeInteger(cInfo->speed, DEC);
 	writeChar('%');
 
@@ -79,6 +79,8 @@ int sendCrashInfo(crashInfo* cInfo)
 
 	writeString("#ORIENTATION");
 	writeChar('%');
+
+	crashInfoWasSend = true;
 
 	return 0;
 }
@@ -103,8 +105,8 @@ void buttenChanged(void)
 	 	{
 	 		hitSide = 2;
 	 	}
-
-		pressed = 1;
+	 	
+		pressed = true;
 	}
 	else
 	{
@@ -115,33 +117,38 @@ void buttenChanged(void)
 
 int task_checkButtonChanged(void)
 {
-	uint8_t button2State = PINC & IO_PC2;
-	uint8_t button3State = PINC & IO_PC3;
-	uint8_t button5State = PINC & IO_PC5;
-
-	if(button2State !=  lastButton2State)
+	if(getStopwatch4() > 50)
 	{
-		buttenChanged();
-		lastButton2State = button2State;
+		uint8_t button2State = PINC & IO_PC2;
+		uint8_t button3State = PINC & IO_PC3;
+		uint8_t button5State = PINC & IO_PC5;
 
-		return 0;
-	}	
+		if(button2State !=  lastButton2State)
+		{
+			buttenChanged();
+			lastButton2State = button2State;
 
-	else if(button3State !=  lastButton3State)
-	{
-		buttenChanged();
-		lastButton3State = button3State;
+			return 0;
+		}	
 
-		return 0;
-	}	
+		else if(button3State !=  lastButton3State)
+		{
+			buttenChanged();
+			lastButton3State = button3State;
 
-	else if(button5State !=  lastButton5State)
-	{
-		buttenChanged();
-		lastButton5State = button5State;
+			return 0;
+		}	
 
-		return 0;
-	}	
+		else if(button5State !=  lastButton5State)
+		{
+			buttenChanged();
+			lastButton5State = button5State;
+
+			return 0;
+		}	
+
+		setStopwatch4(0);
+	}
 
 	return -1;
 }

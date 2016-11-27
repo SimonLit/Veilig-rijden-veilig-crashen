@@ -3,7 +3,7 @@
 
 #include "RP6uart.h" 
 #include "stdint.h"
-#include "string.h"
+#include <string.h>
 
 int getRCProtocolValuesToDrive(char* receiveBufferCommand, char* receiveBufferValue, const int receiveCommandBufferLength, const int receiveValueBufferLength);
 // The receiveBufferLength is the maximum length of the buffer.

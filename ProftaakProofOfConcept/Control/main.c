@@ -89,6 +89,7 @@ int main(void)
 	startStopwatch1(); // Timer for checking button state and measuring the FSR.
 	startStopwatch2(); // Timer for getting all the sensor data from the RP6 base board.
 	startStopwatch3(); // TImer for checking the start/stop program button.
+	startStopwatch4();
 
 	// Setup ACS power:
 	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_ACS_POWER, ACS_PWR_MED);
@@ -106,6 +107,9 @@ int main(void)
 	const int maxRecieveValueBufferLength = 5;
 	char receivBufferCommand[maxRecieveCommandBufferLength];
 	char receivBufferValue[maxRecieveValueBufferLength];
+
+	memset(receivBufferCommand, 0, maxRecieveCommandBufferLength);
+	memset(receivBufferValue, 0, maxRecieveValueBufferLength);
 
 	// User to inidcate if program runs or not.
 	uint8_t startProgram = 1;
@@ -148,21 +152,34 @@ int main(void)
 		switch(startProgram)
 		{
 			case true:	
+				task_checkButtonChanged();
 
 				// Check if one of our self added buttons was pressed.
 				// Read the FSR value, convert it to grams and add it to the crashInfo struct.
- 				if(getStopwatch1() > 300)
+ 				if(getStopwatch1() > 50)
 				{	
-					task_checkButtonChanged();
-					writeSpeedOnLCD(receivBufferCommand, 2*leftSpeed, 2*rightSpeed);
+					if(getRCProtocolValuesToDrive(receivBufferCommand, receivBufferValue, maxRecieveCommandBufferLength, maxRecieveValueBufferLength) == 0)
+					{
+						interpretMessage(receivBufferCommand, receivBufferValue, maxRecieveCommandBufferLength, maxRecieveValueBufferLength, &baseSpeed, &rightSpeed, &leftSpeed);
+
+						if(leftSpeed > 150)
+						{
+							leftSpeed = 150;
+						}
+
+						if(rightSpeed > 150)
+						{
+							rightSpeed = 150;
+						}
+					}
+
+					writeSpeedOnLCD(receivBufferCommand, leftSpeed, rightSpeed);
+
 					setStopwatch1(0);
 				}
 
 				if(!pressed)
 				{
-					getRCProtocolValuesToDrive(receivBufferCommand, receivBufferValue, maxRecieveCommandBufferLength, maxRecieveValueBufferLength);
-					interpretMessage(receivBufferCommand, receivBufferValue, maxRecieveCommandBufferLength, maxRecieveValueBufferLength, &baseSpeed, &rightSpeed, &leftSpeed);	
-
 					if(baseSpeed < 0)
 					{
 						changeDirection(BWD);
@@ -172,7 +189,7 @@ int main(void)
 						changeDirection(FWD);
 					}
 
-					moveAtSpeed(2*leftSpeed, 2*rightSpeed);
+					moveAtSpeed(leftSpeed, rightSpeed);
 
 					// Update the variables representing the values of the base board sensors.
 					// Add the current speed values to an array as one speedData struct value.

@@ -1,6 +1,6 @@
 #include "Serial.h"
 
-#define CONTROLLER_RECEIVE_LEFT_RIGHT "STEER"
+#define CONTROLLER_RECEIVE_LEFT_RIGHT "X"
 #define CONTROLLER_RECEIVE_SPEED "SPEED"
 #define PROTOCOL_START_CHARACTER '#'
 #define PROTOCOL_END_CHARACTER '%'
@@ -44,9 +44,9 @@ int getRCProtocolValuesToDrive(char* receiveBufferCommand, char* receiveBufferVa
 				START_READING_VALUE = 0;
 				STOP_READING = 1;
 				
-				strncpy(receiveBufferCommand, storeReceiveBufferCommand, receiveCommandBufferLength);
-				strncpy(receiveBufferValue, storeReceiveBufferValue, receiveValueBufferLength);
-			
+				strcpy(receiveBufferCommand, storeReceiveBufferCommand);
+				strcpy(receiveBufferValue, storeReceiveBufferValue);
+
 				return 0;
 			}
 
@@ -127,11 +127,11 @@ int interpretMessage(char* receivedCommand, char* receivedValue,
 		{
 			if(value < 0)
 			{
-				*rightSpeed = value * -1;
+				*rightSpeed = 2 * (value * -1);
 			}
 			else
 			{
-				*leftSpeed = value;
+				*leftSpeed = 2 * value;
 			}
 		}
 		else
@@ -143,18 +143,18 @@ int interpretMessage(char* receivedCommand, char* receivedValue,
 			//calculate the new left and right speed.
 			if(value > 0)
 			{
-				*rightSpeed = baseSpeedToUse - relativeValueOfValueFromBaseSpeed;
-				*leftSpeed =  baseSpeedToUse;
+				*rightSpeed = 2 * (baseSpeedToUse - relativeValueOfValueFromBaseSpeed);
+				*leftSpeed =  2 * baseSpeedToUse;
 			}
 			else if (value < 0)
 			{
-				*rightSpeed = baseSpeedToUse;
-				*leftSpeed =  baseSpeedToUse + relativeValueOfValueFromBaseSpeed;
+				*rightSpeed = 2 * baseSpeedToUse;
+				*leftSpeed =  2 * (baseSpeedToUse + relativeValueOfValueFromBaseSpeed);
 			}
 			else
 			{
-				*rightSpeed = baseSpeedToUse;
-				*leftSpeed = baseSpeedToUse;
+				*rightSpeed = 2 * baseSpeedToUse;
+				*leftSpeed = 2 * baseSpeedToUse;
 			}
 		}
 
@@ -167,15 +167,15 @@ int interpretMessage(char* receivedCommand, char* receivedValue,
 	{
 		*baseSpeed = value; // set the base speed between -100 and 100.
 
-		// When the value is less than 0 it has to be multiplied by -1 to 
+		/*// When the value is less than 0 it has to be multiplied by -1 to 
 		// get a positve value. This way the right and left speed are ready for use.
 		if(value < 0)
 		{
 			value = value * -1;
 		}
 
-		*rightSpeed = value;
-		*leftSpeed = value;
+		*rightSpeed = 2 * value;
+		*leftSpeed = 2 * value;*/
 
 		memset(receivedCommand, 0, receiveCommandBufferLength);
 		memset(receivedValue, 0, receiveValueBufferLength);
