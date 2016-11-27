@@ -1,5 +1,5 @@
 // ================================================================
-// ===               SERIAL COMMUNICATION PROTOCOL              ===
+// ===            SERIAL COMMUNICATION CRASH PROTOCOL           ===
 // ================================================================
 #define START_CHARACTER '#'
 #define END_CHARACTER '%'
@@ -14,11 +14,14 @@
 
 //=================================================================
 
+/*
+   Assing the received crash data values to the corresponding indexes of the array.
+*/
 void formatMessageToProtocol(String message, String *pointer_protocolToSendArray)
 {
   DMPRoutine();
   getYPR();
-  
+
   if (message.indexOf(SPEED_PROTOCOL_SEND_RECEIVE) > -1)
   {
     pointer_protocolToSendArray[0] = START_CHARACTER + message + END_CHARACTER;

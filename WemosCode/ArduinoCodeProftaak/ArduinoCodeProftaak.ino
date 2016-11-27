@@ -60,8 +60,12 @@ void dmpDataReady()
 //const char* ssid = "HotSpotBoardComputer";
 //const char* password = "1234567890";
 
-const char* ssid = "Project";
-const char* password = "123456780";
+//const char* ssid = "Project";
+//const char* password = "123456780";
+
+const char* ssid = "eversveraa";
+const char* password = "qwerty69";
+
 
 bool ledState = false;
 bool ledState1 = false;
@@ -72,12 +76,12 @@ String protocolToSendArray[5]; // 0 = speed; 1 = sideHit; 2 = impact; 3 = orient
 bool protocolEndCharReceived = false;
 
 long currentMillis = 0;
-int requestInterval = 20;
+int requestInterval = 10;
 
 // ================================================================
 // ===                      MAIN SETUP                          ===
 // ================================================================
-void setup() {  
+void setup() {
   // join I2C bus (I2Cdev library doesn't do this automatically)
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
   Wire.begin();
@@ -179,8 +183,6 @@ void setup() {
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
-
-  //initControllerHost();
 }
 
 // ================================================================
@@ -188,6 +190,9 @@ void setup() {
 // ================================================================
 void loop()
 {
+  /*
+     Make Sure the DMP values are stable.
+  */
   while (!MPUIsStable)
   {
     if (getMPUIsStabilized())
@@ -198,6 +203,9 @@ void loop()
     else return;
   }
 
+  /*
+     Reset the orentation values close to 0.
+  */
   if (tempMessage == "RESET")
   {
     Serial.println(tempMessage);
@@ -206,14 +214,17 @@ void loop()
   }
 
   DMPRoutine();
-  protocolEndCharReceived = getIncommingString();
-  if (protocolEndCharReceived)
+
+  if (getIncommingString())
   {
-    //formatMessageToProtocol(tempMessage, &protocolToSendArray[0]);
+    formatMessageToProtocol(tempMessage, protocolToSendArray);
     protocolEndCharReceived = false;
   }
 
-  if((millis() - currentMillis) > requestInterval)
+  /*
+     Receive the controller values.
+  */
+  if ((millis() - currentMillis) > requestInterval)
   {
     getXasController();
     getSpeedController();
@@ -221,14 +232,13 @@ void loop()
     currentMillis = millis();
   }
 
+  /*
+      When ORIENTATION is received it means all the crash data had been received
+      from the RP6 and can be send to the board computer.
+  */
   if (tempMessage == "ORIENTATION")
   {
     Serial.println(tempMessage);
     tempMessage = "";
-    /*for (uint8_t index = 0; index < 5; index++)
-    {
-      Serial.println(protocolToSendArray[index]);
-    }*/
-    changeLedState();
   }
 }
