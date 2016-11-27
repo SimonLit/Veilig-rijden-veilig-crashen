@@ -57,6 +57,9 @@ void dmpDataReady()
 // ================================================================
 // ===                      WIFI VARIABLES                      ===
 // ================================================================
+//const char* ssid = "HotSpotBoardComputer";
+//const char* password = "1234567890";
+
 const char* ssid = "Project";
 const char* password = "123456780";
 
@@ -68,10 +71,13 @@ String protocolToSendArray[5]; // 0 = speed; 1 = sideHit; 2 = impact; 3 = orient
 
 bool protocolEndCharReceived = false;
 
+long currentMillis = 0;
+int requestInterval = 20;
+
 // ================================================================
 // ===                      MAIN SETUP                          ===
 // ================================================================
-void setup() {
+void setup() {  
   // join I2C bus (I2Cdev library doesn't do this automatically)
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
   Wire.begin();
@@ -173,6 +179,8 @@ void setup() {
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+
+  //initControllerHost();
 }
 
 // ================================================================
@@ -201,8 +209,16 @@ void loop()
   protocolEndCharReceived = getIncommingString();
   if (protocolEndCharReceived)
   {
-    formatMessageToProtocol(tempMessage, &protocolToSendArray[0]);
+    //formatMessageToProtocol(tempMessage, &protocolToSendArray[0]);
     protocolEndCharReceived = false;
+  }
+
+  if((millis() - currentMillis) > requestInterval)
+  {
+    getXasController();
+    getSpeedController();
+
+    currentMillis = millis();
   }
 
   if (tempMessage == "ORIENTATION")
