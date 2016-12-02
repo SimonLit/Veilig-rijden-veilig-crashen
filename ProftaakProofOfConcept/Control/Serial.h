@@ -23,6 +23,7 @@ int interpretMessage(char* receivedCommand, char* receivedValue, const int recei
 //Return: -1 if one of the pointers is NULL, the the message wasn't one from the protocol or 
 //			receivedMessageLength was greater than the buffer (=10).
 //		   0 on succes. 
+//		   1 NACK is recieved.
 			
 
 #endif

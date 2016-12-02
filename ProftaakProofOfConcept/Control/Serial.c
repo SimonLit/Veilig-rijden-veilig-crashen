@@ -5,6 +5,7 @@
 #define PROTOCOL_START_CHARACTER '#'
 #define PROTOCOL_END_CHARACTER '%'
 #define PROTOCOL_VALUE_CHARACTER ':'
+#define NACK_ON_CRASH_DATA_FROM_WEMOS "NACK"
 
 int START_READING_COMMAND = 0;
 int START_READING_VALUE = 0;
@@ -96,7 +97,7 @@ int getRCProtocolValuesToDrive(char* receiveBufferCommand, char* receiveBufferVa
 		}
 	}
 
-	return 0;
+	return -1;
 }
 
 int interpretMessage(char* receivedCommand, char* receivedValue, 
@@ -127,11 +128,16 @@ int interpretMessage(char* receivedCommand, char* receivedValue,
 		{
 			if(value < 0)
 			{
-				*rightSpeed = 2 * (value * -1);
+				*rightSpeed = value * -1;
+			}
+			else if ( value > 0)
+			{
+				*leftSpeed = value;
 			}
 			else
 			{
-				*leftSpeed = 2 * value;
+			 	*rightSpeed	= 0;
+			 	*leftSpeed = 0;
 			}
 		}
 		else
@@ -143,18 +149,18 @@ int interpretMessage(char* receivedCommand, char* receivedValue,
 			//calculate the new left and right speed.
 			if(value > 0)
 			{
-				*rightSpeed = 2 * (baseSpeedToUse - relativeValueOfValueFromBaseSpeed);
-				*leftSpeed =  2 * baseSpeedToUse;
+				*rightSpeed = baseSpeedToUse - relativeValueOfValueFromBaseSpeed;
+				*leftSpeed =  baseSpeedToUse;
 			}
 			else if (value < 0)
 			{
-				*rightSpeed = 2 * baseSpeedToUse;
-				*leftSpeed =  2 * (baseSpeedToUse + relativeValueOfValueFromBaseSpeed);
+				*rightSpeed = baseSpeedToUse;
+				*leftSpeed =  baseSpeedToUse + relativeValueOfValueFromBaseSpeed;
 			}
 			else
 			{
-				*rightSpeed = 2 * baseSpeedToUse;
-				*leftSpeed = 2 * baseSpeedToUse;
+				*rightSpeed = baseSpeedToUse;
+				*leftSpeed = baseSpeedToUse;
 			}
 		}
 
@@ -165,6 +171,11 @@ int interpretMessage(char* receivedCommand, char* receivedValue,
 	}
 	else if (strcmp(receivedCommand, CONTROLLER_RECEIVE_SPEED) == 0)
 	{
+		writeString(receivedCommand);
+		writeInteger(*baseSpeed, DEC);
+		writeInteger(value, DEC);
+		writeString("\n");
+
 		*baseSpeed = value; // set the base speed between -100 and 100.
 
 		/*// When the value is less than 0 it has to be multiplied by -1 to 
@@ -182,8 +193,12 @@ int interpretMessage(char* receivedCommand, char* receivedValue,
 
 		return 0;
 	}
-	else
+	else if (strcmp(receivedCommand, NACK_ON_CRASH_DATA_FROM_WEMOS) == 0)
 	{
+		return 1;
+	}
+	else
+	{	
 		return -1;
 	}
 }

@@ -138,10 +138,14 @@ int main(void)
 					if(startProgram)
 					{
 						startProgram = false;
+						writeString("#STOPPING_PROGRAM");
+						writeChar('%');
 						writeStringLCD("Stopping Program");
 					}
 					else
 					{   startProgram = true;
+						writeString("#STARTING_PROGRAM");
+						writeChar('%');
 						writeStringLCD("Starting Program");
 					}					
 			}
@@ -156,11 +160,26 @@ int main(void)
 
 				// Check if one of our self added buttons was pressed.
 				// Read the FSR value, convert it to grams and add it to the crashInfo struct.
- 				if(getStopwatch1() > 50)
+ 				if(getStopwatch1() > 5)
 				{	
 					if(getRCProtocolValuesToDrive(receivBufferCommand, receivBufferValue, maxRecieveCommandBufferLength, maxRecieveValueBufferLength) == 0)
 					{
-						interpretMessage(receivBufferCommand, receivBufferValue, maxRecieveCommandBufferLength, maxRecieveValueBufferLength, &baseSpeed, &rightSpeed, &leftSpeed);
+						int receivedMessageValid = interpretMessage(receivBufferCommand, receivBufferValue, maxRecieveCommandBufferLength, maxRecieveValueBufferLength, &baseSpeed, &rightSpeed, &leftSpeed);
+
+						if(receivedMessageValid = 0)
+						{
+							writeString("#ACK");
+							writeChar('%');
+						}
+						else if(receivedMessageValid == 1)
+						{
+							//sendCrashInfo(&cInfo);
+						}
+						else
+						{
+							writeString("#NACK");
+							writeChar('%');
+						}
 
 						if(leftSpeed > 150)
 						{
