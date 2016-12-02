@@ -115,30 +115,34 @@ int setupCommunicationServer(const char* node, const char* service, int* socketn
 
 int acceptinConnectionsOnServer(int sockfd)
 {
-	sin_size = sizeof(their_addr);
-	new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
-	if(new_fd == -1)
-	{
-		perror("accept");
-	}
-	inet_ntop(their_addr.ss_family, get_in_addr((struct sockaddr *)&their_addr), s, sizeof(s));
-	printf("Server : Got connection from %s\n", s);
-	if(!fork())
-	{
-		close(sockfd);
-		if(send(new_fd, "Connected to sever : make request", 35, 0) == -1)
-			perror("send");
-		memset(buffer, 0, 1);
-		n = read(new_fd, buffer, 255);
-		if(n < 0)
-			perror("read");
-		printf("The message is: %s\n", buffer);
+    printf("Starting listen on socket %d\n", sockfd);
+    while(1)
+    {
+    sin_size = sizeof(their_addr);
+    new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
+    if(new_fd == -1)
+    {
+        perror("accept");
+    }
+    inet_ntop(their_addr.ss_family, get_in_addr((struct sockaddr *)&their_addr), s, sizeof(s));
+    printf("Server : Got connection from %s\n", s);
+    if(!fork())
+    {
+        close(sockfd);
+        if(send(new_fd, "Connected to sever : make request", 35, 0) == -1)
+            perror("send");
+        memset(buffer, 0, 1);
+        n = read(new_fd, buffer, 255);
+        if(n < 0)
+            perror("read");
+        printf("The message is: %s\n", buffer);
         send(new_fd, "Twerk", 5, 0);
-		close(new_fd);
-		printf("Closing connection.\n");
-		exit(0);
- 	}
-   close(new_fd);
-   return 0;
+        close(new_fd);
+        printf("Closing connection.\n");
+        exit(0);
+    }
+    close(new_fd);  
+    }
+    return 0;
  }
 

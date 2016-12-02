@@ -1,26 +1,17 @@
-IDIR =../include
-CC=gcc
-CFLAGS=-I$(IDIR)
+LIBS=libs/serversocket 
+INCLUDE_PATH=libs/
 
-ODIR=obj
-LDIR =../lib
+cli_exec: libraries
+	gcc cli/boardcomputer.c $(wildcard libraries/*) -I$(INCLUDE_PATH) -o cli_exec
 
-LIBS=-lm
-
-_DEPS = hellomake.h
-DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
-
-_OBJ = hellomake.o hellofunc.o 
-OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
-
-
-$(ODIR)/%.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
-
-hellomake: $(OBJ)
-	gcc -o $@ $^ $(CFLAGS) $(LIBS)
-
-.PHONY: clean
+libraries:
+	mkdir libraries/
+	for dir in $(LIBS); do \
+		cd $$dir; \
+		gcc -c *.c -I../; \
+		mv *.o ../../libraries; \
+		cd -; \
+	done
 
 clean:
-	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ 
+	rm -rf libraries/
