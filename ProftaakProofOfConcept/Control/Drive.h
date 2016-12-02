@@ -1,21 +1,27 @@
 #ifndef SPEED_H
-#define SPPED_H
+#define SPEED_H
 
-#include <stdint.h>
+#include "RP6uart.h"
+#include "stdint.h"
+#include "internal/RP6Control_I2CMasterLib_internal.h"
 
-struct speedData
+typedef struct
 {
 	uint8_t speedLeft;
 	uint8_t speedRight;
-}sDataArray[15];
+}speedData;
 
 
-void saveSpeedData(uint8_t leftSpeed, uint8_t speedRight);
+int saveSpeedData(void);
+//
+//Pre:
+//Post:
+//Return:
 
-uint16_t calculateAverageLeftSpeed(void);
-
-uint16_t calculateAverageRightSpeed(void);
-
-void writeSpeed(void);
+uint16_t calculateAverageSpeed(void);
+//
+//Pre:
+//Post:
+//Return:
 
 #endif

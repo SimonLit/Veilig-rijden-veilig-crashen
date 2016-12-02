@@ -2,123 +2,23 @@
 #include "RP6I2CmasterTWI.h"
 #include "Drive.h"
 #include "Crash.h"
-#include <stdbool.h>
+#include "Serial.h"
+#include "stdint.h"
 #include "RP6Control_I2CMasterLib.h" 	
 
-//#define DEBUG
+int baseSpeed = 0;
+uint8_t rightSpeed = 0;
+uint8_t leftSpeed = 0;
 
-uint8_t lastButton2State = false;
-uint8_t lastButton3State = false;
-uint8_t lastButton5State = false;
-
-#ifdef DEBUG
-	uint8_t sideHit = 0;
-	uint8_t timesPressed2 = 0;
-	uint8_t timesPressed3 = 0;
-	uint8_t timesPressed5 = 0;
-#endif
-
-void writeButtonPressOnLCD(uint8_t button, int pressed)
+void writeSpeedOnLCD(char* buffer, int rightSpeed, int leftSpeed)
 {
 	clearLCD();
 	setCursorPosLCD(0,0);
-	writeStringLCD("btn:     times:");
+	writeStringLCD("Rs      Ls      ");
 	setCursorPosLCD(1,0);
-	writeIntegerLCD(button, DEC);
-	writeStringLCD("        ");
-	writeIntegerLCD(pressed, DEC);
-}
-
-void task_checkButtonChanged(void)
-{
-	uint8_t button2State = PINC & IO_PC2;
-	uint8_t button3State = PINC & IO_PC3;
-	uint8_t button5State = PINC & IO_PC5;
-
-	if(button2State !=  lastButton2State)
-	{
-		buttenChanged();
-		lastButton2State = button2State;
-
-		#ifdef DEBUG
-			if(button2State)
-			{
-				sideHit = 2;
-				timesPressed2++;
-				writeButtonPressOnLCD(sideHit, timesPressed2);
-
-				writeString("Button 2 pressed ");
-				writeInteger(timesPressed2, DEC);
-				writeString(" times.");
-				writeString("\n");
-			}
-
-			writeString("lastButton2State: ");
-			writeInteger(lastButton2State, DEC);
-			writeChar('\n');
-		#endif
-	}	
-
-	else if(button3State !=  lastButton3State)
-	{
-		buttenChanged();
-		lastButton3State = button3State;
-
-		#ifdef DEBUG
-			if(button3State)
-			{
-				sideHit = 3;
-				timesPressed3++;
-				writeButtonPressOnLCD(sideHit, timesPressed3);
-
-				writeString("Button 3 pressed ");
-				writeInteger(timesPressed3, DEC);
-				writeString(" times.");
-				writeString("\n");
-			}
-
-			writeString("lastButton32State: ");
-			writeInteger(lastButton3State, DEC);
-			writeChar('\n');
-		#endif	
-	}	
-
-	else if(button5State !=  lastButton5State)
-	{
-		buttenChanged();
-		lastButton5State = button5State;
-
-		#ifdef DEBUG
-			if(button5State)
-			{
-				sideHit = 5;
-				timesPressed5++;
-				writeButtonPressOnLCD(sideHit, timesPressed5);
-
-				writeString("Button 5 pressed ");
-				writeInteger(timesPressed5, DEC);
-				writeString(" times.");
-				writeString("\n");
-			}
-
-			writeString("lastButton5State: ");
-			writeInteger(lastButton5State, DEC);
-			writeChar('\n');
-		#endif
-	}	
-}
-
-int16_t map(int16_t valueToMap, int16_t in_min, int16_t in_max, int16_t out_min, int16_t out_max)
-{
-	return (valueToMap - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
-
-uint16_t mapPressureSensorValueToNewton(void)
-{
-	// The sensitivity actualy ranges from 0.2 to 20 instead of 0 - 20.
-	// But because this is such a small difference it is much more convenient
-	// To avoid the use of decimal numbers. 
-	return map(readADC(ADC_5), 0, 1023, 0, 20); 
+	writeIntegerLCD(rightSpeed, DEC);
+	setCursorPosLCD(1,8);
+	writeIntegerLCD(leftSpeed, DEC);
 }
 
 /**
@@ -172,37 +72,24 @@ int main(void)
 
 	WDT_setRequestHandler(watchDogRequest); 
 
+	// Set the distance values of the RP6 to 0;
+	// When being crashed the distence driven is measured.
 	mleft_dist = 0;
 	mright_dist = 0;
 
-	DDRC &= ~IO_PC2; // Right button
-	DDRC &= ~IO_PC3; // Left button
-	DDRC &= ~IO_PC5; // Back button
-
-	DDRA &= ~ADC5; // Force Sensitive Resistor (FSR)
-
-	#ifdef DEBUG
-		if(PINC & IO_PC2) 
-			writeString_P("\n\nPC2 is HIGH!\n\n");
-		else
-			writeString_P("\n\nPC2 is LOW!\n\n");
-
-		if(PINC & IO_PC3) 
-			writeString_P("\n\nPC3 is HIGH!\n\n");
-		else
-			writeString_P("\n\nPC3 is LOW!\n\n");
-
-		if(PINC & IO_PC5) 
-			writeString_P("\n\nPC5 is HIGH!\n\n");
-		else
-			writeString_P("\n\nPC5 is LOW!\n\n");
-	#endif
-
-	
+	// Right button
+	DDRC &= ~IO_PC2;
+	// Left button
+	DDRC &= ~IO_PC3; 
+	// Back button
+	DDRC &= ~IO_PC5; 
+	// Force Sensitive Resistor (FSR)
+	DDRA &= ~ADC5; 	
 
 	startStopwatch1(); // Timer for checking button state and measuring the FSR.
 	startStopwatch2(); // Timer for getting all the sensor data from the RP6 base board.
 	startStopwatch3(); // TImer for checking the start/stop program button.
+	startStopwatch4();
 
 	// Setup ACS power:
 	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_ACS_POWER, ACS_PWR_MED);
@@ -211,14 +98,24 @@ int main(void)
 	// Enable timed watchdog requests:
 	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_WDT_RQ, true);
 	
-	BUMPERS_setStateChangedHandler(buttenChanged); // Assign the bumper event to the function from Crash.h.
+	// Assign the bumper event to the function from Crash.h.
+	BUMPERS_setStateChangedHandler(buttenChanged); 
 
 	crashInfo cInfo;
 
-	float earthAcceleration = 9.81; // Used for the converting from Newton to grams.
+	const int maxRecieveCommandBufferLength = 6;
+	const int maxRecieveValueBufferLength = 5;
+	char receivBufferCommand[maxRecieveCommandBufferLength];
+	char receivBufferValue[maxRecieveValueBufferLength];
 
+	memset(receivBufferCommand, 0, maxRecieveCommandBufferLength);
+	memset(receivBufferValue, 0, maxRecieveValueBufferLength);
+
+	// User to inidcate if program runs or not.
+	uint8_t startProgram = 1;
+
+	// Initial driving direction.
 	changeDirection(FWD);
-	bool startProgram = false;
 
 	while(true)
 	{
@@ -241,10 +138,14 @@ int main(void)
 					if(startProgram)
 					{
 						startProgram = false;
+						writeString("#STOPPING_PROGRAM");
+						writeChar('%');
 						writeStringLCD("Stopping Program");
 					}
 					else
 					{   startProgram = true;
+						writeString("#STARTING_PROGRAM");
+						writeChar('%');
 						writeStringLCD("Starting Program");
 					}					
 			}
@@ -255,29 +156,66 @@ int main(void)
 		switch(startProgram)
 		{
 			case true:	
+				task_checkButtonChanged();
 
 				// Check if one of our self added buttons was pressed.
 				// Read the FSR value, convert it to grams and add it to the crashInfo struct.
- 				if(getStopwatch1() > 300)
+ 				if(getStopwatch1() > 5)
 				{	
-					task_checkButtonChanged();
-					cInfo.impactGram = (mapPressureSensorValueToNewton()/earthAcceleration) * 1000;
+					if(getRCProtocolValuesToDrive(receivBufferCommand, receivBufferValue, maxRecieveCommandBufferLength, maxRecieveValueBufferLength) == 0)
+					{
+						int receivedMessageValid = interpretMessage(receivBufferCommand, receivBufferValue, maxRecieveCommandBufferLength, maxRecieveValueBufferLength, &baseSpeed, &rightSpeed, &leftSpeed);
+
+						if(receivedMessageValid = 0)
+						{
+							writeString("#ACK");
+							writeChar('%');
+						}
+						else if(receivedMessageValid == 1)
+						{
+							//sendCrashInfo(&cInfo);
+						}
+						else
+						{
+							writeString("#NACK");
+							writeChar('%');
+						}
+
+						if(leftSpeed > 150)
+						{
+							leftSpeed = 150;
+						}
+
+						if(rightSpeed > 150)
+						{
+							rightSpeed = 150;
+						}
+					}
+
+					writeSpeedOnLCD(receivBufferCommand, leftSpeed, rightSpeed);
 
 					setStopwatch1(0);
 				}
 
 				if(!pressed)
 				{
-					setLEDs(0b0);
+					if(baseSpeed < 0)
+					{
+						changeDirection(BWD);
+					}
+					else
+					{
+						changeDirection(FWD);
+					}
 
-					moveAtSpeed(60,60);
+					moveAtSpeed(leftSpeed, rightSpeed);
 
 					// Update the variables representing the values of the base board sensors.
 					// Add the current speed values to an array as one speedData struct value.
 					if(getStopwatch2() > 500)
 					{
 						getAllSensors();
-						saveSpeedData(mleft_speed, mright_speed);
+						saveSpeedData();
 
 						setStopwatch2(0);
 					}
@@ -289,8 +227,8 @@ int main(void)
 				// In that case, format and assign all the data and send it over Serial.
 				else if(!crashInfoWasSend && pressed)
 				{
-					crashInfoWasSend = assignCrashInfo(cInfo);
-					sendCrashInfo();
+					crashInfoWasSend = assignCrashInfo(&cInfo);
+					sendCrashInfo(&cInfo);
 				} 
 
 				// If the crash data is assigned and send stop the driving of the RP6.
