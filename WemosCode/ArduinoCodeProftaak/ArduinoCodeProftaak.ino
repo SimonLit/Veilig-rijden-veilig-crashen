@@ -13,6 +13,10 @@
 #include "Wire.h"
 #endif
 
+String stringFromSerial = "";
+String speedProtocol = "";
+String steerProtocol = "";
+
 // ================================================================
 // ===                   MPU VARIABLE SETUP                     ===
 // ================================================================
@@ -44,6 +48,10 @@ float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gra
 
 bool MPUIsStable = false;
 
+int currentYPR[3] = {0, 0, 0};
+long lastYPRUpdate = 0;
+long updateTime = 3000;
+
 // ================================================================
 // ===               INTERRUPT DETECTION ROUTINE                ===
 // ================================================================
@@ -60,23 +68,20 @@ void dmpDataReady()
 //const char* ssid = "HotSpotBoardComputer";
 //const char* password = "1234567890";
 
-//const char* ssid = "Project";
-//const char* password = "123456780";
+const char* ssid = "Project";
+const char* password = "123456780";
 
-const char* ssid = "eversveraa";
-const char* password = "qwerty69";
+//const char* ssid = "eversveraa";
+//const char* password = "qwerty69";
 
-
-bool ledState = false;
-bool ledState1 = false;
 String tempMessage = "";
 
-String protocolToSendArray[5]; // 0 = speed; 1 = sideHit; 2 = impact; 3 = orientation;
+String protocolToSendArray[5]; // 0 = speed; 1 = sideHit; 2 = impact; 3 = distDriven; 4 = orientation;
 
 bool protocolEndCharReceived = false;
 
 long currentMillis = 0;
-int requestInterval = 10;
+int requestInterval = 100;
 
 // ================================================================
 // ===                      MAIN SETUP                          ===
@@ -90,17 +95,12 @@ void setup() {
   stwire::setup(400, true);
 #endif
 
-  //Wire.onReceive(receiveEvent); // register event
-  //Wire.onRequest(requestEvent); // register event
-
   // initialize serial communication
   // (115200 chosen because it is required for Teapot Demo output, but it's
   // really up to you depending on your project)
   Serial.begin(38400);
 
-  // ================================================================
-  // ===                     SETUP FOR MPU                        ===
-  // ================================================================
+  // =========================SETUP FOR MPU=========================
 
   // NOTE: 8MHz or slower host processors, like the Teensy @ 3.3v or Ardunio
   // Pro Mini running at 3.3v, cannot handle this baud rate reliably due to
@@ -121,12 +121,6 @@ void setup() {
   // load and configure the DMP
   Serial.println(F("Initializing DMP..."));
   devStatus = mpu.dmpInitialize();
-
-  // supply your own gyro offsets here, scaled for min sensitivity
-  /*mpu.setXGyroOffset(220);
-    mpu.setYGyroOffset(76);
-    mpu.setZGyroOffset(-85);
-    mpu.setZAccelOffset(1788); // 1688 factory default for my test chip*/
 
   // make sure it worked (returns 0 if so)
   if (devStatus == 0)
@@ -162,9 +156,7 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
 
 
-  // ================================================================
-  // ===                     SETUP FOR ESP                        ===
-  // ================================================================
+  // ========================SETUP FOR ESP========================
   // Connect to WiFi network
   Serial.println();
   Serial.println();
@@ -193,32 +185,33 @@ void loop()
   /*
      Make Sure the DMP values are stable.
   */
-  while (!MPUIsStable)
-  {
+  /*while (!MPUIsStable)
+    {
     if (getMPUIsStabilized())
     {
       Serial.println("MPU is stable");
       MPUIsStable = true;
+      resetYPRValues();
     }
     else return;
+    }*/
+
+  if ((millis() -  lastYPRUpdate) > updateTime)
+  {
+    updateCurrentOrientation(currentYPR);
+    lastYPRUpdate = millis();
   }
+
+  bool receivedEndOfSerialString = getIncommingString(&stringFromSerial);
 
   /*
      Reset the orentation values close to 0.
   */
-  if (tempMessage == "RESET")
+  if (stringFromSerial == "RESET")
   {
-    Serial.println(tempMessage);
-    tempMessage = "";
+    Serial.println(stringFromSerial);
+    stringFromSerial = "";
     resetYPRValues();
-  }
-
-  DMPRoutine();
-
-  if (getIncommingString())
-  {
-    formatMessageToProtocol(tempMessage, protocolToSendArray);
-    protocolEndCharReceived = false;
   }
 
   /*
@@ -226,19 +219,37 @@ void loop()
   */
   if ((millis() - currentMillis) > requestInterval)
   {
-    getXasController();
-    getSpeedController();
+    //getControllerValues(&speedProtocol, &steerProtocol);
+    Serial.println(speedProtocol);
+    Serial.println(steerProtocol);
 
     currentMillis = millis();
   }
 
-  /*
-      When ORIENTATION is received it means all the crash data had been received
-      from the RP6 and can be send to the board computer.
-  */
-  if (tempMessage == "ORIENTATION")
+  if (receivedEndOfSerialString)
   {
-    Serial.println(tempMessage);
-    tempMessage = "";
+    if (checkForValidMessage(stringFromSerial))
+    {
+      //Serial.println("NACK");
+    }
+    formatMessageToProtocol(stringFromSerial, protocolToSendArray);
+    /*if (stringFromSerial == "NACK")
+      {
+      Serial.println(speedProtocol);
+      Serial.println(steerProtocol);
+      }*/
+    protocolEndCharReceived = false;
+  }
+
+  /*
+      When ORIENTATION is received it means all the crash data is received
+      from the RP6 and can be send to the boardcomputer.
+  */
+  if (stringFromSerial == "ORIENTATION")
+  {
+    // SEND CHRASH DATA TO BOARDCOMPUTER.
+    Serial.println("fdsa");
+    sendCrashData(protocolToSendArray, 5);
+    stringFromSerial = "";
   }
 }

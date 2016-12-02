@@ -56,6 +56,15 @@ void getYPR(void)
   mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
 }
 
+void updateCurrentOrientation(int* YPRArrayToUpdate)
+{
+  DMPRoutine();
+  
+  YPRArrayToUpdate[0] = (ypr[0] * 180 / M_PI) - yawOffsetValue;
+  YPRArrayToUpdate[1] = (ypr[1] * 180 / M_PI) - pitchOffsetValue;
+  YPRArrayToUpdate[2] = (ypr[2] * 180 / M_PI) - rollOffsetValue;
+}
+
 void prinYawPitchRoll(void)
 {
   getYPR();
@@ -79,7 +88,7 @@ bool getMPUIsStabilized(void)
   uint8_t pitch2 = 0;
   uint8_t roll2 = 0;
 
-  uint8_t errorMargin = 1;
+  uint8_t errorMargin = 3;
   
   DMPRoutine();
 
