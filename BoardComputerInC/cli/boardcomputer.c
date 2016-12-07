@@ -9,6 +9,9 @@
 #define NodeExternal "192.168.1.100"
 #define SeriveExternal "5500"
 
+void networkFork(int fileadressInternal, int fileadressExternal);
+void mainFork(void);
+
 int main(int argc, char const *argv[])
 {
     int internalNetwork = 0;
@@ -18,9 +21,24 @@ int main(int argc, char const *argv[])
 	pid_t pid;
 	pid = fork();
 	if(pid == 0)
-		acceptinConnectionsOnServer(internalNetwork);   
+		networkFork(internalNetwork, extrenalNetwork);
 	else
-		acceptinConnectionsOnServer(extrenalNetwork);	
-	printf("Done with fork\n");	
+		mainFork();	
+	printf("Done with program\n");	
     return 0;
+}
+
+void networkFork(int fileadressInternal, int fileadressExternal)
+{
+	pid_t pid;
+	pid = fork();
+	if(pid == 0)
+		acceptinConnectionsOnServer(fileadressInternal);   
+	else
+		acceptinConnectionsOnServer(fileadressExternal);	
+}
+
+void mainFork(void)
+{
+	//Do other tasks then networking	
 }

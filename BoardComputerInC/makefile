@@ -1,8 +1,8 @@
-LIBS=libs/serversocket 
+LIBS=libs/serversocket libs/file_handeling libs/response libs/handshake
 INCLUDE_PATH=libs/
 
-cli_exec: libraries
-	gcc cli/boardcomputer.c $(wildcard libraries/*) -I$(INCLUDE_PATH) -o cli_exec
+boardcomputer_exec: libraries
+	gcc cli/boardcomputer.c $(wildcard libraries/*) -I$(INCLUDE_PATH) -o boardcomputer
 
 libraries:
 	mkdir libraries/
@@ -15,3 +15,6 @@ libraries:
 
 clean:
 	rm -rf libraries/
+
+remove:
+	rm boardcomputer

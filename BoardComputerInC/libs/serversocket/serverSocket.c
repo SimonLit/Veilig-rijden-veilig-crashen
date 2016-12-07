@@ -1,9 +1,3 @@
-/*
- * Serversocket.c
- * Simon Lit
- * Project groep 1/A
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -17,6 +11,9 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include "serverSocket.h"
+#include "../datastruct/datastruct.h"
+#include "../file_handeling/file_handeling.h"
+
 
 #define BACKLOG 10 //How many pending connections queue will hold
 
@@ -28,8 +25,7 @@ struct sigaction sa;
 int yes = 1;
 char s[INET6_ADDRSTRLEN];
 int returnValue;
-char buffer[256];
-int n = 0;
+DATAPACKET dataSender;
 
 static void sigchld_handler(int s)
 {
@@ -129,17 +125,38 @@ int acceptinConnectionsOnServer(int sockfd)
     if(!fork())
     {
         close(sockfd);
+        //Start of handshake
+        
+
+
+/*        memset(buffer, 0, 1);
+        //Start of handshake 
+        if(send(new_fd, "#BOARD1,CONNECTED,REQUEST@", 25, 0) == -1)
+            perror("send");
+        while(stateWaitACK == -1)
+        {
+            n = read(new_fd, buffer, 255);
+            if(n < 0)
+            {
+
+                perror("read");
+            }
+
+        }
+
         if(send(new_fd, "Connected to sever : make request", 35, 0) == -1)
             perror("send");
-        memset(buffer, 0, 1);
         n = read(new_fd, buffer, 255);
         if(n < 0)
             perror("read");
         printf("The message is: %s\n", buffer);
         send(new_fd, "Twerk", 5, 0);
+ */       
+
+
         close(new_fd);
-        printf("Closing connection.\n");
-        exit(0);
+        printf("Closed connection.\n");
+        exit(0);//Exit fork
     }
     close(new_fd);  
     }
