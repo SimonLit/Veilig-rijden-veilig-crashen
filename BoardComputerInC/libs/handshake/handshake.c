@@ -17,13 +17,6 @@
 #define SERVERNAME "BOARDCOMPUTER";
 #define SERVERID 1;
 
-typedef int bool;
-enum 
-{
-	false,
-	true
-};
-
 char buffer[256];
 int n = 0;
 bool waitingForAck = false;
@@ -34,8 +27,9 @@ int verificationHandshake(int sockfd, DATAPACKET* senderData)
 {
 	memset(buffer, 0, sizeof(buffer));
 	//Send connected to server, serverId
-	returnValue = send(new_fd, "#BOARD1,CONNECTED,REQUEST@", 25, 0);
-           
+	returnValue = send(sockfd, "#BOARD1,CONNECTED,REQUEST@", 25, 0);
+    if(returnValue == -1)
+    	perror("Send");
 	//Wait for ACK with name,ID
 	//Save ip, name, id in struct
 	//Send ack; verified,

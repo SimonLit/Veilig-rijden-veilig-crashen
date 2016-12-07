@@ -3,6 +3,7 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include "serversocket/serverSocket.h"
+#include "serial/sercom.h"
 
 #define NodeInternal "10.10.0.1"
 #define ServiceInternal "5000"
@@ -40,5 +41,5 @@ void networkFork(int fileadressInternal, int fileadressExternal)
 
 void mainFork(void)
 {
-	//Do other tasks then networking	
+	serialCommunicatie();//Reads out buffer and (respons to do)
 }
