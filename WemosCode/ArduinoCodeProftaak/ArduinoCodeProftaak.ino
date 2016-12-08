@@ -14,8 +14,50 @@
 #endif
 
 String stringFromSerial = "";
-String speedProtocol = "";
-String steerProtocol = "";
+
+// ================================================================
+// ===           GENERAL SERIAL COMMUNICATION PROTOCOL          ===
+// ================================================================
+#define START_CHARACTER '#'
+#define END_CHARACTER '@'
+#define VALUE_CHARACTER ':'
+#define MULTI_VALUE_SEPARATOR ','
+// ================================================================
+// ===            SERIAL COMMUNICATION RP6 PROTOCOL             ===
+// ================================================================
+#define CONNECT_TO_DEVICE "CONNECT:"
+#define RP6_STARTED_PROGRAM "START_RP6"
+#define RP6_STOPPED_PROGRAM "STOP_RP6"
+#define SPEED_PROTOCOL_SEND_RECEIVE "SPEED:"
+#define SIDE_HIT_PROTOCOL_SEND_RECEIVE "SIDE_HIT:"
+#define CONTROLLER_DISCONNECTED "NO_CONTROLLER"
+#define IMPACT_PROTOCOL_SEND_RECEIVE "IMPACT:"
+#define DIST_DRIVEN_PROTOCOL_SEND_RECEIVE "DIST_DRIVEN:"
+#define ORIENTATION_PROTOCOL_SEND "ORIENTATION_YPR:"
+#define ORIENTATION_PROTOCOL_RECEIVE "ORIENTATION"
+// ================================================================
+// ===         SERIAL COMMUNICATION CONTROLLER PROTOCOL         ===
+// ================================================================
+#define CONTROLLER_SPEED_PROTOCOL_SEND "SPEED:"
+#define CONTROLLER_STEER_PROTOCOL_SEND "X:"
+//=================================================================
+// ===         WIFI COMMUNICATION CONTROLLER PROTOCOL           ===
+// ================================================================
+#define CONTROLLER_VALUE_PROTOCOL_RECEIVE "ControllerValues:"
+#define CONTROLLER_VALUE_PROTOCOL_REQUEST_SEND "GetControllerValues"
+//=================================================================
+// ===        WIFI COMMUNICATION BOARDCOMPUTER PROTOCOL         ===
+// ================================================================
+#define BOARDCOMPUTER_CONNECT_RESPONSE ""
+//=================================================================
+
+#define GENERAL_ACK "ACK"
+#define GENERAL_NACK "NACK"
+#define RP6_NAME "RP6"
+#define WEMOS_NAME "WEMOS"
+#define WEMOS_NUMBER 1
+//=================================================================
+String protocolToSendArray[5]; // 0 = speed; 1 = sideHit; 2 = impact; 3 = distDriven; 4 = orientation;
 
 // ================================================================
 // ===                   MPU VARIABLE SETUP                     ===
@@ -65,22 +107,18 @@ void dmpDataReady()
 // ================================================================
 // ===                      WIFI VARIABLES                      ===
 // ================================================================
-//const char* ssid = "HotSpotBoardComputer";
-//const char* password = "1234567890";
-
 const char* ssid = "Project";
 const char* password = "123456780";
 
-//const char* ssid = "eversveraa";
-//const char* password = "qwerty69";
-
 String tempMessage = "";
-
-String protocolToSendArray[5]; // 0 = speed; 1 = sideHit; 2 = impact; 3 = distDriven; 4 = orientation;
+String speedProtocol = "";
+String steerProtocol = "";
 
 bool protocolEndCharReceived = false;
 
 long currentMillis = 0;
+long lastControllerReceiveTimer = 0;
+int maxControllerTimeoutTimer =  120;
 int requestInterval = 100;
 
 // ================================================================
@@ -185,8 +223,8 @@ void loop()
   /*
      Make Sure the DMP values are stable.
   */
-  /*while (!MPUIsStable)
-    {
+  while (!MPUIsStable)
+  {
     if (getMPUIsStabilized())
     {
       Serial.println("MPU is stable");
@@ -194,14 +232,19 @@ void loop()
       resetYPRValues();
     }
     else return;
-    }*/
+  }
 
+  /*
+     Update the values in the currentYPR array to the latest YPR values from the MPU.
+     The YPR values are then corrected with the offset values.
+  */
   if ((millis() -  lastYPRUpdate) > updateTime)
   {
     updateCurrentOrientation(currentYPR);
     lastYPRUpdate = millis();
   }
 
+  // Check if a Serial message is received that end with '@'.
   bool receivedEndOfSerialString = getIncommingString(&stringFromSerial);
 
   /*
@@ -215,41 +258,67 @@ void loop()
   }
 
   /*
-     Receive the controller values.
+     Receive the controller values and send these to the RP6.
   */
   if ((millis() - currentMillis) > requestInterval)
   {
-    //getControllerValues(&speedProtocol, &steerProtocol);
-    Serial.println(speedProtocol);
-    Serial.println(steerProtocol);
-
+    getControllerValues(&speedProtocol, &steerProtocol);
     currentMillis = millis();
   }
 
-  if (receivedEndOfSerialString)
+  /*
+     When the no controller messages are received for maxControllerTimeoutTimer amount of time
+     send a messsage to the RP6 that sais that the RP6 must stop driving.
+  */
+  if ((millis() - lastControllerReceiveTimer) > maxControllerTimeoutTimer)
   {
-    if (checkForValidMessage(stringFromSerial))
-    {
-      //Serial.println("NACK");
-    }
-    formatMessageToProtocol(stringFromSerial, protocolToSendArray);
-    /*if (stringFromSerial == "NACK")
-      {
-      Serial.println(speedProtocol);
-      Serial.println(steerProtocol);
-      }*/
-    protocolEndCharReceived = false;
+    String noControllerMessage = START_CHARACTER + CONTROLLER_DISCONNECTED + END_CHARACTER;
+    Serial.println(noControllerMessage);
   }
 
   /*
-      When ORIENTATION is received it means all the crash data is received
-      from the RP6 and can be send to the boardcomputer.
+     When a '@' is received from the Serial line a potentional protocol message is received.
   */
-  if (stringFromSerial == "ORIENTATION")
+  if (receivedEndOfSerialString)
   {
-    // SEND CHRASH DATA TO BOARDCOMPUTER.
-    Serial.println("fdsa");
-    sendCrashData(protocolToSendArray, 5);
+    if (checkForValidRP6Message(stringFromSerial) == 1)
+    {
+      if (stringFromSerial == RP6_STARTED_PROGRAM || stringFromSerial == RP6_STOPPED_PROGRAM)
+      {
+        sendRP6StatusToBoardcomputer(stringFromSerial);
+      }
+
+      
+      //  When ORIENTATION is received it means all the crash data is received
+      //  from the RP6 and can be send to the boardcomputer.
+      if (stringFromSerial == "ORIENTATION")
+      {
+        sendCrashData(protocolToSendArray, 5);
+      }
+    }
+
+    // When the received message isn't in the protocol from RP6 to Wemos a NACK is send to the RP6.
+    if (checkForValidRP6Message(stringFromSerial) == 0)
+    {
+      String nackMessage = START_CHARACTER + GENERAL_NACK + END_CHARACTER;
+      Serial.println(nackMessage);
+    }
+
+    // If the received message was NACK, send the speed speed values again.
+    else if (checkForValidRP6Message(stringFromSerial) == -1)
+    {
+      Serial.println(speedProtocol);
+      Serial.println(steerProtocol);
+    }
+
+    // This method checks if the received message belongs to one of the recieved crach data messages
+    // and puts the message with their values in de crash data arrray.
+    formatMessageToProtocol(stringFromSerial, protocolToSendArray);
+
+    // Set the boolean to false to ensure these actions only happen again when a potantional valid
+    // serial message is received.
+    protocolEndCharReceived = false;
+
     stringFromSerial = "";
   }
 }
