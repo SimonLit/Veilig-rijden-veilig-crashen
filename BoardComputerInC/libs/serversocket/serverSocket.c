@@ -13,6 +13,7 @@
 #include "serverSocket.h"
 #include "../datastruct/datastruct.h"
 #include "../file_handeling/file_handeling.h"
+#include "../handshake/handshake.c"
 
 
 #define BACKLOG 10 //How many pending connections queue will hold
@@ -26,6 +27,7 @@ int yes = 1;
 char s[INET6_ADDRSTRLEN];
 int returnValue;
 DATAPACKET dataSender;
+bool verified;
 
 static void sigchld_handler(int s)
 {
@@ -125,35 +127,16 @@ int acceptinConnectionsOnServer(int sockfd)
     if(!fork())
     {
         close(sockfd);
-        //Start of handshake
-        
-
-
-/*        memset(buffer, 0, 1);
-        //Start of handshake 
-        if(send(new_fd, "#BOARD1,CONNECTED,REQUEST@", 25, 0) == -1)
-            perror("send");
-        while(stateWaitACK == -1)
+        returnValue = verificationHandshake(new_fd, &verified);
+        if(returnValue == -1 || verified == false)
         {
-            n = read(new_fd, buffer, 255);
-            if(n < 0)
-            {
-
-                perror("read");
-            }
-
+            printf("Connection not verified.\n");
         }
-
-        if(send(new_fd, "Connected to sever : make request", 35, 0) == -1)
-            perror("send");
-        n = read(new_fd, buffer, 255);
-        if(n < 0)
-            perror("read");
-        printf("The message is: %s\n", buffer);
-        send(new_fd, "Twerk", 5, 0);
- */       
-
-
+        else
+        {
+            //Do stuff with verified connection
+            //Wait for receiving data or time out
+        }
         close(new_fd);
         printf("Closed connection.\n");
         exit(0);//Exit fork
