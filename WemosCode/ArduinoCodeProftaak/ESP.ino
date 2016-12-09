@@ -70,7 +70,7 @@ void sendCrashData(String CrashDataProtocol[], int numberOfCrashDataDataToSend)
   }
 
   // Send the Identification info.
-  client_sendCrashData.print(START_CHARACTER + CONNECT_TO_DEVICE + WEMOS_NAME + MULTI_VALUE_SEPARATOR + (String)WEMOS_NUMBER + END_CHARACTER);
+  client_sendCrashData.print(START_CHARACTER + CONNECT_TO_DEVICE + (String)WEMOS_NAME + MULTI_VALUE_SEPARATOR + (String)WEMOS_NUMBER + END_CHARACTER);
 
   while (client_sendCrashData.available()) {
     String charDataResponse = client_sendCrashData.readString();

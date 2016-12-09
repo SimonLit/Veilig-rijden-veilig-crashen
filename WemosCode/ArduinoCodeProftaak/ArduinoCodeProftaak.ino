@@ -35,6 +35,7 @@ String stringFromSerial = "";
 #define DIST_DRIVEN_PROTOCOL_SEND_RECEIVE "DIST_DRIVEN:"
 #define ORIENTATION_PROTOCOL_SEND "ORIENTATION_YPR:"
 #define ORIENTATION_PROTOCOL_RECEIVE "ORIENTATION"
+#define HEARTBEAT_RP6 "HEARTBEAT"
 // ================================================================
 // ===         SERIAL COMMUNICATION CONTROLLER PROTOCOL         ===
 // ================================================================
@@ -57,7 +58,40 @@ String stringFromSerial = "";
 #define WEMOS_NAME "WEMOS"
 #define WEMOS_NUMBER 1
 //=================================================================
+
 String protocolToSendArray[5]; // 0 = speed; 1 = sideHit; 2 = impact; 3 = distDriven; 4 = orientation;
+
+long lastHeartbeatTimer = 0;
+int heartbeatInterval = 1000;
+
+
+int maxResponseTimeout = 1200;
+bool receivedEndOfSerialString = false;
+
+typedef enum
+{
+  RP6_CONNECTED,
+  RP6_DISCONNECTED
+} connectionRP6;
+
+typedef enum
+{
+  STARTED_PROGRAM,
+  STOPPED_PROGRAM
+} stateRP6;
+char* RP6States[] = {RP6_STARTED_PROGRAM, RP6_STOPPED_PROGRAM};
+
+typedef enum
+{
+  CTRL_CONNECTED,
+  CTRL_DISCONNECTED
+} connectionController;
+
+
+
+connectionRP6 WemosToRP6Connection = RP6_DISCONNECTED;
+stateRP6 RP6State = STOPPED_PROGRAM;
+connectionController WemosToControllerConnection = CTRL_DISCONNECTED;
 
 // ================================================================
 // ===                   MPU VARIABLE SETUP                     ===
@@ -215,6 +249,14 @@ void setup() {
   Serial.println(WiFi.localIP());
 }
 
+
+
+
+
+
+
+
+
 // ================================================================
 // ===                        MAIN LOOP                         ===
 // ================================================================
@@ -234,91 +276,8 @@ void loop()
     else return;
   }
 
-  /*
-     Update the values in the currentYPR array to the latest YPR values from the MPU.
-     The YPR values are then corrected with the offset values.
-  */
-  if ((millis() -  lastYPRUpdate) > updateTime)
-  {
-    updateCurrentOrientation(currentYPR);
-    lastYPRUpdate = millis();
-  }
-
   // Check if a Serial message is received that end with '@'.
-  bool receivedEndOfSerialString = getIncommingString(&stringFromSerial);
+  //bool receivedEndOfSerialString = getIncommingString(&stringFromSerial);
 
-  /*
-     Reset the orentation values close to 0.
-  */
-  if (stringFromSerial == "RESET")
-  {
-    Serial.println(stringFromSerial);
-    stringFromSerial = "";
-    resetYPRValues();
-  }
-
-  /*
-     Receive the controller values and send these to the RP6.
-  */
-  if ((millis() - currentMillis) > requestInterval)
-  {
-    getControllerValues(&speedProtocol, &steerProtocol);
-    currentMillis = millis();
-  }
-
-  /*
-     When the no controller messages are received for maxControllerTimeoutTimer amount of time
-     send a messsage to the RP6 that sais that the RP6 must stop driving.
-  */
-  if ((millis() - lastControllerReceiveTimer) > maxControllerTimeoutTimer)
-  {
-    String noControllerMessage = START_CHARACTER + CONTROLLER_DISCONNECTED + END_CHARACTER;
-    Serial.println(noControllerMessage);
-  }
-
-  /*
-     When a '@' is received from the Serial line a potentional protocol message is received.
-  */
-  if (receivedEndOfSerialString)
-  {
-    if (checkForValidRP6Message(stringFromSerial) == 1)
-    {
-      if (stringFromSerial == RP6_STARTED_PROGRAM || stringFromSerial == RP6_STOPPED_PROGRAM)
-      {
-        sendRP6StatusToBoardcomputer(stringFromSerial);
-      }
-
-      
-      //  When ORIENTATION is received it means all the crash data is received
-      //  from the RP6 and can be send to the boardcomputer.
-      if (stringFromSerial == "ORIENTATION")
-      {
-        sendCrashData(protocolToSendArray, 5);
-      }
-    }
-
-    // When the received message isn't in the protocol from RP6 to Wemos a NACK is send to the RP6.
-    if (checkForValidRP6Message(stringFromSerial) == 0)
-    {
-      String nackMessage = START_CHARACTER + GENERAL_NACK + END_CHARACTER;
-      Serial.println(nackMessage);
-    }
-
-    // If the received message was NACK, send the speed speed values again.
-    else if (checkForValidRP6Message(stringFromSerial) == -1)
-    {
-      Serial.println(speedProtocol);
-      Serial.println(steerProtocol);
-    }
-
-    // This method checks if the received message belongs to one of the recieved crach data messages
-    // and puts the message with their values in de crash data arrray.
-    formatMessageToProtocol(stringFromSerial, protocolToSendArray);
-
-    // Set the boolean to false to ensure these actions only happen again when a potantional valid
-    // serial message is received.
-    protocolEndCharReceived = false;
-
-    stringFromSerial = "";
-  }
+  
 }

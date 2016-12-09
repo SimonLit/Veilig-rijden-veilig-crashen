@@ -15,11 +15,10 @@ bool getIncommingString(String* stringFromSerial)
     {
       char incommingChar = Serial.read();
 
-      if (incommingChar == '%')
+      if (incommingChar == END_CHARACTER)
       {
         startReadingSerialMessage = false;
         *stringFromSerial = internalTempMessage;
-        //Serial.println(internalTempMessage);
         return true;
       }
 
@@ -28,7 +27,7 @@ bool getIncommingString(String* stringFromSerial)
         internalTempMessage += incommingChar;
       }
 
-      if (incommingChar == '#')
+      if (incommingChar == START_CHARACTER)
       {
         startReadingSerialMessage = true;
         internalTempMessage = "";
@@ -44,7 +43,7 @@ bool getIncommingStringFromMessage(String message, String* formattedMessage, int
   {
     char readChar = (char)message[i];
 
-    if (readChar == '%')
+    if (readChar == END_CHARACTER)
     {
       startReadingStringMessage = false;
       *formattedMessage = tempFormattedMessage;
@@ -56,7 +55,7 @@ bool getIncommingStringFromMessage(String message, String* formattedMessage, int
       tempFormattedMessage += message[i];
     }
 
-    if (readChar == (char)'#')
+    if (readChar == START_CHARACTER)
     {
       startReadingStringMessage = true;
       tempFormattedMessage = "";
