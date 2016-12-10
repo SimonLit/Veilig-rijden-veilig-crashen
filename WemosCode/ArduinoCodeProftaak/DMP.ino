@@ -56,6 +56,10 @@ void getYPR(void)
   mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
 }
 
+/*
+ * Assignt the YPR values from the DMP, minus the YPR offsets to the YPR int array.
+ * 
+ */
 void updateCurrentOrientation(int* YPRArrayToUpdate)
 {
   DMPRoutine();
@@ -78,6 +82,12 @@ void prinYawPitchRoll(void)
   Serial.println();
 }
 
+/*
+ * Check if the values of the MPU are stabalized or not.
+ * 
+ * Return: true if the MPU is stable.
+ *         false if the MPU isn't stable yet.
+ */
 bool getMPUIsStabilized(void)
 {
   uint8_t yaw1 = 0;
@@ -134,6 +144,9 @@ bool getMPUIsStabilized(void)
   return false;
 }
 
+/*
+ * Assign the YPR offsets to the current values of the MPU.
+ */
 void resetYPRValues(void)
 {
   DMPRoutine();

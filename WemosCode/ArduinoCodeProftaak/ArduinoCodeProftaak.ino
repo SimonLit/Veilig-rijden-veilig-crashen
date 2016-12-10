@@ -25,26 +25,27 @@ String stringFromSerial = "";
 // ================================================================
 // ===            SERIAL COMMUNICATION RP6 PROTOCOL             ===
 // ================================================================
-#define CONNECT_TO_DEVICE "CONNECT:"
+#define CONNECT_TO_DEVICE "CONNECT"
+#define CONNECTED_ACK_RECEIVE "CONNECTED"
 #define RP6_STARTED_PROGRAM "START_RP6"
 #define RP6_STOPPED_PROGRAM "STOP_RP6"
-#define SPEED_PROTOCOL_SEND_RECEIVE "SPEED:"
-#define SIDE_HIT_PROTOCOL_SEND_RECEIVE "SIDE_HIT:"
-#define CONTROLLER_DISCONNECTED "NO_CONTROLLER"
-#define IMPACT_PROTOCOL_SEND_RECEIVE "IMPACT:"
-#define DIST_DRIVEN_PROTOCOL_SEND_RECEIVE "DIST_DRIVEN:"
-#define ORIENTATION_PROTOCOL_SEND "ORIENTATION_YPR:"
+#define SPEED_PROTOCOL_SEND_RECEIVE "SPEED"
+#define SIDE_HIT_PROTOCOL_SEND_RECEIVE "SIDE_HIT"
+#define CONTROLLER_DISCONNECTED "CTRL_DISCONNECTED"
+#define CONTROLLER_CONNECTED "CTRL_CONNECTED"
+#define IMPACT_PROTOCOL_SEND_RECEIVE "IMPACT"
+#define DIST_DRIVEN_PROTOCOL_SEND_RECEIVE "DIST_DRIVEN"
+#define ORIENTATION_PROTOCOL_SEND "ORIENTATION_YPR"
 #define ORIENTATION_PROTOCOL_RECEIVE "ORIENTATION"
 #define HEARTBEAT_RP6 "HEARTBEAT"
 // ================================================================
 // ===         SERIAL COMMUNICATION CONTROLLER PROTOCOL         ===
 // ================================================================
-#define CONTROLLER_SPEED_PROTOCOL_SEND "SPEED:"
-#define CONTROLLER_STEER_PROTOCOL_SEND "X:"
+#define CONTROLLER_VALUES "CONTROLLER_VALUES"
 //=================================================================
 // ===         WIFI COMMUNICATION CONTROLLER PROTOCOL           ===
 // ================================================================
-#define CONTROLLER_VALUE_PROTOCOL_RECEIVE "ControllerValues:"
+#define CONTROLLER_VALUE_PROTOCOL_RECEIVE "ControllerValues"
 #define CONTROLLER_VALUE_PROTOCOL_REQUEST_SEND "GetControllerValues"
 //=================================================================
 // ===        WIFI COMMUNICATION BOARDCOMPUTER PROTOCOL         ===
@@ -59,13 +60,14 @@ String stringFromSerial = "";
 #define WEMOS_NUMBER 1
 //=================================================================
 
+String protocolStringToSend = "";
 String protocolToSendArray[5]; // 0 = speed; 1 = sideHit; 2 = impact; 3 = distDriven; 4 = orientation;
 
 long lastHeartbeatTimer = 0;
 int heartbeatInterval = 1000;
 
-
-int maxResponseTimeout = 1200;
+int maxNACKCounter = 3;
+int maxResponseTimeout = 200;
 bool receivedEndOfSerialString = false;
 
 typedef enum
@@ -86,12 +88,16 @@ typedef enum
   CTRL_CONNECTED,
   CTRL_DISCONNECTED
 } connectionController;
-
+char* ctrlConnectionStates[] = {CONTROLLER_CONNECTED, CONTROLLER_DISCONNECTED};
 
 
 connectionRP6 WemosToRP6Connection = RP6_DISCONNECTED;
+
 stateRP6 RP6State = STOPPED_PROGRAM;
-connectionController WemosToControllerConnection = CTRL_DISCONNECTED;
+stateRP6 lastRP6State = STOPPED_PROGRAM;
+
+connectionController WemosToCTRLConnection = CTRL_DISCONNECTED;
+connectionController lastWemosToCTRLConnection = CTRL_DISCONNECTED;
 
 // ================================================================
 // ===                   MPU VARIABLE SETUP                     ===
@@ -144,16 +150,12 @@ void dmpDataReady()
 const char* ssid = "Project";
 const char* password = "123456780";
 
-String tempMessage = "";
-String speedProtocol = "";
-String steerProtocol = "";
-
-bool protocolEndCharReceived = false;
+String controllerToRP6Protocol = "";
 
 long currentMillis = 0;
 long lastControllerReceiveTimer = 0;
 int maxControllerTimeoutTimer =  120;
-int requestInterval = 100;
+int controllerRequestInterval = 100;
 
 // ================================================================
 // ===                      MAIN SETUP                          ===
@@ -276,8 +278,18 @@ void loop()
     else return;
   }
 
+  /*
+         Reset the orentation values close to 0.
+  */
+  if (stringFromSerial == "RESET")
+  {
+    Serial.println(stringFromSerial);
+    stringFromSerial = "";
+    resetYPRValues();
+  }
+
   // Check if a Serial message is received that end with '@'.
   //bool receivedEndOfSerialString = getIncommingString(&stringFromSerial);
 
-  
+
 }

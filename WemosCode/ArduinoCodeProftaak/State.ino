@@ -1,122 +1,100 @@
-void actOnState(void)
+void actOnState_WemosToRP6Connection(void)
 {
   switch (WemosToRP6Connection)
   {
     case RP6_DISCONNECTED:
+    
+      RP6State = STOPPED_PROGRAM;
+      
       // Send a connect request to the RP6.
-      Serial.println(START_CHARACTER + CONNECT_TO_DEVICE + (String)RP6_NAME + END_CHARACTER);
+      makeProtocolStringWithValue(CONNECT_TO_DEVICE, WEMOS_NAME);
+
+      // if the the RP6 send a message back that confirms the connectionis opened.
+      // set the WemosToRP6Connection to connected so data can be exchanged.
+      if(timeoutHandler(CONNECTED_ACK_RECEIVE + VALUE_CHARACTER + (String)RP6_NAME) == 0)
+      {
+        WemosToRP6Connection = RP6_CONNECTED;
+      }
+      
       break;
+
     case RP6_CONNECTED:
-      /*
-        Send a heartbeatRequest to the RP6 every 1 second.
-      */
+
+      // Send a heartbeatRequest to the RP6 every 1 second.
       if ((millis() -  lastHeartbeatTimer) > heartbeatInterval)
       {
-        // Send the heartbeat request.
-        String heartBeatString = START_CHARACTER +  HEARTBEAT_RP6 + END_CHARACTER;
-        Serial.println(heartBeatString);
+        makeProtocolString(HEARTBEAT_RP6);
 
-        // Wait for a ACK to come back.
-        while (!receivedEndOfSerialString  && (millis() -  lastHeartbeatTimer) <= maxResponseTimeout)
+        // No response from the RP6 was received on the heartbeat request.
+        if (timeoutHandler(GENERAL_ACK) == 0)
         {
-          // Read incomming messages.
-          receivedEndOfSerialString = getIncommingString(&stringFromSerial);
+          WemosToRP6Connection = RP6_DISCONNECTED;
         }
-
-        // While the Incomming message is NACK or the the maximum timeout seconds hasn't passed (1.2 seconds)
-        // send the message again and check if the messag is ACK.
-        while (checkForValidRP6Message(stringFromSerial) == -1 && (millis() -  lastHeartbeatTimer) <= maxResponseTimeout)
-        {
-          Serial.println(heartBeatString);
-          getIncommingString(&stringFromSerial);
-          if (checkForValidRP6Message(stringFromSerial) == 1)
-          {
-            break;
-          }
-        }
-
-        // If the timeout time has passed send a message to the boardcomputer saying the RP6 is offline
-        // and thus stopped driving.
-        if ((millis() -  lastHeartbeatTimer) > maxResponseTimeout)
-        {
-          sendRP6StatusToBoardcomputer(START_CHARACTER + RP6States[RP6State] + END_CHARACTER);
-        }
-
+        
         lastHeartbeatTimer = millis();
+        receivedEndOfSerialString = false;
       }
 
-      /*
-         Update the values in the currentYPR array to the latest YPR values from the MPU.
-         The YPR values are then corrected with the offset values.
-      */
+      // Update the values in the currentYPR array to the latest YPR values from the MPU.
+      // The YPR values are then corrected with the offset values.
       if ((millis() -  lastYPRUpdate) > updateTime)
       {
         updateCurrentOrientation(currentYPR);
         lastYPRUpdate = millis();
       }
 
-      /*
-         Reset the orentation values close to 0.
-      */
-      if (stringFromSerial == "RESET")
+      // Receive the controller values and send these to the RP6.
+      if ((millis() - lastControllerReceiveTimer) > controllerRequestInterval)
       {
-        Serial.println(stringFromSerial);
-        stringFromSerial = "";
-        resetYPRValues();
+        switch (getControllerValues(&controllerToRP6Protocol))
+        {
+          case 0:
+            if (timeoutHandler(GENERAL_ACK) == -1)
+            {
+              WemosToRP6Connection = RP6_DISCONNECTED;
+            }
+            WemosToCTRLConnection = CTRL_CONNECTED;
+            break;
+
+          case -1:
+            WemosToCTRLConnection = CTRL_DISCONNECTED;
+            break;
+        }
+        receivedEndOfSerialString = false;
       }
 
-      /*
-         Receive the controller values and send these to the RP6.
-      */
-      if ((millis() - currentMillis) > requestInterval)
-      {
-        getControllerValues(&speedProtocol, &steerProtocol);
-        currentMillis = millis();
-      }
+      receivedEndOfSerialString = getIncommingString(&stringFromSerial);
 
-      /*
-         When the no controller messages are received for maxControllerTimeoutTimer amount of time
-         send a messsage to the RP6 that sais that the RP6 must stop driving.
-      */
-      if ((millis() - lastControllerReceiveTimer) > maxControllerTimeoutTimer)
-      {
-        String noControllerMessage = START_CHARACTER + CONTROLLER_DISCONNECTED + END_CHARACTER;
-        Serial.println(noControllerMessage);
-      }
-
-      /*
-         When a '@' is received from the Serial line a potentional protocol message is received.
-      */
+      // When a '@' is received from the Serial line a potentional protocol message is received.
       if (receivedEndOfSerialString)
       {
         if (checkForValidRP6Message(stringFromSerial) == 1)
         {
-          if (stringFromSerial == RP6_STARTED_PROGRAM || stringFromSerial == RP6_STOPPED_PROGRAM)
+          makeProtocolString(GENERAL_ACK);
+          Serial.println(controllerToRP6Protocol);
+          
+          if (stringFromSerial == RP6_STARTED_PROGRAM)
           {
-            sendRP6StatusToBoardcomputer(stringFromSerial);
+            RP6State = STARTED_PROGRAM;
           }
-
+          else if(stringFromSerial == RP6_STOPPED_PROGRAM)
+          {
+            RP6State = STOPPED_PROGRAM;
+          }
 
           //  When ORIENTATION is received it means all the crash data is received
           //  from the RP6 and can be send to the boardcomputer.
           if (stringFromSerial == ORIENTATION_PROTOCOL_RECEIVE)
           {
-            sendCrashData(protocolToSendArray, 5);
+            connectToBoardcomputerAndSendCrashData(protocolToSendArray, 5);
           }
         }
 
         // When the received message isn't in the protocol from RP6 to Wemos a NACK is send to the RP6.
-        if (checkForValidRP6Message(stringFromSerial) == 0)
+        else if (checkForValidRP6Message(stringFromSerial) == 0)
         {
-          String nackMessage = START_CHARACTER + GENERAL_NACK + END_CHARACTER;
-          Serial.println(nackMessage);
-        }
-
-        // If the received message was NACK, send the speed speed values again.
-        else if (checkForValidRP6Message(stringFromSerial) == -1)
-        {
-          Serial.println(speedProtocol);
-          Serial.println(steerProtocol);
+          makeProtocolString(GENERAL_NACK);
+          Serial.println(controllerToRP6Protocol);
         }
 
         // This method checks if the received message belongs to one of the recieved crach data messages
@@ -125,14 +103,26 @@ void actOnState(void)
 
         // Set the boolean to false to ensure these actions only happen again when a potantional valid
         // serial message is received.
-        protocolEndCharReceived = false;
+        receivedEndOfSerialString = false;
       }
       break;
   }
 }
 
-void changeState(void)
+void actOnState_RP6State(void)
 {
-  
+  if(lastRP6State != RP6State)
+  {
+    sendRP6StatusToBoardcomputer();
+    lastRP6State = RP6State;
+  }
 }
 
+void actOnState_WemosToCTRLConnection(void)
+{
+ if(lastWemosToCTRLConnection != WemosToCTRLConnection)
+  {
+    sendCTRLSatusToRP6();
+    lastWemosToCTRLConnection = WemosToCTRLConnection;
+  }
+}
