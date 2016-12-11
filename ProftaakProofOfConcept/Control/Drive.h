@@ -5,6 +5,10 @@
 #include "stdint.h"
 #include "internal/RP6Control_I2CMasterLib_internal.h"
 
+extern int baseSpeed;
+extern uint8_t rightSpeed;
+extern uint8_t leftSpeed;
+
 typedef struct
 {
 	uint8_t speedLeft;
@@ -19,6 +23,12 @@ int saveSpeedData(void);
 //Return:
 
 uint16_t calculateAverageSpeed(void);
+//
+//Pre:
+//Post:
+//Return:
+
+void drive(void);
 //
 //Pre:
 //Post:

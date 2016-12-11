@@ -6,9 +6,24 @@
 #include "stdint.h"
 #include "RP6Control_I2CMasterLib.h" 	
 
-int baseSpeed = 0;
-uint8_t rightSpeed = 0;
-uint8_t leftSpeed = 0;
+typedef enum
+{
+	DISCONNECTED,
+	CONNECTED
+} connection;
+
+typedef enum
+{
+	STARTED_PROGRAM,
+	STOPPED_PROGRAM
+} stateRP6;
+
+connection RP6ToWemosConnection = DISCONNECTED;
+stateRP6 RP6State = STOPPED_PROGRAM;
+
+long lastControllerValueReceived = 0;
+long lastHeartbeatRequestReceived = 0;
+int maxTimeout = 200;
 
 void writeSpeedOnLCD(char* buffer, int rightSpeed, int leftSpeed)
 {
@@ -69,180 +84,156 @@ int main(void)
 	initRP6Control(); 	
 	initI2C_RP6Lib();
 	I2CTWI_setTransmissionErrorHandler(I2C_transmissionError);
-
 	WDT_setRequestHandler(watchDogRequest); 
+	BUMPERS_setStateChangedHandler(buttenChanged); // Assign the bumper event to the function from Crash.h
+
+	// Initialize the following bits on ports to inputs.	
+	DDRC &= ~IO_PC2; // Right button	
+	DDRC &= ~IO_PC3; // Left button	
+	DDRC &= ~IO_PC5; // Back button
+	DDRA &= ~ADC5; 	// Force Sensitive Resistor (FSR)
+
+	crashInfo cInfo; // This is used to store te crash variables.
+
+	// Clear the buffers to make sure the you are working with a clean buffer.
+	memset(receiveBufferCommand, 0,  strlen(receiveBufferCommand));
+	memset(receiveBufferValue, 0,  strlen(receiveBufferValue));
 
 	// Set the distance values of the RP6 to 0;
-	// When being crashed the distence driven is measured.
+	// When crashed the distence driven is measured.
 	mleft_dist = 0;
 	mright_dist = 0;
-
-	// Right button
-	DDRC &= ~IO_PC2;
-	// Left button
-	DDRC &= ~IO_PC3; 
-	// Back button
-	DDRC &= ~IO_PC5; 
-	// Force Sensitive Resistor (FSR)
-	DDRA &= ~ADC5; 	
 
 	startStopwatch1(); // Timer for checking button state and measuring the FSR.
 	startStopwatch2(); // Timer for getting all the sensor data from the RP6 base board.
 	startStopwatch3(); // TImer for checking the start/stop program button.
 	startStopwatch4();
 
-	// Setup ACS power:
-	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_ACS_POWER, ACS_PWR_MED);
-	// Enable Watchdog for Interrupt requests:
-	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_WDT, true);
-	// Enable timed watchdog requests:
-	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_WDT_RQ, true);
-	
-	// Assign the bumper event to the function from Crash.h.
-	BUMPERS_setStateChangedHandler(buttenChanged); 
+	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_ACS_POWER, ACS_PWR_MED); // Setup ACS power	
+	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_WDT, true); // Enable Watchdog for Interrupt requests	
+	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_WDT_RQ, true); // Enable timed watchdog requests
 
-	crashInfo cInfo;
+	changeDirection(FWD); // Initial driving direction.
 
-	const int maxRecieveCommandBufferLength = 6;
-	const int maxRecieveValueBufferLength = 5;
-	char receivBufferCommand[maxRecieveCommandBufferLength];
-	char receivBufferValue[maxRecieveValueBufferLength];
+	uint8_t pressedButton = 0;
 
-	memset(receivBufferCommand, 0, maxRecieveCommandBufferLength);
-	memset(receivBufferValue, 0, maxRecieveValueBufferLength);
-
-	// User to inidcate if program runs or not.
-	uint8_t startProgram = 1;
-
-	// Initial driving direction.
-	changeDirection(FWD);
-
+	//====================================================================================
+	// Main loop program
+	//====================================================================================
 	while(true)
 	{
 		task_checkINT0();
 		task_I2CTWI();
 
-		// Check start/stop program button.
-		uint8_t pressedButton = checkReleasedKeyEvent();
-
-		if(startStopwatch3() > 50)
-		{		
-			switch(pressedButton)
-			{
-				case 1:
-					writeInteger(pressedButton, DEC);
-					writeChar('\n');
-					clearLCD();
-
-					// Set the startProgram value to indecate if the RP6 should do anything.
-					if(startProgram)
+		switch(RP6ToWemosConnection)
+		{	
+			// Wait for a connect request from the wemos.
+			case DISCONNECTED:
+				if(getIncomingSerialMessage() == 0)
+				{
+					if(waitForConnectRequest() == 0)
 					{
-						startProgram = false;
-						writeString("#STOPPING_PROGRAM");
-						writeChar('%');
-						writeStringLCD("Stopping Program");
+						RP6ToWemosConnection = CONNECTED;
 					}
-					else
-					{   startProgram = true;
-						writeString("#STARTING_PROGRAM");
-						writeChar('%');
-						writeStringLCD("Starting Program");
-					}					
-			}
-			setStopwatch3(0);
+				}
+				break;
+
+			// Exchange data with the wemos.
+			case CONNECTED:
+				// Check start/stop program button.
+				pressedButton = checkReleasedKeyEvent();
+
+				if(startStopwatch3() > 50)
+				{		
+					switch(pressedButton)
+					{
+						case 1:
+							writeInteger(pressedButton, DEC);
+							writeChar('\n');
+							clearLCD();
+
+							switch(RP6State)
+							{
+								case STARTED_PROGRAM:
+									RP6State = STOPPED_PROGRAM;
+									break;
+								case STOPPED_PROGRAM:
+									RP6State = STARTED_PROGRAM;
+									break;
+							}					
+					}
+					setStopwatch3(0);
+				}
+
+				// If the program is started.
+				switch(RP6State)
+				{
+					case STARTED_PROGRAM:	
+						task_checkButtonChanged();
+
+						// Check if one of our self added buttons was pressed.
+						// Read the FSR value, convert it to grams and add it to the crashInfo struct.
+		 				if(getStopwatch1() > 5)
+						{	
+							if(getIncomingSerialMessage() == 0)
+							{
+								int receivedMessageValid = interpretMessageForSpeedValues(&baseSpeed, &rightSpeed, &leftSpeed);
+
+								if(receivedMessageValid == 0)
+								{
+									makeProtocolMessage(GENERAL_ACK);
+									writeString();
+								}
+								else
+								{
+									makeProtocolMessage(GENERAL_NACK);
+									writeString();
+								}	
+							}
+							
+							setStopwatch1(0);
+						}
+
+						if(!pressed)
+						{
+							
+							drive();
+
+							// Update the variables representing the values of the base board sensors.
+							// Add the current speed values to an array as one speedData struct value.
+							if(getStopwatch2() > 500)
+							{
+								getAllSensors();
+								saveSpeedData();
+
+								setStopwatch2(0);
+							}
+						}
+
+						// One of the (self added) bumpers was pressed but the data wasn't formatted and 
+						// assigned to the crashInfo struct yet
+						//
+						// In that case, format and assign all the data and send it over Serial.
+						else if(!crashInfoWasSend && pressed)
+						{
+							crashInfoWasSend = assignCrashInfo(&cInfo);
+							sendCrashInfo(&cInfo);
+						} 
+
+						// If the crash data is assigned and send stop the driving of the RP6.
+						else if(crashInfoWasSend && pressed)
+						{
+							stop();
+						}
+						break;
+
+					// If the program isn't started or the program was stopped/paused, 
+					// Let the RP6 don't do anything.
+					case STOPPED_PROGRAM:
+						stop();
+						break;
+				}
+				break;	
 		}
-
-		// If the program is started.
-		switch(startProgram)
-		{
-			case true:	
-				task_checkButtonChanged();
-
-				// Check if one of our self added buttons was pressed.
-				// Read the FSR value, convert it to grams and add it to the crashInfo struct.
- 				if(getStopwatch1() > 5)
-				{	
-					if(getRCProtocolValuesToDrive(receivBufferCommand, receivBufferValue, maxRecieveCommandBufferLength, maxRecieveValueBufferLength) == 0)
-					{
-						int receivedMessageValid = interpretMessage(receivBufferCommand, receivBufferValue, maxRecieveCommandBufferLength, maxRecieveValueBufferLength, &baseSpeed, &rightSpeed, &leftSpeed);
-
-						if(receivedMessageValid = 0)
-						{
-							writeString("#ACK");
-							writeChar('%');
-						}
-						else if(receivedMessageValid == 1)
-						{
-							//sendCrashInfo(&cInfo);
-						}
-						else
-						{
-							writeString("#NACK");
-							writeChar('%');
-						}
-
-						if(leftSpeed > 150)
-						{
-							leftSpeed = 150;
-						}
-
-						if(rightSpeed > 150)
-						{
-							rightSpeed = 150;
-						}
-					}
-
-					writeSpeedOnLCD(receivBufferCommand, leftSpeed, rightSpeed);
-
-					setStopwatch1(0);
-				}
-
-				if(!pressed)
-				{
-					if(baseSpeed < 0)
-					{
-						changeDirection(BWD);
-					}
-					else
-					{
-						changeDirection(FWD);
-					}
-
-					moveAtSpeed(leftSpeed, rightSpeed);
-
-					// Update the variables representing the values of the base board sensors.
-					// Add the current speed values to an array as one speedData struct value.
-					if(getStopwatch2() > 500)
-					{
-						getAllSensors();
-						saveSpeedData();
-
-						setStopwatch2(0);
-					}
-				}
-
-				// One of the (self added) bumpers was pressed but the data wasn't formatted and 
-				// assigned to the crashInfo struct yet
-				//
-				// In that case, format and assign all the data and send it over Serial.
-				else if(!crashInfoWasSend && pressed)
-				{
-					crashInfoWasSend = assignCrashInfo(&cInfo);
-					sendCrashInfo(&cInfo);
-				} 
-
-				// If the crash data is assigned and send stop the driving of the RP6.
-				else if(crashInfoWasSend && pressed)
-				{
-					stop();
-				}
-				break;
-
-			// If the program isn't started or the program was stopped/paused, 
-			// Let the RP6 don't do anything.
-			case false:
-				stop();
-				break;
-		}	
 	}	
 }	

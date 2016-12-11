@@ -1,23 +1,87 @@
 #include "Serial.h"
+#include "RP6uart.h" 
+#include <string.h>
 
-#define CONTROLLER_RECEIVE_LEFT_RIGHT "X"
-#define CONTROLLER_RECEIVE_SPEED "SPEED"
-#define PROTOCOL_START_CHARACTER '#'
-#define PROTOCOL_END_CHARACTER '%'
-#define PROTOCOL_VALUE_CHARACTER ':'
-#define NACK_ON_CRASH_DATA_FROM_WEMOS "NACK"
+// ================================================================
+// ===           GENERAL SERIAL COMMUNICATION PROTOCOL          ===
+// ================================================================
+#define START_CHARACTER '#'
+#define END_CHARACTER '@'
+#define VALUE_CHARACTER ':'
+#define MULTI_VALUE_SEPARATOR ','
+// ================================================================
+// ===            SERIAL COMMUNICATION RP6 PROTOCOL             ===
+// ================================================================
+#define CONNECT_TO_DEVICE_RECEIVE "CONNECT"
+#define CONNECTED_ACK "CONNECTED"
+#define RP6_STARTED_PROGRAM "START_RP6"
+#define RP6_STOPPED_PROGRAM "STOP_RP6"
+#define SPEED_PROTOCOL_SEND "SPEED"
+#define SIDE_HIT_PROTOCOL_SEND_RECEIVE "SIDE_HIT"
+#define CONTROLLER_DISCONNECTED "CTRL_DISCONNECTED"
+#define CONTROLLER_CONNECTED "CTRL_CONNECTED"
+#define IMPACT_PROTOCOL_SEND_RECEIVE "IMPACT"
+#define DIST_DRIVEN_PROTOCOL_SEND_RECEIVE "DIST_DRIVEN"
+#define ORIENTATION_PROTOCOL_SEND "ORIENTATION_YPR"
+#define ORIENTATION_PROTOCOL_RECEIVE "ORIENTATION"
+#define HEARTBEAT_RP6 "HEARTBEAT"
+#define CONTROLLER_VALUES "CONTROLLER_VALUES"
+// ================================================================
+// ===               GENERAL COMMUNICATION PROTOCOL             ===
+// ================================================================
+#define GENERAL_ACK "ACK"
+#define GENERAL_NACK "NACK"
+#define RP6_NAME "RP6"
+#define WEMOS_NAME "WEMOS"
+#define WEMOS_NUMBER 1
+// ================================================================
+
+char receiveBufferCommand[20];
+char receiveBufferValue[20];
+const int sizeOfCommandBuffer = sizeof(receiveBufferCommand);
+const int sizeOfValueBuffer = sizeof(receiveBufferValue);
+
+char protocolMessageToSend[20];
 
 int START_READING_COMMAND = 0;
 int START_READING_VALUE = 0;
 int STOP_READING = 0;
 
-int getRCProtocolValuesToDrive(char* receiveBufferCommand, char* receiveBufferValue, const int receiveCommandBufferLength, const int receiveValueBufferLength)
+int indexOf(char* array, char value, const int sizeOfArray)
 {
+	if(array == NULL)
+	{
+		return -1;	
+	}
+	
+	int index = 0;
+	while(index < sizeOfArray && array[index] != value) index++;
+	return ((index == sizeOfArray) ? -1 : index);
+}
 
-	if(receiveBufferCommand == NULL || receiveBufferValue == NULL || receiveCommandBufferLength > 6 || receiveValueBufferLength > 5)
+void makeProtocolMessage(char* message)
+{
+	strcat(protocolMessageToSend, START_CHARACTER);
+	strcat(protocolMessageToSend, message);
+	strcat(protocolMessageToSend, END_CHARACTER);
+}
+
+void makeProtocolMessageWithValue(char* message, char* value)
+{
+	strcat(protocolMessageToSend, START_CHARACTER);
+	strcat(protocolMessageToSend, message);
+	strcat(protocolMessageToSend, VALUE_CHARACTER);
+	strcat(protocolMessageToSend, value);
+	strcat(protocolMessageToSend, END_CHARACTER);
+}
+
+int getIncomingSerialMessage(void)
+{/*char* receiveBufferCommand, char* receiveBufferValue, const int receiveCommandBufferLength, const int receiveValueBufferLength*/
+
+	/*if(receiveBufferCommand == NULL || receiveBufferValue == NULL)
 	{
 		return -1;
-	}
+	}*/
 	
 	char receivedChar;
 	uint8_t nrOfCharsReceived = getBufferLength();
@@ -25,26 +89,27 @@ int getRCProtocolValuesToDrive(char* receiveBufferCommand, char* receiveBufferVa
 	// check if no data was received
 	if (nrOfCharsReceived == 0) return -1;
 	
-	char storeReceiveBufferCommand[receiveCommandBufferLength];
-	char storeReceiveBufferValue[receiveValueBufferLength];
+	char storeReceiveBufferCommand[sizeOfCommandBuffer];
+	char storeReceiveBufferValue[sizeOfValueBuffer];
 	
 	int commandWriteIndex = 0;
 	int valueWriteIndex = 0;
 
 	while(getBufferLength() > 0)
 	{
-		if(commandWriteIndex < receiveCommandBufferLength && valueWriteIndex < receiveValueBufferLength)
+		if(commandWriteIndex < sizeOfCommandBuffer && valueWriteIndex < sizeOfValueBuffer)
 		{
 			receivedChar = readChar(); // Char read from the buffer.
 
-			// Was the last read character in the buffer a '%'? 
+			// Was the last read character in the buffer a '@'? 
 			// If yes then stop reading and interpret the message/act on the message.
-			if(receivedChar == PROTOCOL_END_CHARACTER)
+			if(receivedChar == END_CHARACTER)
 			{
 				START_READING_COMMAND = 0;
 				START_READING_VALUE = 0;
 				STOP_READING = 1;
 				
+				// Coppy the received message to the command and value char*.
 				strcpy(receiveBufferCommand, storeReceiveBufferCommand);
 				strcpy(receiveBufferValue, storeReceiveBufferValue);
 
@@ -61,7 +126,7 @@ int getRCProtocolValuesToDrive(char* receiveBufferCommand, char* receiveBufferVa
 			// Was the last read character in the buffer a ':'? 
 			// If yes then set the boolean START_READING_VALUE to true. This means the value array will start filling.
 			// The value can be a digit with a maximum of 3 digits. Max value is 999. 
-			if(receivedChar == PROTOCOL_VALUE_CHARACTER)
+			if(receivedChar == VALUE_CHARACTER)
 			{
 				START_READING_COMMAND = 0;
 				START_READING_VALUE = 1;
@@ -78,7 +143,7 @@ int getRCProtocolValuesToDrive(char* receiveBufferCommand, char* receiveBufferVa
 			// Was the last read character in the buffer a '#'? 
 			// If yes then set the boolean START_READING_COMMAND to true. This means the command array will start filling.
 			// Also clear all the arrays to be sure only the currend command is used while interpreting.
-			if(receivedChar == PROTOCOL_START_CHARACTER)
+			if(receivedChar == START_CHARACTER)
 			{
 				START_READING_COMMAND = 1;
 				START_READING_VALUE = 0;
@@ -87,8 +152,10 @@ int getRCProtocolValuesToDrive(char* receiveBufferCommand, char* receiveBufferVa
 				commandWriteIndex = 0;
 				valueWriteIndex = 0;
 
-				memset(storeReceiveBufferCommand, 0, receiveCommandBufferLength);
-				memset(storeReceiveBufferValue, 0, receiveValueBufferLength);
+				// Make sure the temporery command and value strings are clean.
+				// Otherwise string could get mixesd with each other.
+				memset(storeReceiveBufferCommand, 0, sizeOfCommandBuffer);
+				memset(storeReceiveBufferValue, 0, sizeOfValueBuffer);
 			}
 		}
 		else
@@ -100,21 +167,38 @@ int getRCProtocolValuesToDrive(char* receiveBufferCommand, char* receiveBufferVa
 	return -1;
 }
 
-int interpretMessage(char* receivedCommand, char* receivedValue, 
-					const int receiveCommandBufferLength, const int receiveValueBufferLength,
-					int* baseSpeed, uint8_t* rightSpeed, uint8_t* leftSpeed)
-{	
-	if(receivedCommand == NULL || receivedValue == NULL
-		|| baseSpeed == NULL || rightSpeed == NULL || leftSpeed == NULL)
+int interpretMessageForSpeedValues(int* baseSpeed, uint8_t* rightSpeed, uint8_t* leftSpeed)
+{/*har* receivedCommand, char* receivedValue, 
+					const int receiveCommandBufferLength, const int receiveValueBufferLength,*/
+	if(baseSpeed == NULL || rightSpeed == NULL || leftSpeed == NULL)
 	{
 		return -1;
 	}
 
+	int indexOfValueSeparator = indexOf(receiveBufferValue, MULTI_VALUE_SEPARATOR, sizeOfValueBuffer);
+
+	// Copy the first value of the received value to the speedValueString and add a null terminator.
+	char* speedValueString = strncpy(speedValueString, receiveBufferValue, indexOfValueSeparator+1);
+	speedValueString[indexOfValueSeparator+2] = '\0';
+
+	// Shift the whole receiveBufferValue to the left to get the steer value of received value. 
+	char* steerValueString = NULL;
+	for(int i = 0; i < indexOfValueSeparator+1; i++)
+	{
+		for(int k = 0; k < sizeOfValueBuffer; k++)
+		{
+			steerValueString[k] = receiveBufferValue[k+1];
+		}
+	}
+
+	int speedValue = atoi(speedValueString);
+	uint8_t steerValue = atoi(steerValueString);
 	// Convert the value char array to an int.
-	int value = atoi(receivedValue);
  	
-	if(strcmp(receivedCommand, CONTROLLER_RECEIVE_LEFT_RIGHT) == 0)
-	{		
+	if(strcmp(receiveBufferCommand, CONTROLLER_VALUES) == 0)
+	{	
+		*baseSpeed = speedValue;
+
 		int baseSpeedToUse = *baseSpeed;
 	
 		if(baseSpeedToUse < 0)
@@ -122,17 +206,17 @@ int interpretMessage(char* receivedCommand, char* receivedValue,
 			baseSpeedToUse = baseSpeedToUse * -1;
 		}
 		
-		int relativeValueOfValueFromBaseSpeed = baseSpeedToUse*value/100;
+		int relativeValueOfValueFromBaseSpeed = baseSpeedToUse*steerValue/100;
 		
 		if(baseSpeedToUse == 0)
 		{
-			if(value < 0)
+			if(steerValue < 0)
 			{
-				*rightSpeed = value * -1;
+				*rightSpeed = steerValue * -1;
 			}
-			else if ( value > 0)
+			else if ( steerValue > 0)
 			{
-				*leftSpeed = value;
+				*leftSpeed = steerValue;
 			}
 			else
 			{
@@ -147,12 +231,12 @@ int interpretMessage(char* receivedCommand, char* receivedValue,
 			//
 			//Then calculate the percentage of the current base speed to 
 			//calculate the new left and right speed.
-			if(value > 0)
+			if(steerValue > 0)
 			{
 				*rightSpeed = baseSpeedToUse - relativeValueOfValueFromBaseSpeed;
 				*leftSpeed =  baseSpeedToUse;
 			}
-			else if (value < 0)
+			else if (steerValue < 0)
 			{
 				*rightSpeed = baseSpeedToUse;
 				*leftSpeed =  baseSpeedToUse + relativeValueOfValueFromBaseSpeed;
@@ -164,41 +248,28 @@ int interpretMessage(char* receivedCommand, char* receivedValue,
 			}
 		}
 
-		memset(receivedCommand, 0, receiveCommandBufferLength);
-		memset(receivedValue, 0, receiveValueBufferLength);
+		// Clear the buffers to make sure the you are working with a clean buffer.
+		memset(storeReceiveBufferCommand, 0, sizeOfCommandBuffer);
+		memset(storeReceiveBufferValue, 0, sizeOfValueBuffer);
 
 		return 0;
-	}
-	else if (strcmp(receivedCommand, CONTROLLER_RECEIVE_SPEED) == 0)
-	{
-		writeString(receivedCommand);
-		writeInteger(*baseSpeed, DEC);
-		writeInteger(value, DEC);
-		writeString("\n");
-
-		*baseSpeed = value; // set the base speed between -100 and 100.
-
-		/*// When the value is less than 0 it has to be multiplied by -1 to 
-		// get a positve value. This way the right and left speed are ready for use.
-		if(value < 0)
-		{
-			value = value * -1;
-		}
-
-		*rightSpeed = 2 * value;
-		*leftSpeed = 2 * value;*/
-
-		memset(receivedCommand, 0, receiveCommandBufferLength);
-		memset(receivedValue, 0, receiveValueBufferLength);
-
-		return 0;
-	}
-	else if (strcmp(receivedCommand, NACK_ON_CRASH_DATA_FROM_WEMOS) == 0)
-	{
-		return 1;
 	}
 	else
 	{	
 		return -1;
 	}
+}
+
+int waitForConnectRequest(void)
+{
+	if(strcmp(receiveBufferCommand, CONNECT_TO_DEVICE_RECEIVE) == 0)
+	{
+		makeProtocolMessageWithValue(CONNECTED_ACK, RP6_NAME);
+		writeString(protocolMessageToSend);
+		memset(protocolMessageToSend, 0, sizeof(protocolMessageToSend));
+
+		return 0;
+	}
+
+	return -1;
 }
