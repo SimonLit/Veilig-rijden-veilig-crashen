@@ -10,10 +10,10 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include "handshake/handshake.h"
 #include "serverSocket.h"
 #include "../datastruct/datastruct.h"
 #include "../file_handeling/file_handeling.h"
-#include "../handshake/handshake.c"
 
 
 #define BACKLOG 10 //How many pending connections queue will hold
@@ -114,8 +114,6 @@ int setupCommunicationServer(const char* node, const char* service, int* socketn
 int acceptinConnectionsOnServer(int sockfd)
 {
     printf("Starting listen on socket %d\n", sockfd);
-    while(1)
-    {
     sin_size = sizeof(their_addr);
     new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
     if(new_fd == -1)
@@ -127,22 +125,24 @@ int acceptinConnectionsOnServer(int sockfd)
     if(!fork())
     {
         close(sockfd);
-        returnValue = verificationHandshake(new_fd, &verified);
+        returnValue = verificationHandshake(new_fd);
         if(returnValue == -1 || verified == false)
         {
             printf("Connection not verified.\n");
+            close(new_fd);
         }
         else
         {
+            verified = true;
+            handshakeReceiveData(new_fd);
+            close(new_fd);
             //Do stuff with verified connection
             //Wait for receiving data or time out
         }
         close(new_fd);
-        printf("Closed connection.\n");
         exit(0);//Exit fork
     }
     close(new_fd);  
-    }
     return 0;
  }
 

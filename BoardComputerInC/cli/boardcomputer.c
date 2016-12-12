@@ -2,12 +2,13 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <stdlib.h>
-#include "serversocket/serverSocket.h"
 #include "serial/sercom.h"
+#include "handshake/handshake.h"
+#include "serversocket/serverSocket.h"
 
 #define NodeInternal "10.10.0.1"
 #define ServiceInternal "5000"
-#define NodeExternal "192.168.1.100"
+#define NodeExternal "192.168.1.101"
 #define SeriveExternal "5500"
 
 void networkFork(int fileadressInternal, int fileadressExternal);
@@ -18,14 +19,17 @@ int main(int argc, char const *argv[])
     int internalNetwork = 0;
     int extrenalNetwork = 0;
 	setupCommunicationServer(NodeInternal, ServiceInternal, &internalNetwork);
-    setupCommunicationServer(NodeExternal, SeriveExternal, &extrenalNetwork);
+    //setupCommunicationServer(NodeExternal, SeriveExternal, &extrenalNetwork);
 	pid_t pid;
 	pid = fork();
 	if(pid == 0)
-		networkFork(internalNetwork, extrenalNetwork);
+	{
+		networkFork(internalNetwork, extrenalNetwork);	
+	}
 	else
-		mainFork();	
-	printf("Done with program\n");	
+	{
+		mainFork();				
+	}
     return 0;
 }
 
@@ -34,12 +38,22 @@ void networkFork(int fileadressInternal, int fileadressExternal)
 	pid_t pid;
 	pid = fork();
 	if(pid == 0)
-		acceptinConnectionsOnServer(fileadressInternal);   
+	{
+		while(1)
+		{
+			acceptinConnectionsOnServer(fileadressInternal);   		
+		}
+	}
 	else
-		acceptinConnectionsOnServer(fileadressExternal);	
+	{
+		//acceptinConnectionsOnServer(fileadressExternal);	
+	}
 }
 
 void mainFork(void)
 {
-	serialCommunicatie();//Reads out buffer and (respons to do)
+	while(1)
+	{
+		serialCommunicatie();//Reads out buffer and (respons to do)		
+	}
 }

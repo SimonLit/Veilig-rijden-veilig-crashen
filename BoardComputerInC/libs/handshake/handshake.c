@@ -18,80 +18,119 @@
 #define SERVERNAME "BOARDCOMPUTER";
 #define SERVERID 1;
 
+#define startOfMessageChar '#'
+#define endOfMessageChar '@'
+#define ackString "ACK"
+
 char buffer[256];
-int n = 0;
+int j = 0;
 bool waitingForAck = false;
 char temp[25];
 int returnValue;
+char bufferRead;
+int ackValue;
 
-int verificationHandshake(int sockfd, bool* verfied)
+int findStartOfMessage(const char* message)
 {
-	memset(buffer, 0, sizeof(buffer));
-	//Send connected to server, serverId
-	returnValue = send(sockfd, "#BOARD1,CONNECTED,REQUEST@", 25, 0);
-    if(returnValue == -1)
-    	perror("Send");
-    waitingForAck = true;
-	//Wait for ACK with name,ID
-    while(waitingForAck)
-    {
-        n = read(sockfd, buffer, 255);
-        printf("Message is : %s\n", buffer);
-        if(n < 0)
-            perror("read");
-        for(int i = 0; i <256; i++)
-        {
-        	if(strncmp(buffer[i], "#", 1) == 0)
-        	{
-        		waitingForAck = false;
-        		*verfied = true; //Temp
-        		memset(buffer, 0, sizeof(buffer));
-        		//Cut the message up and save it
-    			//Work with the return values
-    			//If verified save data from sender for futher use
-        	}
-        	else
-        	{
-
-        	}
-        }
-    }
-    if(*verfied)
-    {
-    	//append message and send back
-    	returnValue = send(sockfd, "#VERIFIED@", 9,0);
-    	if(returnValue == -1)
-    		perror("Send");
-    	memset(buffer, 0, sizeof(buffer));
-    	waitingForAck = true;
-    	while(waitingForAck)
-    	{
-    		n = read(sockfd, buffer, 255);
-    		printf("Message is : %s\n", buffer);
-    		if(n < 0)
-    			perror("read");
-    		for(int i = 0; i < 256; i++)
-    		{
-    			if(strncmp(buffer[i], "#", 1) == 0)
-    			{
-    				waitingForAck = false;
-    				//Cut up buffer and read the ack signal
-					    			
-    			}
-    		}
-    	}
-    }
-    else//Not verified
-    {
-    	returnValue = send(sockfd, "#NOT VERIFIED@", 14,0);
-    	if(returnValue == -1)
-    		perror("send");
-    	return -1;
-    }
-	return 0;
+	//char received[] = message;
+	for(int i = 0; i < 256; i++)
+	{
+	//	if(received[i] == startOfMessageChar)
+			return i;
+	}
+	return -1;
 }
 
-int handshakeReceiveData(int sockfd, DATAPACKET* senderData)
+int findEndOfMessage(const char* message)
+{
+	//char received[] = message;
+	for (int i = 0; i < 256; ++i)
+	{
+	//	if(received[i] == endOfMessageChar)
+			return i;
+	}
+	return -1;
+}
+
+int lengthOfMessage(const char* message)
+{
+	int startPos = 0;
+	int endPos = 0;
+	startPos = findStartOfMessage(message);
+	if(startPos == -1)
+		return -1;
+	endPos = findEndOfMessage(message);
+	if(endPos == -1)
+		return -1;
+	return (endPos - startPos);
+}
+
+int waitForAckFromClient(int sockfd)
+{
+	bool ack = false;
+	memset(buffer, 0, sizeof(buffer));
+	while(ack == false)
+	{
+		j = read(sockfd, buffer, 255);
+		printf("Wait for ACK, message is : %s\n", buffer);
+		if(j < 0)
+			perror("read");
+		if(strcmp(buffer, ackString) == 0)
+			ack = true;
+	}
+	return 1;
+}
+
+//Input enum, wich kind of message to expect
+int readBufferForMessageAndVerify(int sockfd)
+{
+	memset(buffer, 0, sizeof(buffer));
+	bool messageReceived = false;
+	while(messageReceived == false)
+	{
+
+	}
+	return 1;
+}
+
+int verificationHandshake(int sockfd)
+{
+	returnValue = send(sockfd, "#BOARDPC|CONNECTED@", 19, 0);
+    if(returnValue == -1)
+    	perror("Send");
+    ackValue = waitForAckFromClient(sockfd);
+    if(ackValue != 1)
+    {
+    	//Do something, resent otherwise kill connection
+    }
+    returnValue = send(sockfd, "#BOARDPC|REQUEST|VERIFICATION@", 29, 0);
+    if(returnValue == -1)
+    	perror("send");
+    ackValue = -5;
+    ackValue = waitForAckFromClient(sockfd);
+    if(ackValue != 1)
+    {
+    	//Do something
+    }
+    returnValue = readBufferForMessageAndVerify(sockfd);
+    if(returnValue != 1)
+    {
+    	//Do something
+    }
+    returnValue = send(sockfd, "#BOARDPC|ACK@", 12, 0);
+    if(returnValue == -1)
+    	perror("send");
+    //Send verified or not verified
+    ackValue = -5;
+    ackValue = waitForAckFromClient(sockfd);
+    if(ackValue != 1)
+    {
+    	//Do something
+    }
+    return 0;
+}
+
+int handshakeReceiveData(int sockfd)
 {
 	//Send to verified connection make request
 	//Wait for ACK received message, and response with request
