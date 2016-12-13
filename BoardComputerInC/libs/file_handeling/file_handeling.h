@@ -6,11 +6,11 @@
 
 
 int createFile(char* filename);
-int wirteDataStructToFile(char* filename, DATAPACKET value);
-int writeDataStructArrayToFile(char* filename, DATAPACKET* array, int lengthArray, int* newLengthArray);
+int wirteDataStructToFile(char* filename, const DATAPACKET* value);
+int writeDataStructArrayToFile(char* filename, DATAPACKET* array, int amountOfDatapackets);
 int getNrOfDatStructs(char* filename);
-int readDataStructFromFile(char* filename, DATAPACKET* info, int pos, SENDERS s, int ipAdress);
-int readAllDataFromFile(char* filename, int number);
+int readDataStructFromFile(char* filename, DATAPACKET* info, int pos);
+int readAllDataFromFile(char* filename, DATAPACKET* array, int number);
 int removeFile(char* filename);
 
 #endif
