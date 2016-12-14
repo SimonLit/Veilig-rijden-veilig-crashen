@@ -25,8 +25,6 @@ int getControllerValues(String* controllerToRP6Protocol)
 
   if (!client_Controller.connect(host_Controller, httpPort_Controller))
   {
-    makeProtocolString(CONTROLLER_DISCONNECTED);
-    Serial.println(protocolStringToSend);
     return -1;
   }
 
@@ -103,7 +101,6 @@ int connectToBoardcomputerAndSendCrashData(String CrashDataProtocol[], int numbe
 
   // Make a connection with the boardcomputer.
   if (!client_sendCrashData.connect(host_sendCrashData, httpPort_sendCrashData)) {
-    Serial.println("client_sendCrashData failed");
     return -1;
   }
 
@@ -148,6 +145,9 @@ int connectToBoardcomputerAndSendCrashData(String CrashDataProtocol[], int numbe
   }
 }
 
+/*
+ * Send the crash data to the boardcomputer.
+ */
 int sendCrashData(String CrashDataProtocol[], int numberOfCrashDataDataToSend)
 {
   int nackCounter = 0;

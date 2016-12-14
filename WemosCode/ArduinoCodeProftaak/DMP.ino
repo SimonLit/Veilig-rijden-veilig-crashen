@@ -57,18 +57,18 @@ void getYPR(void)
 }
 
 /*
- * Assignt the YPR values from the DMP, minus the YPR offsets to the YPR int array.
- * 
- */
+   Assignt the YPR values from the DMP, minus the YPR offsets to the YPR int array.
+*/
 void updateCurrentOrientation(int* YPRArrayToUpdate)
 {
   DMPRoutine();
-  
+
   YPRArrayToUpdate[0] = (ypr[0] * 180 / M_PI) - yawOffsetValue;
   YPRArrayToUpdate[1] = (ypr[1] * 180 / M_PI) - pitchOffsetValue;
   YPRArrayToUpdate[2] = (ypr[2] * 180 / M_PI) - rollOffsetValue;
 }
 
+// THIS CAN BE DELETED WHEN THE PROGRAM WORKS.
 void prinYawPitchRoll(void)
 {
   getYPR();
@@ -83,11 +83,11 @@ void prinYawPitchRoll(void)
 }
 
 /*
- * Check if the values of the MPU are stabalized or not.
- * 
- * Return: true if the MPU is stable.
- *         false if the MPU isn't stable yet.
- */
+   Check if the values of the MPU are stabalized or not.
+
+   Return: true if the MPU is stable.
+           false if the MPU isn't stable yet.
+*/
 bool getMPUIsStabilized(void)
 {
   uint8_t yaw1 = 0;
@@ -99,10 +99,10 @@ bool getMPUIsStabilized(void)
   uint8_t roll2 = 0;
 
   uint8_t errorMargin = 3;
-  
+
   DMPRoutine();
 
-  if((millis() -  lastMillisForCalibration) <  calibrationWaitTime/3)
+  if ((millis() -  lastMillisForCalibration) <  calibrationWaitTime / 3)
   {
     getYPR();
     yaw1 = ypr[0] * 180 / M_PI;
@@ -138,15 +138,15 @@ bool getMPUIsStabilized(void)
     {
       return false;
     }
-    
+
     lastMillisForCalibration = millis();
   }
   return false;
 }
 
 /*
- * Assign the YPR offsets to the current values of the MPU.
- */
+   Assign the YPR offsets to the current values of the MPU.
+*/
 void resetYPRValues(void)
 {
   DMPRoutine();

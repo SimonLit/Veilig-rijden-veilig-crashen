@@ -38,9 +38,6 @@ String stringFromSerial = "";
 #define ORIENTATION_PROTOCOL_SEND "ORIENTATION_YPR"
 #define ORIENTATION_PROTOCOL_RECEIVE "ORIENTATION"
 #define HEARTBEAT_RP6 "HEARTBEAT"
-// ================================================================
-// ===         SERIAL COMMUNICATION CONTROLLER PROTOCOL         ===
-// ================================================================
 #define CONTROLLER_VALUES "CONTROLLER_VALUES"
 //=================================================================
 // ===         WIFI COMMUNICATION CONTROLLER PROTOCOL           ===
@@ -147,8 +144,10 @@ void dmpDataReady()
 // ================================================================
 // ===                      WIFI VARIABLES                      ===
 // ================================================================
-const char* ssid = "Project";
-const char* password = "123456780";
+//const char* ssid = "Project";
+//const char* password = "123456780";
+const char* ssid = "eversveraa";
+const char* password = "qwerty69";
 
 String controllerToRP6Protocol = "";
 
@@ -291,5 +290,7 @@ void loop()
   // Check if a Serial message is received that end with '@'.
   //bool receivedEndOfSerialString = getIncommingString(&stringFromSerial);
 
-
+  actOnState_WemosToRP6Connection();
+  actOnState_RP6State();
+  actOnState_WemosToCTRLConnection();
 }

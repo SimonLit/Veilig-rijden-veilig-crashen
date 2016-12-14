@@ -103,7 +103,7 @@ int checkForValidControllerMessage(String message)
    Return: 0 if the messageToCheckFor was received.
           -1 if to many times NACK was received or it took to long to receive a response.
 */
-int timeoutHandler(String messageToCheckFor)
+int timeoutHandlerWemosToRP6(String messageToCheckFor)
 {
   int nackCounter = 0;
   int timeoutTimer = millis();
