@@ -1,10 +1,13 @@
 #include "RP6ControlLib.h"
 #include "RP6I2CmasterTWI.h"
+#include "RP6Control_I2CMasterLib.h" 	
+#include "ProtocolDefines.h"
+#include "Tools.h"
+#include "SerialReader.h"
+#include "InterpretSerial.h"
 #include "Drive.h"
 #include "Crash.h"
-#include "Serial.h"
-#include "stdint.h"
-#include "RP6Control_I2CMasterLib.h" 	
+#include <stdint.h>
 
 typedef enum
 {
@@ -25,6 +28,7 @@ long lastControllerValueReceived = 0;
 long lastHeartbeatRequestReceived = 0;
 int maxTimeout = 200;
 
+// Show the speed of the tires on the LCD.
 void writeSpeedOnLCD(char* buffer, int rightSpeed, int leftSpeed)
 {
 	clearLCD();
@@ -95,9 +99,14 @@ int main(void)
 
 	crashInfo cInfo; // This is used to store te crash variables.
 
+	char receiveBufferCommand[20];
+	char receiveBufferValue[20];
+	const int sizeOfCommandBuffer = sizeof(receiveBufferCommand); // 
+	const int sizeOfValueBuffer = sizeof(receiveBufferValue);     // There two sizes include '\0'.
+
 	// Clear the buffers to make sure the you are working with a clean buffer.
-	memset(receiveBufferCommand, 0,  strlen(receiveBufferCommand));
-	memset(receiveBufferValue, 0,  strlen(receiveBufferValue));
+	memset(receiveBufferCommand, 0,  sizeOfCommandBuffer);
+	memset(receiveBufferValue, 0,  sizeOfValueBuffer);
 
 	// Set the distance values of the RP6 to 0;
 	// When crashed the distence driven is measured.
@@ -129,9 +138,9 @@ int main(void)
 		{	
 			// Wait for a connect request from the wemos.
 			case DISCONNECTED:
-				if(getIncomingSerialMessage() == 0)
+				if(getIncomingSerialMessage(receiveBufferCommand, receiveBufferValue, sizeOfCommandBuffer, sizeOfValueBuffer) == 0)
 				{
-					if(waitForConnectRequest() == 0)
+					if(waitForConnectRequest(receiveBufferCommand) == 0)
 					{
 						RP6ToWemosConnection = CONNECTED;
 					}
@@ -175,20 +184,11 @@ int main(void)
 						// Read the FSR value, convert it to grams and add it to the crashInfo struct.
 		 				if(getStopwatch1() > 5)
 						{	
-							if(getIncomingSerialMessage() == 0)
+							if(getIncomingSerialMessage(receiveBufferCommand, receiveBufferValue, sizeOfCommandBuffer, sizeOfValueBuffer) == 0)
 							{
-								int receivedMessageValid = interpretMessageForSpeedValues(&baseSpeed, &rightSpeed, &leftSpeed);
+								interpretMessageForSpeedValues(receiveBufferCommand, receiveBufferValue, sizeOfCommandBuffer, 
+																						  sizeOfValueBuffer, &baseSpeed, &rightSpeed, &leftSpeed);
 
-								if(receivedMessageValid == 0)
-								{
-									makeProtocolMessage(GENERAL_ACK);
-									writeString();
-								}
-								else
-								{
-									makeProtocolMessage(GENERAL_NACK);
-									writeString();
-								}	
 							}
 							
 							setStopwatch1(0);

@@ -1,4 +1,10 @@
 #include "Crash.h" 
+#include "Drive.h"
+#include "RP6I2CmasterTWI.h"
+#include "RP6uart.h"
+#include "Adc.h"
+#include "RP6Control_I2CMasterLib.h"
+#include "Tools.h"
 
 //====================================================================================
 // Crash
@@ -14,19 +20,6 @@ uint8_t lastButton5State = false;
 
 // Used for the converting from Newton to grams.
 float earthAcceleration = 9.81; 
-
-int16_t map(int16_t valueToMap, int16_t in_min, int16_t in_max, int16_t out_min, int16_t out_max)
-{
-	return (valueToMap - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
-
-uint16_t mapPressureSensorValueToNewton(void)
-{
-	// The sensitivity actualy ranges from 0.2 to 20 instead of 0 - 20.
-	// But because this is such a small difference it is much more convenient
-	// To avoid the use of decimal numbers. 
-	return map(readADC(ADC_5), 0, 1023, 0, 20); 
-}
 
 int assignCrashInfo(crashInfo* cInfo)
 {
@@ -48,7 +41,7 @@ int assignCrashInfo(crashInfo* cInfo)
 
 	cInfo->speed = speedCMPerSecond;
 	cInfo->sideHit = hitSide;
-	cInfo->impactGram = (mapPressureSensorValueToNewton()/earthAcceleration) * 1000;
+	cInfo->impactGram = (mapPressureSensorValueToNewton(readADC(ADC_5))/earthAcceleration) * 1000;
 	cInfo->distanceDrivenInCM = ((mleft_dist * (ENCODER_RESOLUTION/10)) + (mright_dist * (ENCODER_RESOLUTION/10))) / 2;
 
 	return 0;
