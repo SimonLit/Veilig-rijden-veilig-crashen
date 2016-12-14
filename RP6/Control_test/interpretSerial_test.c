@@ -25,7 +25,7 @@ static void test_if_speeds_are_adjusted_correctly_interal_no_rounding(void)
 {
 	setUp();
 
-	TEST_ASSERT_EQUAL(0, interpretMessageForSpeedValues("CONTROLLER_VALUES", "50,50", 20, 20, &baseSpeed, &rightSpeed, &leftSpeed));
+	TEST_ASSERT_EQUAL(0, interpretMessageForSpeedValues("CONTROLLER_VALUES", "50,50", &baseSpeed, &rightSpeed, &leftSpeed));
 	TEST_ASSERT_EQUAL(50, baseSpeed);
 	TEST_ASSERT_EQUAL(25, rightSpeed);
 	TEST_ASSERT_EQUAL(50, leftSpeed);
@@ -35,7 +35,7 @@ static void test_if_speeds_are_adjusted_correctly_interal_rounding(void)
 {
 	setUp();
 
-	TEST_ASSERT_EQUAL(0, interpretMessageForSpeedValues("CONTROLLER_VALUES", "50,25", 20, 20, &baseSpeed, &rightSpeed, &leftSpeed));
+	TEST_ASSERT_EQUAL(0, interpretMessageForSpeedValues("CONTROLLER_VALUES", "50,25", &baseSpeed, &rightSpeed, &leftSpeed));
 	TEST_ASSERT_EQUAL(50, baseSpeed);
 	TEST_ASSERT_EQUAL(38, rightSpeed);
 	TEST_ASSERT_EQUAL(50, leftSpeed);

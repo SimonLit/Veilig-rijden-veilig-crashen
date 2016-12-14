@@ -11,8 +11,7 @@ int indexOf(char* array, char value, const int sizeOfArray);
 //Return: -1 if array is NULL or sizeOfArray < 0.
 //		   On succes the index of value is returned.
 
-int interpretMessageForSpeedValues(char* receiveBufferCommand, char* receiveBufferValue, 
-					const int sizeOfCommandBuffer, const int sizeOfValueBuffer,int* baseSpeed, uint8_t* rightSpeed, uint8_t* leftSpeed);
+int interpretMessageForSpeedValues(char* receiveBufferCommand, char* receiveBufferValue, int* baseSpeed, uint8_t* rightSpeed, uint8_t* leftSpeed);
 // The receivedMessageLength is the maximum length of the buffer.
 //
 //Pre: the receivedMessage, baseSpeed, rightSpeed and leftSpeed pointer is not NULL.
@@ -22,5 +21,22 @@ int interpretMessageForSpeedValues(char* receiveBufferCommand, char* receiveBuff
 //			receivedMessageLength was greater than the buffer (=10).
 //		   0 on succes. 
 //		   1 NACK is recieved.
+
+int waitForConnectRequest(char* receiveBufferCommand, char* receiveBufferValue);
+//
+//Pre: -
+//Post: The message that came from the wemos over serial is compared to the 
+// 	    connect request from the protocol. If the message was the connect request.
+//		a connect ACK is send to the wemos.
+//Return: 0 if message was the connect reqeust from the wemos.	
+//		 -1 if message wasn't the connect reqeust from the wemos.
+
+int checkForHeartbeat(char* receiveBufferCommand);
+//
+// Pre: -
+// Post: If receiveBufferCommand was the heartbeat request from the wemos
+//       ACK is send back to the wemos.
+// Return: -1 if receiveBufferCommand is NULL or wasn't a heartbeat request.
+//			0 on succes.
 
 #endif

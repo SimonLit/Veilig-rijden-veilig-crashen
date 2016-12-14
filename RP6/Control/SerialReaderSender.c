@@ -1,4 +1,4 @@
-#include "SerialReader.h"
+#include "SerialReaderSender.h"
 #include "RP6uart.h" 
 #include <string.h>
 #include "ProtocolDefines.h"
@@ -8,10 +8,16 @@ int START_READING_COMMAND = 0;
 int START_READING_VALUE = 0;
 int STOP_READING = 0;
 
-int getIncomingSerialMessage(char* receiveBufferCommand, char* receiveBufferValue, const int sizeOfCommandBuffer, const int sizeOfValueBuffer)
+char storeReceiveBufferCommand[MAX_COMMAND_LENGTH];
+char storeReceiveBufferValue[MAX_VALUE_LENGTH];
+	
+int commandWriteIndex = 0;
+int valueWriteIndex = 0;
+
+int getIncomingSerialMessage(char* receiveBufferCommand, char* receiveBufferValue)
 {
 
-	if(receiveBufferCommand == NULL || receiveBufferValue == NULL || sizeOfCommandBuffer < 1 || sizeOfValueBuffer < 1)
+	if(receiveBufferCommand == NULL || receiveBufferValue == NULL)
 	{
 		return -1;
 	}
@@ -21,30 +27,28 @@ int getIncomingSerialMessage(char* receiveBufferCommand, char* receiveBufferValu
 	
 	// check if no data was received
 	if (nrOfCharsReceived == 0) return -1;
-	
-	char storeReceiveBufferCommand[sizeOfCommandBuffer];
-	char storeReceiveBufferValue[sizeOfValueBuffer];
-	
-	int commandWriteIndex = 0;
-	int valueWriteIndex = 0;
 
-	while(getBufferLength() > 0 && commandWriteIndex < sizeOfCommandBuffer && valueWriteIndex < sizeOfValueBuffer)
-	{
+	if(getBufferLength() > 0 && commandWriteIndex < MAX_COMMAND_LENGTH && valueWriteIndex < MAX_VALUE_LENGTH)
+	{ 
 		receivedChar = readChar(); // Char read from the buffer.
 
 		// Was the last read character in the buffer a '@'? 
 		// If yes then stop reading and interpret the message/act on the message.
-		if(receivedChar == END_CHARACTER)
+		if(receivedChar == *END_CHARACTER)
 		{
 			START_READING_COMMAND = 0;
 			START_READING_VALUE = 0;
 			STOP_READING = 1;
 
-			memset(receiveBufferCommand, 0, sizeOfCommandBuffer);
-			memset(receiveBufferValue, 0, sizeOfValueBuffer);
+			commandWriteIndex = 0;
+			valueWriteIndex = 0;
+
+			memset(receiveBufferCommand, 0, MAX_COMMAND_LENGTH);
+			memset(receiveBufferValue, 0, MAX_VALUE_LENGTH);
 			
 			// Append the received message to the command and value char*.
 			// By using strcat the null terminator is added automatically.
+
 			strcat(receiveBufferCommand, storeReceiveBufferCommand);
 			strcat(receiveBufferValue, storeReceiveBufferValue);
 
@@ -61,8 +65,8 @@ int getIncomingSerialMessage(char* receiveBufferCommand, char* receiveBufferValu
 		// Was the last read character in the buffer a ':'? 
 		// If yes then set the boolean START_READING_VALUE to true. This means the value array will start filling.
 		// The value can be a digit with a maximum of 3 digits. Max value is 999. 
-		if(receivedChar == VALUE_CHARACTER)
-			{
+		if(receivedChar == *VALUE_CHARACTER)
+		{
 			START_READING_COMMAND = 0;
 			START_READING_VALUE = 1;
 			STOP_READING = 0;
@@ -78,7 +82,7 @@ int getIncomingSerialMessage(char* receiveBufferCommand, char* receiveBufferValu
 			// Was the last read character in the buffer a '#'? 
 		// If yes then set the boolean START_READING_COMMAND to true. This means the command array will start filling.
 		// Also clear all the arrays to be sure only the currend command is used while interpreting.
-		if(receivedChar == START_CHARACTER)
+		if(receivedChar == *START_CHARACTER)
 		{
 			START_READING_COMMAND = 1;
 			START_READING_VALUE = 0;
@@ -89,23 +93,34 @@ int getIncomingSerialMessage(char* receiveBufferCommand, char* receiveBufferValu
 
 			// Make sure the temporery command and value strings are clean.
 			// Otherwise string could get mixesd with each other.
-			memset(storeReceiveBufferCommand, 0, sizeOfCommandBuffer);
-			memset(storeReceiveBufferValue, 0, sizeOfValueBuffer);
+			memset(storeReceiveBufferCommand, 0, MAX_COMMAND_LENGTH);
+			memset(storeReceiveBufferValue, 0, MAX_VALUE_LENGTH);
 		}
 	}
 	return -1;
 }
 
-int waitForConnectRequest(char* receiveBufferCommand)
+void sendACK(void)
 {
-	if(strcmp(receiveBufferCommand, CONNECT_TO_DEVICE_RECEIVE) == 0)
-	{
-		makeProtocolMessageWithValue(CONNECTED_ACK, RP6_NAME);
-		writeString(protocolMessageToSend);
-		memset(protocolMessageToSend, 0, sizeof(protocolMessageToSend));
+	makeProtocolMessage(GENERAL_ACK);
+	writeString(protocolMessageToSend);
+}
 
-		return 0;
-	}
+void sendNACK(void)
+{
+	makeProtocolMessage(GENERAL_NACK);
+	writeString(protocolMessageToSend);
+}
 
-	return -1;
+void sendConnectACK(void)
+{
+	makeProtocolMessageWithValue(CONNECTED_ACK, RP6_NAME);
+	writeString(protocolMessageToSend);
+}
+
+
+void sendRP6Satus(char* state)
+{
+	makeProtocolMessage(state);
+	writeString(protocolMessageToSend);
 }

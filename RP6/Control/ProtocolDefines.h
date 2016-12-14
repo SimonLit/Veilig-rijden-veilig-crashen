@@ -4,10 +4,10 @@
 // ================================================================
 // ===           GENERAL SERIAL COMMUNICATION PROTOCOL          ===
 // ================================================================
-#define START_CHARACTER '#'
-#define END_CHARACTER '@'
-#define VALUE_CHARACTER ':'
-#define MULTI_VALUE_SEPARATOR ','
+#define START_CHARACTER "#"
+#define END_CHARACTER "@"
+#define VALUE_CHARACTER ":"
+#define MULTI_VALUE_SEPARATOR ","
 // ================================================================
 // ===            SERIAL COMMUNICATION RP6 PROTOCOL             ===
 // ================================================================
@@ -34,5 +34,24 @@
 #define WEMOS_NAME "WEMOS"
 #define WEMOS_NUMBER 1
 // ================================================================
+
+#define MAX_COMMAND_LENGTH 20
+#define MAX_VALUE_LENGTH 20
+#define MAX_HEARTBEAT_TIMEOUT 1050 // Since every 1 second a heartbeat is supposed
+								   // to be received there can be a 50 ms delay before
+								   // deciding the connection to the wemos is broken.
+
+typedef enum
+{
+	DISCONNECTED,
+	CONNECTED
+} connection;
+
+typedef enum
+{
+	STARTED_PROGRAM,
+	STOPPED_PROGRAM
+} stateRP6;
+ 
 
 #endif

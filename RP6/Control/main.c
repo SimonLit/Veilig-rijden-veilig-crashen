@@ -3,33 +3,23 @@
 #include "RP6Control_I2CMasterLib.h" 	
 #include "ProtocolDefines.h"
 #include "Tools.h"
-#include "SerialReader.h"
+#include "SerialReaderSender.h"
 #include "InterpretSerial.h"
 #include "Drive.h"
 #include "Crash.h"
 #include <stdint.h>
 
-typedef enum
-{
-	DISCONNECTED,
-	CONNECTED
-} connection;
-
-typedef enum
-{
-	STARTED_PROGRAM,
-	STOPPED_PROGRAM
-} stateRP6;
-
 connection RP6ToWemosConnection = DISCONNECTED;
 stateRP6 RP6State = STOPPED_PROGRAM;
+
+char* RP6StateStrings[] = {RP6_STARTED_PROGRAM, RP6_STOPPED_PROGRAM};
 
 long lastControllerValueReceived = 0;
 long lastHeartbeatRequestReceived = 0;
 int maxTimeout = 200;
 
 // Show the speed of the tires on the LCD.
-void writeSpeedOnLCD(char* buffer, int rightSpeed, int leftSpeed)
+void writeSpeedOnLCD(int rightSpeed, int leftSpeed)
 {
 	clearLCD();
 	setCursorPosLCD(0,0);
@@ -99,14 +89,12 @@ int main(void)
 
 	crashInfo cInfo; // This is used to store te crash variables.
 
-	char receiveBufferCommand[20];
-	char receiveBufferValue[20];
-	const int sizeOfCommandBuffer = sizeof(receiveBufferCommand); // 
-	const int sizeOfValueBuffer = sizeof(receiveBufferValue);     // There two sizes include '\0'.
+	char receiveBufferCommand[MAX_COMMAND_LENGTH];
+	char receiveBufferValue[MAX_VALUE_LENGTH];
 
 	// Clear the buffers to make sure the you are working with a clean buffer.
-	memset(receiveBufferCommand, 0,  sizeOfCommandBuffer);
-	memset(receiveBufferValue, 0,  sizeOfValueBuffer);
+	memset(receiveBufferCommand, 0,  MAX_COMMAND_LENGTH);
+	memset(receiveBufferValue, 0,  MAX_VALUE_LENGTH);
 
 	// Set the distance values of the RP6 to 0;
 	// When crashed the distence driven is measured.
@@ -138,11 +126,15 @@ int main(void)
 		{	
 			// Wait for a connect request from the wemos.
 			case DISCONNECTED:
-				if(getIncomingSerialMessage(receiveBufferCommand, receiveBufferValue, sizeOfCommandBuffer, sizeOfValueBuffer) == 0)
-				{
-					if(waitForConnectRequest(receiveBufferCommand) == 0)
+				if(getStopwatch1() > 10)
+				{	
+					if(getIncomingSerialMessage(receiveBufferCommand, receiveBufferValue) == 0)
 					{
-						RP6ToWemosConnection = CONNECTED;
+						if(waitForConnectRequest(receiveBufferCommand, receiveBufferValue) == 0)
+						{
+							sendConnectACK();
+							RP6ToWemosConnection = CONNECTED;
+						}
 					}
 				}
 				break;
@@ -157,10 +149,6 @@ int main(void)
 					switch(pressedButton)
 					{
 						case 1:
-							writeInteger(pressedButton, DEC);
-							writeChar('\n');
-							clearLCD();
-
 							switch(RP6State)
 							{
 								case STARTED_PROGRAM:
@@ -169,7 +157,8 @@ int main(void)
 								case STOPPED_PROGRAM:
 									RP6State = STARTED_PROGRAM;
 									break;
-							}					
+							}	
+							sendRP6Satus(RP6StateStrings[RP6State]);				
 					}
 					setStopwatch3(0);
 				}
@@ -182,14 +171,26 @@ int main(void)
 
 						// Check if one of our self added buttons was pressed.
 						// Read the FSR value, convert it to grams and add it to the crashInfo struct.
-		 				if(getStopwatch1() > 5)
+		 				if(getStopwatch1() > 10)
 						{	
-							if(getIncomingSerialMessage(receiveBufferCommand, receiveBufferValue, sizeOfCommandBuffer, sizeOfValueBuffer) == 0)
+							if(getIncomingSerialMessage(receiveBufferCommand, receiveBufferValue) == 0)
 							{
-								interpretMessageForSpeedValues(receiveBufferCommand, receiveBufferValue, sizeOfCommandBuffer, 
-																						  sizeOfValueBuffer, &baseSpeed, &rightSpeed, &leftSpeed);
+								if(checkForHeartbeat(receiveBufferCommand) == 0)
+								{
+									sendACK();
+								}
+								else if(interpretMessageForSpeedValues(receiveBufferCommand, receiveBufferValue,
+																		&baseSpeed, &rightSpeed, &leftSpeed) == 0)
+								{
+									sendACK();
+								}
+								else
+								{
+									sendNACK();
+								}
+							} 
 
-							}
+							writeSpeedOnLCD(rightSpeed, leftSpeed);
 							
 							setStopwatch1(0);
 						}
@@ -230,7 +231,10 @@ int main(void)
 					// If the program isn't started or the program was stopped/paused, 
 					// Let the RP6 don't do anything.
 					case STOPPED_PROGRAM:
-						stop();
+						baseSpeed = 0;
+						rightSpeed = 0;
+						leftSpeed = 0;
+
 						break;
 				}
 				break;	

@@ -12,9 +12,11 @@ int makeProtocolMessage(char* message)
 	// The +1 is for the '\0'.
 	if((strlen((char*)START_CHARACTER) + strlen(message) + strlen((char*)END_CHARACTER))+1 > sizeof(protocolMessageToSend)) {return -1;}
 
-	strcat(protocolMessageToSend, (char*)START_CHARACTER);
+	memset(protocolMessageToSend, 0, sizeof(protocolMessageToSend));
+
+	strcat(protocolMessageToSend, START_CHARACTER);
 	strcat(protocolMessageToSend, message);
-	strcat(protocolMessageToSend, (char*)END_CHARACTER);
+	strcat(protocolMessageToSend, END_CHARACTER);
 
 	return 0;
 }
@@ -28,11 +30,13 @@ int makeProtocolMessageWithValue(char* message, char* value)
 	if((strlen((char*)START_CHARACTER) + strlen(message) + strlen((char*)VALUE_CHARACTER) + strlen(value) + strlen((char*)END_CHARACTER))+1
 		> sizeof(protocolMessageToSend)) {return -1;}
 
-	strcat(protocolMessageToSend, (char*)START_CHARACTER);
+	memset(protocolMessageToSend, 0, sizeof(protocolMessageToSend));
+
+	strcat(protocolMessageToSend, START_CHARACTER);
 	strcat(protocolMessageToSend, message);
-	strcat(protocolMessageToSend, (char*)VALUE_CHARACTER);
+	strcat(protocolMessageToSend, VALUE_CHARACTER);
 	strcat(protocolMessageToSend, value);
-	strcat(protocolMessageToSend, (char*)END_CHARACTER);
+	strcat(protocolMessageToSend, END_CHARACTER);
 
 	return 0;
 }

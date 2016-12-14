@@ -1,6 +1,7 @@
 #include "InterpretSerial.h"
 #include <string.h>
 #include <stdlib.h>
+#include "Tools.h"
 #include "ProtocolDefines.h"
 
 int indexOf(char* array, char value, const int sizeOfArray)
@@ -12,16 +13,14 @@ int indexOf(char* array, char value, const int sizeOfArray)
 	return ((index == sizeOfArray) ? -1 : index);
 }
 
-int interpretMessageForSpeedValues(char* receiveBufferCommand, char* receiveBufferValue, 
-					const int sizeOfCommandBuffer, const int sizeOfValueBuffer,int* baseSpeed, uint8_t* rightSpeed, uint8_t* leftSpeed)
+int interpretMessageForSpeedValues(char* receiveBufferCommand, char* receiveBufferValue, int* baseSpeed, uint8_t* rightSpeed, uint8_t* leftSpeed)
 {
-	if(receiveBufferCommand == NULL || receiveBufferValue == NULL || sizeOfCommandBuffer < 1 || sizeOfValueBuffer < 1
-	    || baseSpeed == NULL || rightSpeed == NULL || leftSpeed == NULL)
+	if(receiveBufferCommand == NULL || receiveBufferValue == NULL || baseSpeed == NULL || rightSpeed == NULL || leftSpeed == NULL)
 	{
 		return -1;
 	}
 
-	int indexOfValueSeparator = indexOf(receiveBufferValue, MULTI_VALUE_SEPARATOR, sizeOfValueBuffer);
+	int indexOfValueSeparator = indexOf(receiveBufferValue, *MULTI_VALUE_SEPARATOR, MAX_VALUE_LENGTH);
 
 	// Copy the first value of the received value to the speedValueString and add a null terminator.
 	char speedValueString[5];
@@ -45,8 +44,7 @@ int interpretMessageForSpeedValues(char* receiveBufferCommand, char* receiveBuff
 	{
 		// SEND A NACK OR SOMETHING.
 	}
-	
- 	
+
 	if(strcmp(receiveBufferCommand, CONTROLLER_VALUES) == 0)
 	{	
 		*baseSpeed = speedValue;
@@ -107,4 +105,14 @@ int interpretMessageForSpeedValues(char* receiveBufferCommand, char* receiveBuff
 	{	
 		return -1;
 	}
+}
+
+int waitForConnectRequest(char* receiveBufferCommand, char* receiveBufferValue)
+{
+	return ((strcmp(receiveBufferCommand, CONNECT_TO_DEVICE_RECEIVE) == 0 && strcmp(receiveBufferValue, WEMOS_NAME) == 0) ? 0 : -1);
+}
+
+int checkForHeartbeat(char* receiveBufferCommand)
+{
+	return ((strcmp(receiveBufferCommand, HEARTBEAT_RP6) == 0) ? 0 : -1);
 }
