@@ -34,11 +34,6 @@ EXTRAINCDIRS = $(RP6_LIB_PATH) $(RP6_LIB_PATH_OTHERS) $(RP6_LIB_PATH_I2C_MASTER)
 SRC = $(TARGET).c
 SRC += Drive.c
 
-SRC += Crash.c
-SRC += SerialReaderSender.c
-SRC += InterpretSerial.c
-SRC += Tools.c
-
 
 SRC += $(RP6_LIB_PATH_CONTROL)/RP6ControlLib.c
 SRC += $(RP6_LIB_PATH)/RP6common/RP6uart.c
