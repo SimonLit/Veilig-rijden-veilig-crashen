@@ -16,15 +16,15 @@ enum
 
 typedef enum
 {
-	RP6,
+	NOBODY,
+	CAR,
 	PHONE,
-	WEMOS
 } SENDER;
 
 typedef enum
 {
-	CRASHDATA
-	RP6STATUS
+	CRASHDATA,
+	RP6STATUS,
 	GSMSTATUSREQUEST
 } RESPONSES;
 
