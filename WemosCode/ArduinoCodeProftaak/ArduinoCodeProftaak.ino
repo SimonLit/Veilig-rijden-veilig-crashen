@@ -22,6 +22,7 @@ String stringFromSerial = "";
 #define END_CHARACTER '@'
 #define VALUE_CHARACTER ':'
 #define MULTI_VALUE_SEPARATOR ','
+#define MULTI_COMMAND_SEPARATOR '|'
 // ================================================================
 // ===            SERIAL COMMUNICATION RP6 PROTOCOL             ===
 // ================================================================
@@ -47,14 +48,14 @@ String stringFromSerial = "";
 //=================================================================
 // ===        WIFI COMMUNICATION BOARDCOMPUTER PROTOCOL         ===
 // ================================================================
-#define BOARDCOMPUTER_CONNECT_RESPONSE ""
+#define SEND_DATA_TO_BOARDCOMPUTER_INDICATOR "DAT"
 //=================================================================
 
 #define GENERAL_ACK "ACK"
 #define GENERAL_NACK "NACK"
 #define RP6_NAME "RP6"
-#define WEMOS_NAME "WEMOS"
-#define WEMOS_NUMBER 1
+#define WEMOS_NAME "CAR"
+#define BOARDCOMPUTER_NAME "BOARDCOMPUTER"
 //=================================================================
 
 String protocolStringToSend = "";
@@ -64,7 +65,7 @@ long lastHeartbeatTimer = 0;
 int heartbeatInterval = 1000;
 
 int maxNACKCounter = 3;
-int maxResponseTimeout = 200;
+int maxResponseTimeout = 2000;
 bool receivedEndOfSerialString = false;
 
 typedef enum
@@ -85,7 +86,7 @@ typedef enum
   CTRL_CONNECTED,
   CTRL_DISCONNECTED
 } connectionController;
-char* ctrlConnectionStates[] = {CONTROLLER_CONNECTED, CONTROLLER_DISCONNECTED};
+char* ctrlConnectionStates[] = {RP6_STARTED_PROGRAM, RP6_STOPPED_PROGRAM};
 
 
 connectionRP6 WemosToRP6Connection = RP6_DISCONNECTED;
@@ -144,16 +145,15 @@ void dmpDataReady()
 // ================================================================
 // ===                      WIFI VARIABLES                      ===
 // ================================================================
-//const char* ssid = "Project";
-//const char* password = "123456780";
-const char* ssid = "eversveraa";
-const char* password = "qwerty69";
+const char* ssid = "Project";
+const char* password = "123456780";
+//const char* ssid = "eversveraa";
+//const char* password = "qwerty69";
 
 String controllerToRP6Protocol = "";
 
 long currentMillis = 0;
 long lastControllerReceiveTimer = 0;
-int maxControllerTimeoutTimer =  120;
 int controllerRequestInterval = 100;
 
 // ================================================================
@@ -266,7 +266,7 @@ void loop()
   /*
      Make Sure the DMP values are stable.
   */
-  while (!MPUIsStable)
+ /* while (!MPUIsStable)
   {
     if (getMPUIsStabilized())
     {
@@ -275,7 +275,7 @@ void loop()
       resetYPRValues();
     }
     else return;
-  }
+  }*/
 
   /*
          Reset the orentation values close to 0.

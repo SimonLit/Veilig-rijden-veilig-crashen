@@ -13,29 +13,29 @@ int formatMessageToProtocol(String message, String *pointer_protocolToSendArray)
 {
   if (message.indexOf(SPEED_PROTOCOL_SEND_RECEIVE) > -1)
   {
-    pointer_protocolToSendArray[0] = START_CHARACTER + message + END_CHARACTER;
+    pointer_protocolToSendArray[0] = message;
   }
   else if (message.indexOf(SIDE_HIT_PROTOCOL_SEND_RECEIVE) > -1)
   {
-    pointer_protocolToSendArray[1] = START_CHARACTER + message + END_CHARACTER;
+    pointer_protocolToSendArray[1] = message;
   }
 
   else if (message.indexOf(IMPACT_PROTOCOL_SEND_RECEIVE) > -1)
   {
-    pointer_protocolToSendArray[2] = START_CHARACTER + message + END_CHARACTER;
+    pointer_protocolToSendArray[2] = message;
   }
 
   else if (message.indexOf(DIST_DRIVEN_PROTOCOL_SEND_RECEIVE) > -1)
   {
-    pointer_protocolToSendArray[3] = START_CHARACTER + message + END_CHARACTER;
+    pointer_protocolToSendArray[3] = message;
   }
 
   else if (message.indexOf(ORIENTATION_PROTOCOL_RECEIVE) > -1)
   {
-    pointer_protocolToSendArray[4] = START_CHARACTER + (String)ORIENTATION_PROTOCOL_SEND +
-                                     (String)(currentYPR[0]) + ',' +
-                                     (String)(currentYPR[1]) + ',' +
-                                     (String)(currentYPR[2]) + END_CHARACTER;
+    pointer_protocolToSendArray[4] = (String)ORIENTATION_PROTOCOL_SEND +
+                                     (String)(currentYPR[0]) + MULTI_VALUE_SEPARATOR +
+                                     (String)(currentYPR[1]) + MULTI_VALUE_SEPARATOR +
+                                     (String)(currentYPR[2]);
   }
 }
 
@@ -63,7 +63,7 @@ int checkForValidRP6Message(String message)
 
 int checkForValidBoardcomputerMessage(String message)
 {
-  if (message.indexOf(BOARDCOMPUTER_CONNECT_RESPONSE) > -1 || message.indexOf(GENERAL_ACK) > -1)
+  if (message.indexOf(GENERAL_ACK) > -1)
   {
     // Message is a protocol.
     return 1;
@@ -103,18 +103,18 @@ int checkForValidControllerMessage(String message)
    Return: 0 if the messageToCheckFor was received.
           -1 if to many times NACK was received or it took to long to receive a response.
 */
-int timeoutHandlerWemosToRP6(String messageToCheckFor)
+int timeoutHandlerWemosToRP6(String messageToSend, String messageToCheckFor)
 {
   int nackCounter = 0;
   int timeoutTimer = millis();
 
-  Serial.println(controllerToRP6Protocol);
+  Serial.println(messageToSend);
 
   while (((millis() - timeoutTimer) <= maxResponseTimeout) && (nackCounter <= maxNACKCounter))
   {
     // Listen for a response from the RP6
     receivedEndOfSerialString = getIncommingString(&stringFromSerial);
-
+    
     if (receivedEndOfSerialString)
     {
       if(stringFromSerial == messageToCheckFor)
@@ -126,21 +126,14 @@ int timeoutHandlerWemosToRP6(String messageToCheckFor)
       {
         // NACK was received. Increase the NACK counter and send the message again.
           nackCounter++;
-          Serial.println(controllerToRP6Protocol);
+          Serial.println(messageToSend);
       }
     }
   }
 
   // It took to long to get a response from the RP6.
-  if ((millis() - timeoutTimer) > maxResponseTimeout)
+  if ((millis() - timeoutTimer) > maxResponseTimeout || nackCounter > maxNACKCounter)
   {
     return -1;
   }
 }
-
-
-void sendCTRLSatusToRP6(void)
-{
-  makeProtocolString(ctrlConnectionStates[WemosToCTRLConnection]);
-}
-
