@@ -3,22 +3,18 @@
 #include "../datastruct/datastruct.h"
 #include "file_handeling.h"
 
-int createFile(char* filename)
-{
-	FILE* fp = fopen(filename, "w");
-	if (fp == NULL)
-		return -1;
-	fclose(fp);
-	return 0;
-}
 
-int wirteDataStructToFile(char* filename, const DATAPACKET* value)
+int writeDataStructToFile(char* filename, const DATAPACKET* value)
 {
 	if(filename == NULL)
 		return -1;
 	if(value == NULL)
 		return -1;
-	FILE* fp = fopen(filename, "r+");
+	FILE* fp;
+	if(access(filename, F_OK) == 0)
+		fp = fopen(filename, "r+");
+	else
+		fp = fopen(filename, "r+");
 	if(fp == NULL)
 		return -1;//File does not exist
 	fclose(fp);

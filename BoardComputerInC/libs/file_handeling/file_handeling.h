@@ -6,7 +6,7 @@
 
 
 int createFile(char* filename);
-int wirteDataStructToFile(char* filename, const DATAPACKET* value);
+int writeDataStructToFile(char* filename, const DATAPACKET* value);
 int writeDataStructArrayToFile(char* filename, DATAPACKET* array, int amountOfDatapackets);
 int getNrOfDatStructs(char* filename);
 int readDataStructFromFile(char* filename, DATAPACKET* info, int pos);

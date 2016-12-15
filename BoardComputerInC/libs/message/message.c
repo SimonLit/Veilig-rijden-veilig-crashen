@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <string.h>
+#include "../datastruct/datastruct.h"
 
 int findStartOfMessage(const char* message)
 {
-	//char received[] = message;
+	char received[256];
+	sprintf(received, "%s", message);
 	for(int i = 0; i < 256; i++)
 	{
-	//	if(received[i] == startOfMessageChar)
+		if(received[i] == '#')
 			return i;
 	}
 	return -1;
@@ -14,10 +16,11 @@ int findStartOfMessage(const char* message)
 
 int findEndOfMessage(const char* message)
 {
-	//char received[] = message;
+	char received[256];
+	sprintf(received, "%s" ,message);
 	for (int i = 0; i < 256; ++i)
 	{
-	//	if(received[i] == endOfMessageChar)
+		if(received[i] == '@')
 			return i;
 	}
 	return -1;
@@ -36,4 +39,12 @@ int lengthOfMessage(const char* message)
 	return (endPos - startPos);
 }
 
+int verificationStringCut(DATAPACKET* recv, const char* bf)
+{
+	return 0;
+}
 
+int dataCutRecvResponse(DATAPACKET* recv, const char bf, RESPONSES rsp)
+{
+	return 0;
+}

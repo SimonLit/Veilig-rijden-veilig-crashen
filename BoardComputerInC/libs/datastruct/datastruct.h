@@ -4,6 +4,9 @@
 #define maxLength 25
 #define maxLengthMessage 100
 
+#define DATALOG "logfile"
+#define DATASEND "sendfile"
+
 typedef int bool;
 enum 
 {
@@ -16,7 +19,12 @@ typedef enum
 	RP6,
 	PHONE,
 	WEMOS
-} SENDERS;
+} SENDER;
+
+typedef enum
+{
+	Bla
+} RESPONSES;
 
 typedef struct
 {
@@ -28,19 +36,14 @@ typedef struct
 	int Sec;
 }TIMESTAMP;
 
-typedef struct
+typedef struct datapacket
 {
-	SENDERS Sender;	//Who
+	SENDER Sender;	//Who
 	int  sockFd;	//Socket file discriptor
-	int  senderId; 	//Sender id number together with Sender form id system
 	char senderIpAdress[maxLength];	//Ip adress from sender
-	char messageReveived[maxLengthMessage]; //Total message received
-	char messageReveivedDataToSendOnward[maxLengthMessage]; //Data received that needs to be send onward
-	char destinationIp[maxLength]; //Ip for data that needs to be send onward
-	bool dataSendOnward; //Boolean to tell easy if something needs to be send or not
-	bool connectionVerifiedACK; //If connection already did the handshake with id and everything
-	int  countMessages;	//Keeps track of the amount of messages
-	int  totalSizeMessages; //Keeps track of size, good for analytics
+	char messageReceived[maxLengthMessage]; //Full message received
+	char informationReceived[maxLengthMessage];
+	RESPONSES action; //The action that should be done with the received data
 	TIMESTAMP time;
 } DATAPACKET;
 

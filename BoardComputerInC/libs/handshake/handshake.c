@@ -12,9 +12,10 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include "handshake.h"
-#include "../message/message.h"
-#include "../response/response.h"
 #include "../datastruct/datastruct.h"
+#include "../response/response.h"
+#include "../message/message.h"
+#include "../file_handeling/file_handeling.h"
 
 char buffer[256];
 int j = 0;
@@ -44,14 +45,18 @@ static int waitForFirstContact(int sockfd, DATAPACKET* recv)
 		j = read(sockfd, buffer, 255);
 		if(j < 0)
 			perror("read");
-		else
+		else if( j == 0)//End of fd read
 		{
 			printf("The message is: %s\n", buffer);
-			//Read message, check if proper one
-			//If message is correct, send back Verified
-			//Else return -1
-			//Save in data struct
-			return -1;
+			returnValue = verificationStringCut(recv, buffer);
+			if(returnValue == 0)
+			{
+				recv -> sockFd = sockfd;
+				//Timestamp
+				return 0;
+			}
+			else
+				return -1;
 		}
 	}
 	return -1;
@@ -72,7 +77,7 @@ static int connectVerify(int sockfd, DATAPACKET* recv)
 		 		send(sockfd, "NACK", 4, 0);
 		 	}
 		 }
-		 else
+		 else if(returnValue = 0)
 		 {
 		 	verifiedCon = true;
 		 }
@@ -83,9 +88,10 @@ static int connectVerify(int sockfd, DATAPACKET* recv)
 		return -1;	
 }
 
-static int recvData(int sockfd, DATAPACKET* recv)
+static int recvData(int sockfd, DATAPACKET* recv, bool* sf)
 {
 	memset(buffer, 0, sizeof(buffer));
+	RESPONSES rsp;
 	while(1)//Break out with a timeout
 	{
 		j = read(sockfd, buffer, 255);
@@ -94,30 +100,44 @@ static int recvData(int sockfd, DATAPACKET* recv)
 		else
 		{	
 			printf("The message is: %s\n", buffer);
-			//Read message, check the command
-			//If message is correct, do response accordanly to responses
-			//Else return -1
-			return -1;
+			returnValue = dataCutRecvResponse(recv, buffer, &rsp);
+			if(returnValue == -1)
+				return -1;
+			else	
+			{
+				//Do response
+				//Set sf flag
+				return 0;
+			}
 		}
 	}
 	return -1;
 
 }
 
-int handshakeReceiveData(int sockfd)
+int handshakeReceiveData(int sockfd, const char* ip)
 {
 	DATAPACKET connectionData;
+	bool sendFlag = false;
 	returnValue = connectVerify(sockfd, &connectionData);
 	if(returnValue == -1)
 		return -1;
 	else
 	{
-		returnValue = recvData(sockfd, &connectionData);
+		returnValue = recvData(sockfd, &connectionData, &sendFlag);
 		if(returnValue == -1)
 			return -1;
 		else
 		{
-			//Write data to file
+			strcpy(connectionData.senderIpAdress, ip);
+			writeDataStructToFile(DATALOG, &connectionData);
+			printf("Wrote data to log file.\n");
+			if(sendFlag == true)
+			{
+				writeDataStructToFile(DATASEND, &connectionData);
+				printf("Writing data to send file.\n");
+			}
+			return 0;
 		}
 	}
 }

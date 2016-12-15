@@ -3,6 +3,6 @@
 
 #include "../datastruct/datastruct.h"
 
-int handshakeReceiveData(int sockfd);
+int handshakeReceiveData(int sockfd, const char* ip);
 
 #endif

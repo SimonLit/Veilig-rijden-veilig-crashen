@@ -120,7 +120,7 @@ int acceptinConnectionsOnServer(int sockfd)
     if(!fork())
     {
         close(sockfd);
-        returnValue = handshakeReceiveData(new_fd);
+        returnValue = handshakeReceiveData(new_fd, s);
         if(returnValue == -1)
             printf("Something went wrong!\n");
         close(new_fd);
