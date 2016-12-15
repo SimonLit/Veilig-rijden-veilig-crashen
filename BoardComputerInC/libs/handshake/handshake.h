@@ -3,7 +3,6 @@
 
 #include "../datastruct/datastruct.h"
 
-int verificationHandshake(int sockfd);
 int handshakeReceiveData(int sockfd);
 
 #endif

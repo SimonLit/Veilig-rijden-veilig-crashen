@@ -8,5 +8,5 @@
 
 void serialCommunicatie(void)
 {
-	printf("Started reading buffer!\n");
+	
 }

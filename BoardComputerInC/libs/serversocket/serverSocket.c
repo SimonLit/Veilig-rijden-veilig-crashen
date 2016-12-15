@@ -12,9 +12,6 @@
 #include <signal.h>
 #include "handshake/handshake.h"
 #include "serverSocket.h"
-#include "../datastruct/datastruct.h"
-#include "../file_handeling/file_handeling.h"
-
 
 #define BACKLOG 10 //How many pending connections queue will hold
 
@@ -26,8 +23,6 @@ struct sigaction sa;
 int yes = 1;
 char s[INET6_ADDRSTRLEN];
 int returnValue;
-DATAPACKET dataSender;
-bool verified;
 
 static void sigchld_handler(int s)
 {
@@ -125,20 +120,9 @@ int acceptinConnectionsOnServer(int sockfd)
     if(!fork())
     {
         close(sockfd);
-        returnValue = verificationHandshake(new_fd);
-        if(returnValue == -1 || verified == false)
-        {
-            printf("Connection not verified.\n");
-            close(new_fd);
-        }
-        else
-        {
-            verified = true;
-            handshakeReceiveData(new_fd);
-            close(new_fd);
-            //Do stuff with verified connection
-            //Wait for receiving data or time out
-        }
+        returnValue = handshakeReceiveData(new_fd);
+        if(returnValue == -1)
+            printf("Something went wrong!\n");
         close(new_fd);
         exit(0);//Exit fork
     }

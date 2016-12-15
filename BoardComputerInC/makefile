@@ -1,4 +1,4 @@
-LIBS=libs/serversocket libs/file_handeling libs/response libs/handshake libs/serial
+LIBS=libs/serversocket libs/file_handeling libs/response libs/handshake libs/serial libs/message
 INCLUDE_PATH=libs/
 
 boardcomputer_exec: libraries
