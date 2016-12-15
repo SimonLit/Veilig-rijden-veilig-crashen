@@ -23,7 +23,9 @@ typedef enum
 
 typedef enum
 {
-	Bla
+	CRASHDATA
+	RP6STATUS
+	GSMSTATUSREQUEST
 } RESPONSES;
 
 typedef struct
