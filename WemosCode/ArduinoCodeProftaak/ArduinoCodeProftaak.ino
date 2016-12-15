@@ -13,6 +13,90 @@
 #include "Wire.h"
 #endif
 
+String stringFromSerial = "";
+
+// ================================================================
+// ===           GENERAL SERIAL COMMUNICATION PROTOCOL          ===
+// ================================================================
+#define START_CHARACTER '#'
+#define END_CHARACTER '@'
+#define VALUE_CHARACTER ':'
+#define MULTI_VALUE_SEPARATOR ','
+#define MULTI_COMMAND_SEPARATOR '|'
+// ================================================================
+// ===            SERIAL COMMUNICATION RP6 PROTOCOL             ===
+// ================================================================
+#define CONNECT_TO_DEVICE "CONNECT"
+#define CONNECTED_ACK_RECEIVE "CONNECTED"
+#define RP6_STARTED_PROGRAM "START_RP6"
+#define RP6_STOPPED_PROGRAM "STOP_RP6"
+#define SPEED_PROTOCOL_SEND_RECEIVE "SPEED"
+#define SIDE_HIT_PROTOCOL_SEND_RECEIVE "SIDE_HIT"
+#define CONTROLLER_DISCONNECTED "CTRL_DISCONNECTED"
+#define CONTROLLER_CONNECTED "CTRL_CONNECTED"
+#define IMPACT_PROTOCOL_SEND_RECEIVE "IMPACT"
+#define DIST_DRIVEN_PROTOCOL_SEND_RECEIVE "DIST_DRIVEN"
+#define ORIENTATION_PROTOCOL_SEND "ORIENTATION_YPR"
+#define ORIENTATION_PROTOCOL_RECEIVE "ORIENTATION"
+#define HEARTBEAT_RP6 "HEARTBEAT"
+#define CONTROLLER_VALUES "CONTROLLER_VALUES"
+//=================================================================
+// ===         WIFI COMMUNICATION CONTROLLER PROTOCOL           ===
+// ================================================================
+#define CONTROLLER_VALUE_PROTOCOL_RECEIVE "ControllerValues"
+#define CONTROLLER_VALUE_PROTOCOL_REQUEST_SEND "GetControllerValues"
+//=================================================================
+// ===        WIFI COMMUNICATION BOARDCOMPUTER PROTOCOL         ===
+// ================================================================
+#define SEND_DATA_TO_BOARDCOMPUTER_INDICATOR "DAT"
+//=================================================================
+
+#define GENERAL_ACK "ACK"
+#define GENERAL_NACK "NACK"
+#define RP6_NAME "RP6"
+#define WEMOS_NAME "CAR"
+#define BOARDCOMPUTER_NAME "BOARDCOMPUTER"
+//=================================================================
+
+String protocolStringToSend = "";
+String protocolToSendArray[5]; // 0 = speed; 1 = sideHit; 2 = impact; 3 = distDriven; 4 = orientation;
+
+long lastHeartbeatTimer = 0;
+int heartbeatInterval = 1000;
+
+int maxNACKCounter = 3;
+int maxResponseTimeout = 2000;
+bool receivedEndOfSerialString = false;
+
+typedef enum
+{
+  RP6_CONNECTED,
+  RP6_DISCONNECTED
+} connectionRP6;
+
+typedef enum
+{
+  STARTED_PROGRAM,
+  STOPPED_PROGRAM
+} stateRP6;
+char* RP6States[] = {RP6_STARTED_PROGRAM, RP6_STOPPED_PROGRAM};
+
+typedef enum
+{
+  CTRL_CONNECTED,
+  CTRL_DISCONNECTED
+} connectionController;
+char* ctrlConnectionStates[] = {RP6_STARTED_PROGRAM, RP6_STOPPED_PROGRAM};
+
+
+connectionRP6 WemosToRP6Connection = RP6_DISCONNECTED;
+
+stateRP6 RP6State = STOPPED_PROGRAM;
+stateRP6 lastRP6State = STOPPED_PROGRAM;
+
+connectionController WemosToCTRLConnection = CTRL_DISCONNECTED;
+connectionController lastWemosToCTRLConnection = CTRL_DISCONNECTED;
+
 // ================================================================
 // ===                   MPU VARIABLE SETUP                     ===
 // ================================================================
@@ -44,6 +128,10 @@ float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gra
 
 bool MPUIsStable = false;
 
+int currentYPR[3] = {0, 0, 0};
+long lastYPRUpdate = 0;
+long updateTime = 3000;
+
 // ================================================================
 // ===               INTERRUPT DETECTION ROUTINE                ===
 // ================================================================
@@ -59,14 +147,14 @@ void dmpDataReady()
 // ================================================================
 const char* ssid = "Project";
 const char* password = "123456780";
+//const char* ssid = "eversveraa";
+//const char* password = "qwerty69";
 
-bool ledState = false;
-bool ledState1 = false;
-String tempMessage = "";
+String controllerToRP6Protocol = "";
 
-String protocolToSendArray[5]; // 0 = speed; 1 = sideHit; 2 = impact; 3 = orientation;
-
-bool protocolEndCharReceived = false;
+long currentMillis = 0;
+long lastControllerReceiveTimer = 0;
+int controllerRequestInterval = 100;
 
 // ================================================================
 // ===                      MAIN SETUP                          ===
@@ -80,17 +168,12 @@ void setup() {
   stwire::setup(400, true);
 #endif
 
-  //Wire.onReceive(receiveEvent); // register event
-  //Wire.onRequest(requestEvent); // register event
-
   // initialize serial communication
   // (115200 chosen because it is required for Teapot Demo output, but it's
   // really up to you depending on your project)
   Serial.begin(38400);
 
-  // ================================================================
-  // ===                     SETUP FOR MPU                        ===
-  // ================================================================
+  // =========================SETUP FOR MPU=========================
 
   // NOTE: 8MHz or slower host processors, like the Teensy @ 3.3v or Ardunio
   // Pro Mini running at 3.3v, cannot handle this baud rate reliably due to
@@ -111,12 +194,6 @@ void setup() {
   // load and configure the DMP
   Serial.println(F("Initializing DMP..."));
   devStatus = mpu.dmpInitialize();
-
-  // supply your own gyro offsets here, scaled for min sensitivity
-  /*mpu.setXGyroOffset(220);
-    mpu.setYGyroOffset(76);
-    mpu.setZGyroOffset(-85);
-    mpu.setZAccelOffset(1788); // 1688 factory default for my test chip*/
 
   // make sure it worked (returns 0 if so)
   if (devStatus == 0)
@@ -152,9 +229,7 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
 
 
-  // ================================================================
-  // ===                     SETUP FOR ESP                        ===
-  // ================================================================
+  // ========================SETUP FOR ESP========================
   // Connect to WiFi network
   Serial.println();
   Serial.println();
@@ -175,44 +250,47 @@ void setup() {
   Serial.println(WiFi.localIP());
 }
 
+
+
+
+
+
+
+
+
 // ================================================================
 // ===                        MAIN LOOP                         ===
 // ================================================================
 void loop()
 {
-  while (!MPUIsStable)
+  /*
+     Make Sure the DMP values are stable.
+  */
+ /* while (!MPUIsStable)
   {
     if (getMPUIsStabilized())
     {
       Serial.println("MPU is stable");
       MPUIsStable = true;
+      resetYPRValues();
     }
     else return;
-  }
+  }*/
 
-  if (tempMessage == "RESET")
+  /*
+         Reset the orentation values close to 0.
+  */
+  if (stringFromSerial == "RESET")
   {
-    Serial.println(tempMessage);
-    tempMessage = "";
+    Serial.println(stringFromSerial);
+    stringFromSerial = "";
     resetYPRValues();
   }
 
-  DMPRoutine();
-  protocolEndCharReceived = getIncommingString();
-  if (protocolEndCharReceived)
-  {
-    formatMessageToProtocol(tempMessage, &protocolToSendArray[0]);
-    protocolEndCharReceived = false;
-  }
+  // Check if a Serial message is received that end with '@'.
+  //bool receivedEndOfSerialString = getIncommingString(&stringFromSerial);
 
-  if (tempMessage == "ORIENTATION")
-  {
-    Serial.println(tempMessage);
-    tempMessage = "";
-    /*for (uint8_t index = 0; index < 5; index++)
-    {
-      Serial.println(protocolToSendArray[index]);
-    }*/
-    changeLedState();
-  }
+  actOnState_WemosToRP6Connection();
+  actOnState_RP6State();
+  actOnState_WemosToCTRLConnection();
 }
