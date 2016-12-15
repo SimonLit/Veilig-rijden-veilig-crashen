@@ -2,6 +2,9 @@ int8_t yawOffsetValue = 0;
 int8_t pitchOffsetValue = 0;
 int8_t rollOffsetValue = 0;
 
+long lastMillisForCalibration = 0;
+int calibrationWaitTime = 1000;
+
 void DMPRoutine(void)
 {
   // if programming failed, don't try to do anything
@@ -53,6 +56,19 @@ void getYPR(void)
   mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
 }
 
+/*
+   Assignt the YPR values from the DMP, minus the YPR offsets to the YPR int array.
+*/
+void updateCurrentOrientation(int* YPRArrayToUpdate)
+{
+  DMPRoutine();
+
+  YPRArrayToUpdate[0] = (ypr[0] * 180 / M_PI) - yawOffsetValue;
+  YPRArrayToUpdate[1] = (ypr[1] * 180 / M_PI) - pitchOffsetValue;
+  YPRArrayToUpdate[2] = (ypr[2] * 180 / M_PI) - rollOffsetValue;
+}
+
+// THIS CAN BE DELETED WHEN THE PROGRAM WORKS.
 void prinYawPitchRoll(void)
 {
   getYPR();
@@ -66,6 +82,12 @@ void prinYawPitchRoll(void)
   Serial.println();
 }
 
+/*
+   Check if the values of the MPU are stabalized or not.
+
+   Return: true if the MPU is stable.
+           false if the MPU isn't stable yet.
+*/
 bool getMPUIsStabilized(void)
 {
   uint8_t yaw1 = 0;
@@ -76,33 +98,55 @@ bool getMPUIsStabilized(void)
   uint8_t pitch2 = 0;
   uint8_t roll2 = 0;
 
-  uint8_t errorMargin = 1;
+  uint8_t errorMargin = 3;
 
   DMPRoutine();
-  getYPR();
-  yaw1 = ypr[0] * 180 / M_PI;
-  pitch1 = ypr[1] * 180 / M_PI;
-  roll1 = ypr[2] * 180 / M_PI;
 
-  DMPRoutine();
-  getYPR();
-  yaw2 = ypr[0] * 180 / M_PI;
-  pitch2 = ypr[1] * 180 / M_PI;
-  roll2 = ypr[2] * 180 / M_PI;
-
-  uint8_t yawDifference = yaw1 - yaw2;
-  uint8_t pitchDifference = pitch1 - pitch2;
-  uint8_t rollDifference = roll1 - roll2;
-
-  if ((yawDifference > -errorMargin && yawDifference <  errorMargin)
-      && (pitchDifference > -errorMargin && pitchDifference <  errorMargin)
-      && (rollDifference > -errorMargin && rollDifference <  errorMargin))
+  if ((millis() -  lastMillisForCalibration) <  calibrationWaitTime / 3)
   {
-    return true;
+    getYPR();
+    yaw1 = ypr[0] * 180 / M_PI;
+    pitch1 = ypr[1] * 180 / M_PI;
+    roll1 = ypr[2] * 180 / M_PI;
   }
-  else return false;
+
+  if ((millis() - lastMillisForCalibration) > calibrationWaitTime)
+  {
+    getYPR();
+    yaw2 = ypr[0] * 180 / M_PI;
+    pitch2 = ypr[1] * 180 / M_PI;
+    roll2 = ypr[2] * 180 / M_PI;
+
+    int yawDifference = yaw1 - yaw2;
+    int pitchDifference = pitch1 - pitch2;
+    int rollDifference = roll1 - roll2;
+
+    Serial.print("yawDifference");
+    Serial.println(yawDifference);
+    Serial.print("pitchDifference");
+    Serial.println(pitchDifference);
+    Serial.print("rollDifference");
+    Serial.println(rollDifference);
+
+    if ((yawDifference > -errorMargin && yawDifference <  errorMargin)
+        && (pitchDifference > -errorMargin && pitchDifference <  errorMargin)
+        && (rollDifference > -errorMargin && rollDifference <  errorMargin))
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+
+    lastMillisForCalibration = millis();
+  }
+  return false;
 }
 
+/*
+   Assign the YPR offsets to the current values of the MPU.
+*/
 void resetYPRValues(void)
 {
   DMPRoutine();

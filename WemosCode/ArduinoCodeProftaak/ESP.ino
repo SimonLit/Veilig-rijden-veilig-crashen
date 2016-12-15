@@ -1,171 +1,244 @@
-WiFiClient client1;
-const char* host_Wemos1 = "192.168.1.101";
-const int httpPort_Wemos1 = 80;
+WiFiClient client_Controller;
+const char* host_Controller = "192.168.1.101";
+const int httpPort_Controller = 80;
 
-WiFiClient client2;
-const char* host_Wemos2 = "10.10.0.1";
-const int httpPort_Wemos2 = 5000;
+WiFiClient client_sendCrashData;
+const char* host_sendCrashData = "192.168.1.100";
+const int httpPort_sendCrashData = 5500;
 
-void initControllerHost(void)
+
+/*
+   Request the speed value from the controller.
+   The string to sent to the RP6 are stored in the String pointers
+   from the parameters.
+
+   Return: -1 if connection with the controller broke.
+            0 if the controller values are received
+*/
+int getControllerValues(String* controllerToRP6Protocol)
 {
-  // Use WiFiClient class to create TCP connections
-  /*if (!client1.connect(host_Wemos1, httpPort_Wemos1)) {
-    Serial.println("connection failed");
-    return;
-    }*/
+  int nackCounter = 0;
+  int timeOutTimer = millis();
+  String speedValue = "";
+  int valueSeparetor = -1;
+  String steerValue = "";
 
-  if (!client2.connect(host_Wemos2, httpPort_Wemos2)) {
-    Serial.println("connection failed");
-    return;
+  if (!client_Controller.connect(host_Controller, httpPort_Controller))
+  {
+    return -1;
+  }
+
+  nackCounter = 0;
+  timeOutTimer = millis();
+
+  //!!!
+  //TODO: Make sure a identity check is implemented.
+  //!!!
+
+  makeProtocolString(CONTROLLER_VALUE_PROTOCOL_REQUEST_SEND);
+  client_Controller.print(protocolStringToSend);
+
+  String controllerValuesString = "heyo";
+  controllerValuesString = client_Controller.readString();
+  
+  //while (client_Controller.available() && (millis() - timeOutTimer) < maxResponseTimeout && nackCounter < maxNACKCounter)
+  //{
+
+    int i = 1;
+      switch (i)
+      {
+        // The message with the controller values are received.
+        case 1:
+          if (getIncommingStringFromMessage(controllerValuesString, &controllerValuesString, controllerValuesString.length()))
+          {
+            if (controllerValuesString.substring(0, 16) == CONTROLLER_VALUE_PROTOCOL_RECEIVE)
+            {
+              valueSeparetor = controllerValuesString.indexOf(MULTI_VALUE_SEPARATOR);
+              steerValue = controllerValuesString.substring(17, valueSeparetor);
+              speedValue = controllerValuesString.substring(valueSeparetor + 1);
+            }
+          }
+
+          makeProtocolStringWith2Value(CONTROLLER_VALUES, speedValue, steerValue);
+          *controllerToRP6Protocol = protocolStringToSend;
+
+          lastControllerReceiveTimer = millis();
+          client_Controller.stop();
+
+          return 0;
+
+        // The message that was send from the controller to the wemos doesn't
+        // match any of the defined protocols.
+        case 0:
+          makeProtocolString(GENERAL_NACK);
+          client_Controller.print(protocolStringToSend);
+          break;
+
+        // NACK is received
+        case -1:
+          makeProtocolString(CONTROLLER_VALUE_PROTOCOL_REQUEST_SEND);
+          client_Controller.print(protocolStringToSend);
+          nackCounter++;
+          timeOutTimer = millis();
+          break;
+      }
+ // }
+
+  if ((millis() - timeOutTimer) > maxResponseTimeout || nackCounter > maxNACKCounter)
+  {
+    client_Controller.stop();
+    return -1;
   }
 }
 
-void changeLedState()/*String* CrashDataProtocol, int numberOfCrashDataDataToSend*/
+/*
+   Connect to the boardcomputer
+*/
+int connectToBoardcomputer(void)
 {
-  /*if (!client1.connect(host_Wemos1, httpPort_Wemos1)) {
-    Serial.println("connection failed");
-    return;
-    }
+  int nackCounter = 0;
+  int timeoutTimer = millis();
 
-    if (!client2.connect(host_Wemos2, httpPort_Wemos2)) {
-    Serial.println("connection failed");
-    return;
-    }
+  // Make a connection with the boardcomputer.
+  if (!client_sendCrashData.connect(host_sendCrashData, httpPort_sendCrashData)) {
+    return -1;
+  }
 
-    client2.print(String("GET ") + "/LED=OFF/" + " HTTP/1.1\r\n" +
-                  "Host: " + host_Wemos2 + "\r\n" +
-                  "Connection: close\r\n\r\n");
+  // Send the Identification info.
+  makeProtocolStringWithValue(CONNECT_TO_DEVICE, (String)WEMOS_NAME);
+  client_sendCrashData.print(protocolStringToSend);
 
-    /*for(int i = 0; i < numberOfCrashDataDataToSend; i++)
+  while (client_sendCrashData.available() && ((millis() - timeoutTimer) <= maxResponseTimeout) && (nackCounter <= maxNACKCounter))
+  {
+    String crashDataResponse = client_sendCrashData.readString();
+    Serial.println(crashDataResponse);
+
+    if (getIncommingStringFromMessage(crashDataResponse, &crashDataResponse, sizeof(crashDataResponse)))
     {
-    client.print(String("GET ") + '/'CrashDataProtocol[i]'/' + " HTTP/1.1\r\n" +
-                 "Host: " + host_sendCrashProtocol + "\r\n" +
-                 "Connection: close\r\n\r\n");
-    }*/
-
-  if (ledState)
-  {
-    client1.print(String("GET ") + "/LED=OFF/" + " HTTP/1.1\r\n" +
-                  "Host: " + host_Wemos1 + "\r\n" +
-                  "Connection: close\r\n\r\n");
-    ledState = false;
-    Serial.println("led OFF");
-  }
-  else if (!ledState)
-  {
-    client1.print(String("GET ") + "/LED=ON/" + " HTTP/1.1\r\n" +
-                  "Host: " + host_Wemos1 + "\r\n" +
-                  "Connection: close\r\n\r\n");
-    ledState = true;
-    Serial.println("led ON");
-
-  }
-
-
-  /*unsigned long timeout = millis();
-    while (client.available() == 0) {
-    if (millis() - timeout > 3000) {
-      Serial.println(">>> Client Timeout !");
-      client.stop();
-      return;
+      if (crashDataResponse.substring(0, 8) == CONNECTED_ACK_RECEIVE && crashDataResponse.substring(10) == BOARDCOMPUTER_NAME)
+      {
+        // If the identity is verified send the crash data to the boardcomputer.
+        return -1;
+      }
+      else if (crashDataResponse == GENERAL_NACK)
+      {
+        nackCounter++;
+        makeProtocolStringWithValue(CONNECT_TO_DEVICE, (String)WEMOS_NAME);
+        client_sendCrashData.print(protocolStringToSend);
+        timeoutTimer = millis();
+      }
+      else
+      {
+        // The message that was send from the boardcomputer to the wemos doesn't
+        // match any of the defined protocols.
+        makeProtocolString(GENERAL_NACK);
+        client_sendCrashData.print(protocolStringToSend);
+      }
     }
-    }*/
-
-  // Read all the lines of the reply from server and print them to Serial
-  while (client1.available()) {
-    String line = client1.readStringUntil('\r');
-    Serial.print(line);
   }
 
-
-  /*for(int i = 0; i < numberOfCrashDataDataToSend; i++)
-    {
-    client.print(String("GET ") + '/'CrashDataProtocol[i]'/' + " HTTP/1.1\r\n" +
-                 "Host: " + host_sendCrashProtocol + "\r\n" +
-                 "Connection: close\r\n\r\n");
-    }*/
-
-  if (ledState1)
+  if ((millis() - timeoutTimer) > maxResponseTimeout || (nackCounter > maxNACKCounter))
   {
-    client2.print(String("GET ") + "/LED=OFF/" + " HTTP/1.1\r\n" +
-                  "Host: " + host_Wemos2 + "\r\n" +
-                  "Connection: close\r\n\r\n");
-    ledState1 = false;
-    Serial.println("led OFF");
-  }
-  else if (!ledState1)
-  {
-    client2.print(String("GET ") + "/LED=ON/" + " HTTP/1.1\r\n" +
-                  "Host: " + host_Wemos2 + "\r\n");
-    ledState1 = true;
-    Serial.println("led ON");
-
-  }
-
-
-  /*unsigned long timeout = millis();
-    while (client.available() == 0) {
-    if (millis() - timeout > 3000) {
-      Serial.println(">>> Client Timeout !");
-      client.stop();
-      return;
-    }
-    }*/
-
-  // Read all the lines of the reply from server and print them to Serial
-  while (client2.available()) {
-    String line = client2.readStringUntil('\r');
-    Serial.print(line);
-  }
-  /*Serial.println();
-    Serial.println("closing connection");*/
-}
-
-void getXasController(void)
-{
-  if (!client1.connect(host_Wemos1, httpPort_Wemos1)) {
-    Serial.println("connection failed");
-    return;
-  }
-
-  client1.print(String("GET ") + "/GetX/" + " HTTP/1.1\r\n" +
-                "Host: " + host_Wemos1 + "\r\n" +
-                "Connection: close\r\n\r\n");
-
-  while (client1.available()) {
-    String xProtocolString = client1.readStringUntil('\r');
-    Serial.println(xProtocolString);
-    /*for (int i = 0; i < xProtocolString.length(); i++)
-    {
-      Serial.write(xProtocolString[i]);
-      Serial.println();
-      Serial.print(xProtocolString[i]);
-      //swSer.write(xProtocolString[i]);
-    }*/
+    client_sendCrashData.stop();
+    return -1;
   }
 }
 
-void getSpeedController(void)
+/*
+   Send the crash data to the boardcomputer.
+*/
+int sendCrashData(String CrashDataProtocol[], int numberOfCrashDataDataToSend)
 {
-  if (!client1.connect(host_Wemos1, httpPort_Wemos1)) {
-    Serial.println("connection failed");
-    return;
+  int nackCounter = 0;
+  int timeoutTimer = millis();
+
+  // The connection was verified. Now the crash data has to be send to the boardcomputer.
+  // Send the chrash data to the boardcomputer.
+  String crashDataForBoardcomputer = SEND_DATA_TO_BOARDCOMPUTER_INDICATOR + MULTI_COMMAND_SEPARATOR +
+                                     CrashDataProtocol[0] + MULTI_COMMAND_SEPARATOR +
+                                     CrashDataProtocol[1] + MULTI_COMMAND_SEPARATOR +
+                                     CrashDataProtocol[2] + MULTI_COMMAND_SEPARATOR +
+                                     CrashDataProtocol[3] + MULTI_COMMAND_SEPARATOR +
+                                     CrashDataProtocol[4];
+  makeProtocolString(crashDataForBoardcomputer);
+  client_sendCrashData.print(protocolStringToSend);
+
+  while (client_sendCrashData.available() && ((millis() - timeoutTimer) <= maxResponseTimeout) && (nackCounter <= maxNACKCounter))
+  {
+    String crashDataResponse = client_sendCrashData.readString();
+
+    if (getIncommingStringFromMessage(crashDataResponse, &crashDataResponse, sizeof(crashDataResponse)))
+    {
+      switch (checkForValidBoardcomputerMessage(crashDataResponse))
+      {
+        case 1:
+          client_sendCrashData.stop();
+          return 1;
+
+        // The message that was send from the boardcomputer to the wemos doesn't
+        // match any of the defined protocols.
+        case 0:
+          makeProtocolString(GENERAL_NACK);
+          client_sendCrashData.print(protocolStringToSend);
+          break;
+
+        case -1:
+          makeProtocolString(crashDataForBoardcomputer);
+          client_sendCrashData.print(protocolStringToSend);
+          nackCounter++;
+          timeoutTimer = millis();
+          break;
+
+      }
+    }
   }
 
-  client1.print(String("GET ") + "/GetSpeed/" + " HTTP/1.1\r\n" +
-                "Host: " + host_Wemos1 + "\r\n" +
-                "Connection: close\r\n\r\n");
-
-  while (client1.available()) {
-    String speedProtocolString = client1.readStringUntil('\r');
-    Serial.println(speedProtocolString);
-    /*for (int i = 0; i < speedProtocolString.length(); i++)
-    {
-      Serial.write(speedProtocolString[i]);
-      Serial.println();
-      Serial.print(speedProtocolString[i]);
-      //swSer.write(speedProtocolString[i]);
-    }*/
+  if ((millis() - timeoutTimer) > maxResponseTimeout || (nackCounter > maxNACKCounter))
+  {
+    client_sendCrashData.stop();
+    return -1;
   }
 }
 
+int sendRP6StatusToBoardcomputer(void)
+{
+  int nackCounter = 0;
+  int timeoutTimer = millis();
+  
+  makeProtocolString(RP6States[RP6State]);
+  client_sendCrashData.print(protocolStringToSend);
+
+  while (client_sendCrashData.available() && ((millis() - timeoutTimer) <= maxResponseTimeout) && (nackCounter <= maxNACKCounter))
+  {
+    String crashDataResponse = client_sendCrashData.readString();
+
+    if (getIncommingStringFromMessage(crashDataResponse, &crashDataResponse, sizeof(crashDataResponse)))
+    {
+      switch (checkForValidBoardcomputerMessage(crashDataResponse))
+      {
+        case 1:
+          client_sendCrashData.stop();
+          return 1;
+
+        // The message that was send from the boardcomputer to the wemos doesn't
+        // match any of the defined protocols.
+        case 0:
+          makeProtocolString(GENERAL_NACK);
+          client_sendCrashData.print(protocolStringToSend);
+          break;
+
+        case -1:
+          makeProtocolString(RP6States[RP6State]);
+          client_sendCrashData.print(protocolStringToSend);
+          break;
+
+      }
+    }
+  }
+
+  if ((millis() - timeoutTimer) > maxResponseTimeout || (nackCounter > maxNACKCounter))
+  {
+    client_sendCrashData.stop();
+    return -1;
+  }
+}

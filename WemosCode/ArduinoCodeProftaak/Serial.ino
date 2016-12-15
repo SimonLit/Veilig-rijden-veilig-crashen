@@ -1,29 +1,64 @@
-bool startReading = false;
+bool startReadingSerialMessage = false;
+bool startReadingStringMessage = false;
 String internalTempMessage = "";
+String tempFormattedMessage = "";
 
-bool getIncommingString(void)
+bool getIncommingString(String* stringFromSerial)
 {
-  if (Serial.available() > 0)
+  if (Serial.available() > 64)
   {
-    char incommingChar = Serial.read();
-    
-    if (incommingChar == '%')
+    Serial.flush();
+  }
+  else
+  {
+    if (Serial.available() > 0)
     {
-      startReading = false;
-      tempMessage = internalTempMessage;
-      Serial.println(tempMessage);
+      char incommingChar = Serial.read();
+
+      if (incommingChar == END_CHARACTER)
+      {
+        startReadingSerialMessage = false;
+        *stringFromSerial = internalTempMessage;
+        return true;
+      }
+
+      if (startReadingSerialMessage)
+      {
+        internalTempMessage += incommingChar;
+      }
+
+      if (incommingChar == START_CHARACTER)
+      {
+        startReadingSerialMessage = true;
+        internalTempMessage = "";
+      }
+    }
+    return false;
+  }
+}
+
+bool getIncommingStringFromMessage(String message, String* formattedMessage, int messageLength)
+{
+  for (int i = 0; i < messageLength; i++)
+  {
+    char readChar = (char)message[i];
+
+    if (readChar == END_CHARACTER)
+    {
+      startReadingStringMessage = false;
+      *formattedMessage = tempFormattedMessage;
       return true;
     }
 
-    if (startReading)
+    if (startReadingStringMessage)
     {
-      internalTempMessage += incommingChar;
+      tempFormattedMessage += message[i];
     }
 
-    if (incommingChar == '#')
+    if (readChar == START_CHARACTER)
     {
-      startReading = true;
-      internalTempMessage = "";
+      startReadingStringMessage = true;
+      tempFormattedMessage = "";
     }
   }
   return false;
