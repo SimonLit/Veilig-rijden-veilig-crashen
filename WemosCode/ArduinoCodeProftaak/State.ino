@@ -51,7 +51,7 @@ void actOnState_WemosToRP6Connection(void)
         if (checkForValidRP6Message(stringFromSerial) == 1)
         {
           makeProtocolString(GENERAL_ACK);
-          Serial.println(controllerToRP6Protocol);
+          Serial.println(protocolStringToSend);
 
           if (stringFromSerial == RP6_STARTED_PROGRAM)
           {
@@ -77,7 +77,7 @@ void actOnState_WemosToRP6Connection(void)
         else if (checkForValidRP6Message(stringFromSerial) == 0)
         {
           makeProtocolString(GENERAL_NACK);
-          Serial.println(controllerToRP6Protocol);
+          Serial.println(protocolStringToSend);
         }
 
         // This method checks if the received message belongs to one of the recieved crach data messages

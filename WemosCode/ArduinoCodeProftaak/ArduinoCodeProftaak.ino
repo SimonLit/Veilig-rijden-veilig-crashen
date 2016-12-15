@@ -287,9 +287,6 @@ void loop()
     resetYPRValues();
   }
 
-  // Check if a Serial message is received that end with '@'.
-  //bool receivedEndOfSerialString = getIncommingString(&stringFromSerial);
-
   actOnState_WemosToRP6Connection();
   actOnState_RP6State();
   actOnState_WemosToCTRLConnection();
