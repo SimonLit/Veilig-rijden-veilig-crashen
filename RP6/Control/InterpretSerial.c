@@ -116,3 +116,19 @@ int checkForHeartbeat(char* receiveBufferCommand)
 {
 	return ((strcmp(receiveBufferCommand, HEARTBEAT_RP6) == 0) ? 0 : -1);
 }
+
+int checkForRP6StateChange(char* receiveBufferCommand)
+{
+	if((strcmp(receiveBufferCommand, RP6_STARTED_PROGRAM) == 0))
+	{
+		return 1;
+	}
+	else if((strcmp(receiveBufferCommand, RP6_STOPPED_PROGRAM) == 0))
+	{
+		return 0;
+	}
+	else 
+	{
+		return -1;
+	}
+}

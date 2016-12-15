@@ -39,4 +39,9 @@ int checkForHeartbeat(char* receiveBufferCommand);
 // Return: -1 if receiveBufferCommand is NULL or wasn't a heartbeat request.
 //			0 on succes.
 
+int checkForRP6StateChange(char* receiveBufferCommand);
+//
+// Pre: -
+// Post:
+// Return:
 #endif
