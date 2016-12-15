@@ -16,7 +16,6 @@ char* RP6StateStrings[] = {RP6_STARTED_PROGRAM, RP6_STOPPED_PROGRAM};
 
 long lastControllerValueReceived = 0;
 long lastHeartbeatRequestReceived = 0;
-int maxTimeout = 200;
 
 // Show the speed of the tires on the LCD.
 void writeSpeedOnLCD(int rightSpeed, int leftSpeed)
@@ -105,6 +104,7 @@ int main(void)
 	startStopwatch2(); // Timer for getting all the sensor data from the RP6 base board.
 	startStopwatch3(); // TImer for checking the start/stop program button.
 	startStopwatch4(); // Timer for checking if the heartbeat is received in time.
+	startStopwatch5();
 
 	long lastHeartbeatReceived = 0;
 
@@ -137,7 +137,8 @@ int main(void)
 					{
 						if(waitForConnectRequest(receiveBufferCommand, receiveBufferValue) == 0)
 						{
-							sendConnectACK();
+							sendMessageWithValue(CONNECTED_ACK, RP6_NAME);
+
 							clearLCD();
 							writeStringLCD("Connected");	
 							RP6ToWemosConnection = CONNECTED;
@@ -167,7 +168,7 @@ int main(void)
 									break;
 							}	
 							// Send the new RP6 status to the wemos.
-							sendRP6Satus(RP6StateStrings[RP6State]);	
+							sendMessage(RP6StateStrings[RP6State]);	
 
 							clearLCD();
 							writeStringLCD(RP6StateStrings[RP6State]);	
@@ -195,27 +196,27 @@ int main(void)
 							{
 								if(checkForHeartbeat(receiveBufferCommand) == 0)
 								{
-									sendACK();
+									sendMessage(GENERAL_ACK);
 									lastHeartbeatReceived = getStopwatch1();
 								}
 								else if(interpretMessageForSpeedValues(receiveBufferCommand, receiveBufferValue,
 																				&baseSpeed, &rightSpeed, &leftSpeed) == 0)
 								{
-									sendACK();
+									sendMessage(GENERAL_ACK);
 								}
 								else if(checkForRP6StateChange(receiveBufferCommand) == 1)
 								{
-									sendACK();
+									sendMessage(GENERAL_ACK);
 									RP6State = STARTED_PROGRAM;
 								}
 								else if(checkForRP6StateChange(receiveBufferCommand) == 0)
 								{
-									sendACK();
+									sendMessage(GENERAL_ACK);
 									RP6State = STOPPED_PROGRAM;
 								}
 								else
 								{
-									sendNACK();
+									sendMessage(GENERAL_NACK);
 								}
 							} 
 
@@ -269,10 +270,11 @@ int main(void)
 						baseSpeed = 0;
 						rightSpeed = 0;
 						leftSpeed = 0;
-
 						break;
-				}
-				break;	
+			}
+			break;	
 		}
-	}	
+	}
+
+	return 0;	
 }	

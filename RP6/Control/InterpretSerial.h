@@ -44,4 +44,9 @@ int checkForRP6StateChange(char* receiveBufferCommand);
 // Pre: -
 // Post:
 // Return:
+
+int checkForACK(char* receiveBufferCommand);
+
+int checkForNACK(char* receiveBufferCommand);
+
 #endif

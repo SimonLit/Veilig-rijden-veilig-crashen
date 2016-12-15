@@ -31,4 +31,7 @@ uint16_t mapPressureSensorValueToNewton(int pressureValue);
 //Post: 
 //Return:
 
+int uint8_tToString(uint8_t value, char* string, unsigned int stringLength);
+int uint16_tToString(uint16_t value, char* string, unsigned int stringLength);
+
 #endif

@@ -9,16 +9,10 @@ int getIncomingSerialMessage(char* receiveBufferCommand, char* receiveBufferValu
 //Return: -1 if there in no serial data to read, one of the char pointers is NULL or receiveBufferLength > 10.
 //		   0 if '%' was received.
 
-void sendACK(void);
+void sendMessage(char* command);
 
-void sendNACK(void);
+void sendMessageWithValue(char* command, char* value);
 
-void sendConnectACK(void);
-
-void sendRP6Satus(char* state);
-//
-// Pre: -
-// Post:
-// Return:
+int timeoutHandler(void);
 
 #endif
