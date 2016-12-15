@@ -1,8 +1,15 @@
 #include "Drive.h"
+#include <string.h>
+#include "internal/RP6Control_I2CMasterLib_internal.h"
+#include "RP6Control_I2CMasterLib.h" 	
 
 //====================================================================================
 // Drive
 //====================================================================================
+
+int baseSpeed = 0;
+uint8_t rightSpeed = 0;
+uint8_t leftSpeed = 0;
 
 uint8_t speedArrayIndexToWriteTo = 0;
 const int sDataArraySize = 15;
@@ -24,6 +31,7 @@ int saveSpeedData(void)
 
 uint16_t calculateAverageSpeed(void)
 {
+	// COULD BE OPTIMIZED
 	uint16_t sum = 0;
 
 	for(uint8_t i = 0; i < sDataArraySize; i++)
@@ -32,4 +40,13 @@ uint16_t calculateAverageSpeed(void)
 	}
 
 	return sum/sDataArraySize;
+}
+
+void drive(void)
+{
+	if(leftSpeed > 150) leftSpeed = 150;
+	if(rightSpeed > 150) rightSpeed = 150;
+
+	(baseSpeed < 0) ? changeDirection(BWD) : changeDirection(FWD);
+	moveAtSpeed(leftSpeed, rightSpeed);
 }
