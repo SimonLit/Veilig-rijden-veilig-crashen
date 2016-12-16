@@ -107,18 +107,28 @@ int interpretMessageForSpeedValues(char* receiveBufferCommand, char* receiveBuff
 	}
 }
 
+
+//!!!
+//TODO: make sure all paramters are valid.
+//!!!
+
 int waitForConnectRequest(char* receiveBufferCommand, char* receiveBufferValue)
-{
+{	
+	if(receiveBufferCommand == NULL || receiveBufferValue == NULL){return -1;}
 	return ((strcmp(receiveBufferCommand, CONNECT_TO_DEVICE_RECEIVE) == 0 && strcmp(receiveBufferValue, WEMOS_NAME) == 0) ? 0 : -1);
 }
 
 int checkForHeartbeat(char* receiveBufferCommand)
 {
+	writeString("waitingForHeartbeat");	
+	if(receiveBufferCommand = NULL){return -1;}
 	return ((strcmp(receiveBufferCommand, HEARTBEAT_RP6) == 0) ? 0 : -1);
 }
 
 int checkForRP6StateChange(char* receiveBufferCommand)
 {
+	if(receiveBufferCommand = NULL){return -1;}
+
 	if((strcmp(receiveBufferCommand, RP6_STARTED_PROGRAM) == 0))
 	{
 		return 1;
@@ -135,10 +145,12 @@ int checkForRP6StateChange(char* receiveBufferCommand)
 
 int checkForACK(char* receiveBufferCommand)
 {
+	if(receiveBufferCommand = NULL){return -1;}
 	return ((strcmp(receiveBufferCommand, GENERAL_ACK) == 0) ? 0 : -1);
 }
 
 int checkForNACK(char* receiveBufferCommand)
 {
+	if(receiveBufferCommand = NULL){return -1;}
 	return ((strcmp(receiveBufferCommand, GENERAL_NACK) == 0) ? 0 : -1);
 }

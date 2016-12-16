@@ -13,7 +13,7 @@
 
 uint8_t pressed = false;
 uint8_t crashInfoWasSend = false;
-uint8_t hitSide;
+uint8_t hitSide = 0;
 
 uint8_t lastButton2State = false;
 uint8_t lastButton3State = false;
@@ -55,16 +55,16 @@ int sendCrashInfo(crashInfo* cInfo)
 	if(cInfo == NULL){return -1;}
 
 
-	uint8_tToString(cInfo->speed, valueBuffer, sizeof(valueBuffer));
+	uint8_tToString(cInfo->speed, valueBuffer, sizeof(valueBuffer)); // Convert the speed to string.
 	sendMessageWithValue(SPEED_PROTOCOL_SEND, valueBuffer);
 
-	uint8_tToString(cInfo->sideHit, valueBuffer, sizeof(valueBuffer));
+	uint8_tToString(cInfo->sideHit, valueBuffer, sizeof(valueBuffer)); // Convert the hit side to string.
 	if(timeoutHandler() == 0){sendMessageWithValue(SIDE_HIT_PROTOCOL_SEND_RECEIVE, valueBuffer);} else {return -1;}
 
-	uint16_tToString(cInfo->impactGram, valueBuffer, sizeof(valueBuffer));
+	uint16_tToString(cInfo->impactGram, valueBuffer, sizeof(valueBuffer)); // Convert the impact in grams to string.
 	if(timeoutHandler() == 0){sendMessageWithValue(IMPACT_PROTOCOL_SEND_RECEIVE, valueBuffer);} else {return -1;}
 
-	uint16_tToString(cInfo->distanceDrivenInCM, valueBuffer, sizeof(valueBuffer));
+	uint16_tToString(cInfo->distanceDrivenInCM, valueBuffer, sizeof(valueBuffer)); // Convert the distance driven to string.
 	if(timeoutHandler() == 0){sendMessageWithValue(DIST_DRIVEN_PROTOCOL_SEND_RECEIVE, valueBuffer);} else {return -1;}
 
 	if(timeoutHandler() == 0){sendMessage(ORIENTATION_PROTOCOL_RECEIVE);} else {return -1;}

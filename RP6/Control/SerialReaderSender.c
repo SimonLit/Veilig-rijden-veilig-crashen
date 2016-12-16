@@ -103,13 +103,13 @@ int getIncomingSerialMessage(char* receiveBufferCommand, char* receiveBufferValu
 
 void sendMessage(char* command)
 {
-	makeProtocolMessage(command);
+	if(makeProtocolMessage(command) == -1) {return -1;}
 	writeString(protocolMessageToSend);
 }
 
 void sendMessageWithValue(char* command, char* value)
 {
-	makeProtocolMessageWithValue(command, value);
+	if(makeProtocolMessageWithValue(command, value) == -1) {return -1;}
 	writeString(protocolMessageToSend);
 }
 
@@ -123,6 +123,7 @@ int timeoutHandler(void)
 
 	while (nackCounter < MAX_NACK_COUNTER && (getStopwatch5() - timoutTimer) < MAX_HEARTBEAT_TIMEOUT)
 	{
+		writeString("inWhile");
 		if(getIncomingSerialMessage(commandBuffer, valueBuffer) == 0)
 		{
 			if(checkForACK(commandBuffer) == 0)

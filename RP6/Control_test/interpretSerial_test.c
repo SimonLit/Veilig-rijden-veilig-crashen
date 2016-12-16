@@ -40,12 +40,34 @@ static void test_if_speeds_are_adjusted_correctly_interal_rounding(void)
 	TEST_ASSERT_EQUAL(38, rightSpeed);
 	TEST_ASSERT_EQUAL(50, leftSpeed);
 }
+
+static void test_both_negative_controller_values_are_handled_correctly(void)
+{
+	TEST_ASSERT_EQUAL(0, interpretMessageForSpeedValues("CONTROLLER_VALUES", "-50,-50", &baseSpeed, &rightSpeed, &leftSpeed));
+	TEST_ASSERT_EQUAL(-50, baseSpeed);
+	TEST_ASSERT_EQUAL(50, rightSpeed);
+	TEST_ASSERT_EQUAL(25, leftSpeed);
+}
+
+static void test_basespeed_negative_controller_values_are_handled_correctly(void)
+{
+	TEST_ASSERT_EQUAL(0, interpretMessageForSpeedValues("CONTROLLER_VALUES", "-50,25", &baseSpeed, &rightSpeed, &leftSpeed));
+	TEST_ASSERT_EQUAL(-50, baseSpeed);
+	TEST_ASSERT_EQUAL(38, rightSpeed);
+	TEST_ASSERT_EQUAL(50, leftSpeed);
+}
+
 //!!!
 // TODO: MAKE MORE TEST CASES FOR SUCCES AND FAIL CASES
 //!!!
 
 void interpretSerial_RunTestcases(void)
 {
+	//===========================interpretMessageForSpeedValues===========================
 	RUN_MY_TEST(test_if_speeds_are_adjusted_correctly_interal_no_rounding);
 	RUN_MY_TEST(test_if_speeds_are_adjusted_correctly_interal_rounding);
+	RUN_MY_TEST(test_both_negative_controller_values_are_handled_correctly);
+	RUN_MY_TEST(test_basespeed_negative_controller_values_are_handled_correctly);
+
+	//===========================interpretMessageForSpeedValues===========================
 }

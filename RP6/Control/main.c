@@ -176,11 +176,6 @@ int main(void)
 					setStopwatch3(0);
 				}
 
-				if((getStopwatch1() -lastHeartbeatReceived) > MAX_HEARTBEAT_TIMEOUT)
-				{
-					RP6ToWemosConnection = DISCONNECTED;
-					RP6State = STOPPED_PROGRAM;
-				}
  	
 				// If the program is started.
 				switch(RP6State)
@@ -194,15 +189,16 @@ int main(void)
 						{	
 							if(getIncomingSerialMessage(receiveBufferCommand, receiveBufferValue) == 0)
 							{
-								if(checkForHeartbeat(receiveBufferCommand) == 0)
-								{
-									sendMessage(GENERAL_ACK);
-									lastHeartbeatReceived = getStopwatch1();
-								}
-								else if(interpretMessageForSpeedValues(receiveBufferCommand, receiveBufferValue,
+								writeString(receiveBufferCommand);
+								if(interpretMessageForSpeedValues(receiveBufferCommand, receiveBufferValue,
 																				&baseSpeed, &rightSpeed, &leftSpeed) == 0)
 								{
 									sendMessage(GENERAL_ACK);
+								}
+								else if(checkForHeartbeat(receiveBufferCommand) == 0)
+								{
+									sendMessage(GENERAL_ACK);
+									lastHeartbeatReceived = getStopwatch1();
 								}
 								else if(checkForRP6StateChange(receiveBufferCommand) == 1)
 								{
@@ -227,8 +223,8 @@ int main(void)
 
 						if((getStopwatch1() -lastHeartbeatReceived) > MAX_HEARTBEAT_TIMEOUT)
 						{
-							RP6ToWemosConnection = DISCONNECTED;
-							RP6State = STOPPED_PROGRAM;
+							//RP6ToWemosConnection = DISCONNECTED;
+							//RP6State = STOPPED_PROGRAM;
 						}
 
 						if(!pressed)
