@@ -1,35 +1,41 @@
 enum COMMUNICATIONSTATE
 {
   IDLE,
-  RECEIVEMESSAGE
+  RECEIVEMESSAGE,
 };
 
 #include <ESP8266WiFi.h>
 
-bool reading = false;
-String inputString = "";
-int xAxis;
-int velocity;
 const int baudRate = 9600;
+
+const char beginMessageMarker = '#';
+const char endMessageMarker = '%';
 
 const char* ssid = "Project";
 const char* password = "123456780";
 
-bool wifiConnected = false;
-bool serialConnected = false;
-bool waitingForACK = false;
-
 WiFiServer server(80);
 
-const long interval = 100;
-unsigned long previousMillis = 0;
+int failCounterHB = 0;
 int failCounterWifi = 0;
-int failCounterSerial = 0;
+
+int xAxis;
+int velocity;
 
 COMMUNICATIONSTATE communicationState = IDLE;
 
-void setup()
-{
+bool reading = false;
+String inputString = "";
+unsigned long previousMillisFailHb = 0;
+unsigned long failHbInterval = 150;
+unsigned long previousMillisFail = 0;
+unsigned long failInterval = 1000;
+
+bool wifiConnected = false;
+bool serialConnected = false;
+
+void setup() {
+  // put your setup code here, to run once:
   Serial.begin(baudRate);
 
   // Connect to WiFi network
@@ -59,19 +65,16 @@ void setup()
   Serial.println("/");
 }
 
-void loop()
-{
-  /*switch (communicationState)
+void loop() {
+  // put your main code here, to run repeatedly:
+  switch (communicationState)
   {
     case IDLE:
       Idle();
       break;
     case RECEIVEMESSAGE:
-      ReceiveMessageFromWemos();
       ReadPCMessages();
+      ReceiveMessageFromWemos();
       break;
-  }*/
-  ReceiveMessageFromWemos();
-  ReadPCMessages();
-  FailCounter();
+  }
 }

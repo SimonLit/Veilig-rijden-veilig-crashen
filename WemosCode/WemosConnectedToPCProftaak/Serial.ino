@@ -1,31 +1,42 @@
 void ReadPCMessages()
 {
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillisFailHb >= failHbInterval)
+  {
+    previousMillisFailHb = currentMillis;
+    failCounterHB++;
+    if (failCounterHB >= 5)
+    {
+      serialConnected = false;
+      communicationState = IDLE;
+    }
+  }
   if (Serial.available() > 0)
   {
     char inputByte = Serial.read();
-    if (inputByte == '#')
+    if (inputByte == beginMessageMarker)
     {
       reading = true;
       inputString = "";
     }
-    else if (inputByte == '%')
+    else if (inputByte == endMessageMarker)
     {
       reading = false;
+      serialConnected = true;
       if (inputString.startsWith("X:"))
       {
         xAxis = inputString.substring(2).toInt();
         Serial.println("#ACK%");
-        failCounterSerial = 0;
       }
       else if (inputString.startsWith("SPEED:"))
       {
         velocity = inputString.substring(6).toInt();
         Serial.println("#ACK%");
-        failCounterSerial = 0;
       }
       else if (inputString == "CHECK_HEARTBEAT")
       {
         Serial.println("#CONFIRM_HEARTBEAT%");
+        failCounterHB = 0;
       }
       else
       {
