@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
+using System.IO.Packaging;
 using System.Collections;
 using Microsoft.Maps.MapControl.WPF;
 
@@ -84,6 +85,20 @@ namespace hulpdiensten_verzekering_xml
             PoliceRapport policeRapport;
             policeRapport = administration.FindPoliceRapport(Convert.ToInt32(listBox.SelectedItem.ToString()));
             myMap.Center = new Location(policeRapport.locationxDouble, policeRapport.locationyDouble);
+        }
+
+        private void listBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+        }
+
+        private void listBox_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            
+        }
+
+        private void listBox_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
         }
     }
 }

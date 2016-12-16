@@ -9,6 +9,9 @@
         Title="MainWindow" Height="700" Width="993.866">
     <Grid>
         <m:Map CredentialsProvider="INSERT_YOUR_BING_MAPS_KEY" x:Name="myMap"  Height="515" Width="750" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-        <ListBox x:Name="listBox" HorizontalAlignment="Left" Height="515" VerticalAlignment="Top" Width="237" Margin="750,0,0,0" SelectionChanged="listBox_SelectionChanged"/>
+        <ListBox x:Name="listBox" HorizontalAlignment="Left" Height="515" VerticalAlignment="Top" Width="237" Margin="750,0,0,0" SelectionChanged="listBox_SelectionChanged" MouseDoubleClick="listBox_MouseDoubleClick" MouseLeftButtonDown="listBox_MouseLeftButtonDown" MouseDown="listBox_MouseDown"/>
+        <Grid x:Name="___Grid2_" d:IsHidden="True">
+            <Image x:Name="image" HorizontalAlignment="Left" Height="100" Margin="331,290,0,0" VerticalAlignment="Top" Width="100" Source="C:\Users\Gebruiker\Documents\Git\VeiligRijdenVeiligCrashen\hulpdiensten_verzekering\hulpdiensten_verzekering_xml/Images/PoliceRapportTemplate-1.png"/>
+        </Grid>
     </Grid>
 </Window>
