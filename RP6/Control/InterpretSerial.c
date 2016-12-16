@@ -132,3 +132,13 @@ int checkForRP6StateChange(char* receiveBufferCommand)
 		return -1;
 	}
 }
+
+int checkForACK(char* receiveBufferCommand)
+{
+	return ((strcmp(receiveBufferCommand, GENERAL_ACK) == 0) ? 0 : -1);
+}
+
+int checkForNACK(char* receiveBufferCommand)
+{
+	return ((strcmp(receiveBufferCommand, GENERAL_NACK) == 0) ? 0 : -1);
+}

@@ -1,5 +1,6 @@
 #include "Tools.h"
 #include <string.h>
+#include <stdio.h>
 #include "ProtocolDefines.h"
 
 char protocolMessageToSend[20];
@@ -52,4 +53,18 @@ uint16_t mapPressureSensorValueToNewton(int pressureValue)
 	// But because this is such a small difference it is much more convenient
 	// To avoid the use of decimal numbers. 
 	return map(pressureValue, 0, 1023, 0, 20); 
+}
+
+int uint8_tToString(uint8_t value, char* string, unsigned int stringLength)
+{
+	if(string == NULL) {return -1;}
+	memset(string, 0, stringLength);
+	return snprintf(string, stringLength, "%d", value);
+}
+
+int uint16_tToString(uint16_t value, char* string, unsigned int stringLength)
+{
+	if(string == NULL) {return -1;}
+	memset(string, 0, stringLength);
+	return snprintf(string, stringLength, "%d", value);
 }

@@ -9,7 +9,7 @@ extern uint8_t crashInfoWasSend;
 
 typedef struct
 {
-	double speed;
+	uint8_t speed;
 	uint8_t sideHit;
 	uint16_t impactGram;
 	uint16_t distanceDrivenInCM;

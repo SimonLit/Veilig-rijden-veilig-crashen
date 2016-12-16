@@ -1,10 +1,11 @@
 #include "Crash.h" 
 #include "Drive.h"
 #include "RP6I2CmasterTWI.h"
-#include "RP6uart.h"
+#include "SerialReaderSender.h"
 #include "Adc.h"
 #include "RP6Control_I2CMasterLib.h"
 #include "Tools.h"
+#include "ProtocolDefines.h"
 
 //====================================================================================
 // Crash
@@ -20,6 +21,8 @@ uint8_t lastButton5State = false;
 
 // Used for the converting from Newton to grams.
 float earthAcceleration = 9.81; 
+
+char valueBuffer[MAX_VALUE_LENGTH];
 
 int assignCrashInfo(crashInfo* cInfo)
 {
@@ -37,7 +40,7 @@ int assignCrashInfo(crashInfo* cInfo)
 	// Each segment is +/- 0.24mm (= ENCODER_RESOLUTION). 
 	// ENCODER_RESOLUTION is defined in the RP6Config.h file.
 	// So by multiplying is by 0.025cm you get the amount of cm/s.
-	double speedCMPerSecond = averageSpeed * 5 * ENCODER_RESOLUTION; 	
+	uint8_t speedCMPerSecond = averageSpeed * 5 * ENCODER_RESOLUTION; 	
 
 	cInfo->speed = speedCMPerSecond;
 	cInfo->sideHit = hitSide;
@@ -49,32 +52,24 @@ int assignCrashInfo(crashInfo* cInfo)
 
 int sendCrashInfo(crashInfo* cInfo)
 {
-	if(cInfo == NULL)
-	{
-		return -1;
-	}
+	if(cInfo == NULL){return -1;}
 
-	writeString("\n#SPEED:");
-	writeInteger(cInfo->speed, DEC);
-	writeChar('%');
 
-	writeString("#SIDE_HIT:");
-	writeInteger(cInfo->sideHit, DEC);
-	writeChar('%');
+	uint8_tToString(cInfo->speed, valueBuffer, sizeof(valueBuffer));
+	sendMessageWithValue(SPEED_PROTOCOL_SEND, valueBuffer);
 
-	writeString("#IMPACT:");
-	writeInteger(cInfo->impactGram, DEC);
-	writeChar('%');
+	uint8_tToString(cInfo->sideHit, valueBuffer, sizeof(valueBuffer));
+	if(timeoutHandler() == 0){sendMessageWithValue(SIDE_HIT_PROTOCOL_SEND_RECEIVE, valueBuffer);} else {return -1;}
 
-	writeString("#DIST_DRIVEN:");
-	writeInteger(cInfo->distanceDrivenInCM, DEC);
-	writeChar('%');
+	uint16_tToString(cInfo->impactGram, valueBuffer, sizeof(valueBuffer));
+	if(timeoutHandler() == 0){sendMessageWithValue(IMPACT_PROTOCOL_SEND_RECEIVE, valueBuffer);} else {return -1;}
 
-	writeString("#ORIENTATION");
-	writeChar('%');
+	uint16_tToString(cInfo->distanceDrivenInCM, valueBuffer, sizeof(valueBuffer));
+	if(timeoutHandler() == 0){sendMessageWithValue(DIST_DRIVEN_PROTOCOL_SEND_RECEIVE, valueBuffer);} else {return -1;}
+
+	if(timeoutHandler() == 0){sendMessage(ORIENTATION_PROTOCOL_RECEIVE);} else {return -1;}
 
 	crashInfoWasSend = true;
-
 	return 0;
 }
 

@@ -3,6 +3,7 @@
 #include <string.h>
 #include "ProtocolDefines.h"
 #include "Tools.h"
+#include "Stopwatch.h"
 
 int START_READING_COMMAND = 0;
 int START_READING_VALUE = 0;
@@ -100,27 +101,42 @@ int getIncomingSerialMessage(char* receiveBufferCommand, char* receiveBufferValu
 	return -1;
 }
 
-void sendACK(void)
+void sendMessage(char* command)
 {
-	makeProtocolMessage(GENERAL_ACK);
+	makeProtocolMessage(command);
 	writeString(protocolMessageToSend);
 }
 
-void sendNACK(void)
+void sendMessageWithValue(char* command, char* value)
 {
-	makeProtocolMessage(GENERAL_NACK);
+	makeProtocolMessageWithValue(command, value);
 	writeString(protocolMessageToSend);
 }
 
-void sendConnectACK(void)
+int timeoutHandler(void)
 {
-	makeProtocolMessageWithValue(CONNECTED_ACK, RP6_NAME);
-	writeString(protocolMessageToSend);
-}
+	long timoutTimer = 0;
+	int nackCounter = 0;
 
+	char commandBuffer[MAX_COMMAND_LENGTH];
+	char valueBuffer[MAX_VALUE_LENGTH];
 
-void sendRP6Satus(char* state)
-{
-	makeProtocolMessage(state);
-	writeString(protocolMessageToSend);
+	while (nackCounter < MAX_NACK_COUNTER && (getStopwatch5() - timoutTimer) < MAX_HEARTBEAT_TIMEOUT)
+	{
+		if(getIncomingSerialMessage(commandBuffer, valueBuffer) == 0)
+		{
+			if(checkForACK(commandBuffer) == 0)
+			{
+				return 0;
+			}
+			else if(checkForNACK(commandBuffer) == 0)
+			{
+				writeString(protocolMessageToSend);
+				nackCounter++;
+				timoutTimer = getStopwatch5();
+			}
+		}
+	}
+
+	if(nackCounter > MAX_NACK_COUNTER || (getStopwatch5() - timoutTimer) > MAX_HEARTBEAT_TIMEOUT) {return -1;}
 }
