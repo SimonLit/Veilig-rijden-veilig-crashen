@@ -80,6 +80,12 @@ static int connectVerify(int sockfd, DATAPACKET* recv)
 		 else if(returnValue = 0)
 		 {
 		 	verifiedCon = true;
+		 	returnValue = send(sockfd, "#ACK|VERIFIED@", 14, 0);
+		 	if(returnValue == -1)
+		 	{
+		 		perror("send");
+		 		send(sockfd, "#ACK|VERIFIED@", 14, 0);
+		 	}
 		 }
 	}while(verifiedCon == false || counter < 4);
 	if(verifiedCon = true)
