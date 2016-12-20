@@ -123,6 +123,7 @@ void sendAndReceiveController()
       // Check is GENERAL_ACK is received from the RP6.
       if (timeoutHandlerWemosToRP6(controllerToRP6Protocol, GENERAL_ACK) == -1)
       {
+        Serial.println("No ACK on heartbeat");
         WemosToRP6Connection = RP6_DISCONNECTED;
       }
 

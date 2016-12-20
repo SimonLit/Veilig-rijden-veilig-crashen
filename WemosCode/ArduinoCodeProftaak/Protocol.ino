@@ -110,7 +110,7 @@ int timeoutHandlerWemosToRP6(String messageToSend, String messageToCheckFor)
 
   Serial.println(messageToSend);
 
-  while (((millis() - timeoutTimer) <= maxResponseTimeout) && (nackCounter <= maxNACKCounter))
+  while ((millis() - timeoutTimer) <= maxResponseTimeout && nackCounter <= maxNACKCounter)
   {
     // Listen for a response from the RP6
     receivedEndOfSerialString = getIncommingString(&stringFromSerial);
@@ -126,6 +126,7 @@ int timeoutHandlerWemosToRP6(String messageToSend, String messageToCheckFor)
       {
         // NACK was received. Increase the NACK counter and send the message again.
           nackCounter++;
+          timeoutTimer = millis();
           Serial.println(messageToSend);
       }
     }

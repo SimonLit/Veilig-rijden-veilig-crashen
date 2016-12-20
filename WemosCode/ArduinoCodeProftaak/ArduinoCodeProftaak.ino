@@ -59,7 +59,7 @@ String stringFromSerial = "";
 //=================================================================
 
 String protocolStringToSend = "";
-String protocolToSendArray[5]; // 0 = speed; 1 = sideHit; 2 = impact; 3 = distDriven; 4 = orientation;
+String protocolToSendArray[5] = {"a", "b", "c", "d", "e"}; // 0 = speed; 1 = sideHit; 2 = impact; 3 = distDriven; 4 = orientation;
 
 long lastHeartbeatTimer = 0;
 int heartbeatInterval = 1000;
@@ -145,10 +145,12 @@ void dmpDataReady()
 // ================================================================
 // ===                      WIFI VARIABLES                      ===
 // ================================================================
-const char* ssid = "Project";
-const char* password = "123456780";
+//const char* ssid = "Project";
+//const char* password = "123456780";
 //const char* ssid = "eversveraa";
 //const char* password = "qwerty69";
+const char* ssid = "HotSpotBoardComputer";
+const char* password = "1234567890";
 
 String controllerToRP6Protocol = "";
 
@@ -239,10 +241,10 @@ void setup() {
   WiFi.begin(ssid, password);
 
   // If the router isn't available for use comment this while loop.
-  while (WiFi.status() != WL_CONNECTED) {
+ /* while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
-  }
+  }*/
 
   Serial.println("");
   Serial.println("WiFi connected");
@@ -266,20 +268,22 @@ void loop()
   /*
      Make Sure the DMP values are stable.
   */
- /* while (!MPUIsStable)
-  {
-    if (getMPUIsStabilized())
+  /* while (!MPUIsStable)
     {
-      Serial.println("MPU is stable");
-      MPUIsStable = true;
-      resetYPRValues();
-    }
-    else return;
-  }*/
+     if (getMPUIsStabilized())
+     {
+       Serial.println("MPU is stable");
+       MPUIsStable = true;
+       resetYPRValues();
+     }
+     else return;
+    }*/
 
   /*
          Reset the orentation values close to 0.
   */
+
+
   if (stringFromSerial == "RESET")
   {
     Serial.println(stringFromSerial);

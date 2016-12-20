@@ -3,8 +3,8 @@ const char* host_Controller = "192.168.1.101";
 const int httpPort_Controller = 80;
 
 WiFiClient client_sendCrashData;
-const char* host_sendCrashData = "192.168.1.100";
-const int httpPort_sendCrashData = 5500;
+const char* host_sendCrashData = "10.10.0.1";
+const int httpPort_sendCrashData = 5000;
 
 
 /*
@@ -25,9 +25,6 @@ int getControllerValues(String* controllerToRP6Protocol)
   {
     return -1;
   }
-
-  nackCounter = 0;
-  timeOutTimer = millis();
 
   makeProtocolString(CONTROLLER_VALUE_PROTOCOL_REQUEST_SEND);
   client_Controller.print(protocolStringToSend);
@@ -83,7 +80,7 @@ int connectToBoardcomputer(void)
       if (crashDataResponse.substring(0, 8) == CONNECTED_ACK_RECEIVE && crashDataResponse.substring(10) == BOARDCOMPUTER_NAME)
       {
         // If the identity is verified send the crash data to the boardcomputer.
-        return -1;
+        return 1;
       }
       else if (crashDataResponse == GENERAL_NACK)
       {

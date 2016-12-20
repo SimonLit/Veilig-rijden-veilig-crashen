@@ -14,6 +14,7 @@ bool getIncommingString(String* stringFromSerial)
     if (Serial.available() > 0)
     {
       char incommingChar = Serial.read();
+      Serial.println(incommingChar);
 
       if (incommingChar == END_CHARACTER)
       {
