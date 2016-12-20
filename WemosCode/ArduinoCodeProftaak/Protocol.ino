@@ -41,10 +41,13 @@ int formatMessageToProtocol(String message, String *pointer_protocolToSendArray)
 
 int checkForValidRP6Message(String message)
 {
+  Serial.print("MessageToCheck: ");
+  Serial.println(message);
   for (int i = 0; i < nrStringIn_arrayWithRP6Protcols; i++)
   {
     if (message.indexOf(arrayWithRP6Protocol_receive[i]) > -1)
     {
+      Serial.println("rp6 protoocol");
       // Message is a protocol.
       return 1;
     }
@@ -53,12 +56,11 @@ int checkForValidRP6Message(String message)
       // Message is a NACK
       return -1;
     }
-    else
-    {
-      //Message is not a protocol.
-      return 0;
-    }
   }
+
+  Serial.println("not rp6 protoocol");
+  //Message is not a protocol.
+  return 0;
 }
 
 int checkForValidBoardcomputerMessage(String message)
@@ -114,20 +116,20 @@ int timeoutHandlerWemosToRP6(String messageToSend, String messageToCheckFor)
   {
     // Listen for a response from the RP6
     receivedEndOfSerialString = getIncommingString(&stringFromSerial);
-    
+
     if (receivedEndOfSerialString)
     {
-      if(stringFromSerial == messageToCheckFor)
+      if (stringFromSerial == messageToCheckFor)
       {
         // ACK was reeived.
-          return 0;
+        return 0;
       }
-      else if(stringFromSerial == GENERAL_NACK)
+      else if (stringFromSerial == GENERAL_NACK)
       {
         // NACK was received. Increase the NACK counter and send the message again.
-          nackCounter++;
-          timeoutTimer = millis();
-          Serial.println(messageToSend);
+        nackCounter++;
+        timeoutTimer = millis();
+        Serial.println(messageToSend);
       }
     }
   }

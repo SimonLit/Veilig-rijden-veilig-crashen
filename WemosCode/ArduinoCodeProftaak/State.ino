@@ -9,7 +9,7 @@ void actOnState_WemosToRP6Connection(void)
 
       // Send a connect request to the RP6.
       makeProtocolStringWithValue(CONNECT_TO_DEVICE, WEMOS_NAME);
-      
+
       // if the the RP6 send a message back that confirms the connectionis opened.
       // set the WemosToRP6Connection to connected so data can be exchanged.
       if (timeoutHandlerWemosToRP6(protocolStringToSend, connectResponse) == 0)
@@ -48,41 +48,46 @@ void actOnState_WemosToRP6Connection(void)
       // When a '@' is received from the Serial line a potentional protocol message is received.
       if (receivedEndOfSerialString)
       {
-        if (checkForValidRP6Message(stringFromSerial) == 1)
+        Serial.print("stringFromSerial: ");
+        Serial.println(stringFromSerial);
+        if (stringFromSerial != GENERAL_ACK)
         {
-          makeProtocolString(GENERAL_ACK);
-          Serial.println(protocolStringToSend);
+          if (checkForValidRP6Message(stringFromSerial) == 1)
+          {
+            makeProtocolString(GENERAL_ACK);
+            Serial.println(protocolStringToSend);
 
-          if (stringFromSerial == RP6_STARTED_PROGRAM)
-          {
-            RP6State = STARTED_PROGRAM;
-          }
-          else if (stringFromSerial == RP6_STOPPED_PROGRAM)
-          {
-            RP6State = STOPPED_PROGRAM;
-          }
-
-          //  When ORIENTATION is received it means all the crash data is received
-          //  from the RP6 and can be send to the boardcomputer.
-          if (stringFromSerial == ORIENTATION_PROTOCOL_RECEIVE)
-          {
-            if (connectToBoardcomputer() == 1);
+            if (stringFromSerial == RP6_STARTED_PROGRAM)
             {
-              sendCrashData(protocolToSendArray, 5);
+              RP6State = STARTED_PROGRAM;
+            }
+            else if (stringFromSerial == RP6_STOPPED_PROGRAM)
+            {
+              RP6State = STOPPED_PROGRAM;
+            }
+
+            //  When ORIENTATION is received it means all the crash data is received
+            //  from the RP6 and can be send to the boardcomputer.
+            if (stringFromSerial == ORIENTATION_PROTOCOL_RECEIVE)
+            {
+              //if (connectToBoardcomputer() == 1);
+              //{
+              //sendCrashData(protocolToSendArray, 5);
+              //}
             }
           }
-        }
 
-        // When the received message isn't in the protocol from RP6 to Wemos a NACK is send to the RP6.
-        else if (checkForValidRP6Message(stringFromSerial) == 0)
-        {
-          makeProtocolString(GENERAL_NACK);
-          Serial.println(protocolStringToSend);
-        }
+          // When the received message isn't in the protocol from RP6 to Wemos a NACK is send to the RP6.
+          else if (checkForValidRP6Message(stringFromSerial) == 0)
+          {
+            makeProtocolString(GENERAL_NACK);
+            Serial.println(protocolStringToSend);
+          }
 
-        // This method checks if the received message belongs to one of the recieved crach data messages
-        // and puts the message with their values in de crash data arrray.
-        formatMessageToProtocol(stringFromSerial, protocolToSendArray);
+          // This method checks if the received message belongs to one of the recieved crach data messages
+          // and puts the message with their values in de crash data arrray.
+          formatMessageToProtocol(stringFromSerial, protocolToSendArray);
+        }
 
         // Set the boolean to false to ensure these actions only happen again when a potantional valid
         // serial message is received.
@@ -141,10 +146,10 @@ void actOnState_RP6State(void)
 {
   if (lastRP6State != RP6State)
   {
-    if (connectToBoardcomputer() == 1);
+    /*if (connectToBoardcomputer() == 1);
     {
       sendRP6StatusToBoardcomputer();
-    }
+    }*/
     lastRP6State = RP6State;
   }
 }

@@ -147,10 +147,10 @@ void dmpDataReady()
 // ================================================================
 //const char* ssid = "Project";
 //const char* password = "123456780";
-//const char* ssid = "eversveraa";
-//const char* password = "qwerty69";
-const char* ssid = "HotSpotBoardComputer";
-const char* password = "1234567890";
+const char* ssid = "eversveraa";
+const char* password = "qwerty69";
+//const char* ssid = "HotSpotBoardComputer";
+//const char* password = "1234567890";
 
 String controllerToRP6Protocol = "";
 
@@ -241,10 +241,10 @@ void setup() {
   WiFi.begin(ssid, password);
 
   // If the router isn't available for use comment this while loop.
- /* while (WiFi.status() != WL_CONNECTED) {
+ while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
-  }*/
+  }
 
   Serial.println("");
   Serial.println("WiFi connected");
