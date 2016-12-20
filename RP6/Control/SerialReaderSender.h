@@ -9,9 +9,9 @@ int getIncomingSerialMessage(char* receiveBufferCommand, char* receiveBufferValu
 //Return: -1 if there in no serial data to read, one of the char pointers is NULL or receiveBufferLength > 10.
 //		   0 if '%' was received.
 
-void sendMessage(char* command);
+int sendMessage(char* command);
 
-void sendMessageWithValue(char* command, char* value);
+int sendMessageWithValue(char* command, char* value);
 
 int timeoutHandler(void);
 

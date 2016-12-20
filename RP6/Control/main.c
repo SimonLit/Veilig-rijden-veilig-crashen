@@ -106,7 +106,7 @@ int main(void)
 	startStopwatch4(); // Timer for checking if the heartbeat is received in time.
 	startStopwatch5();
 
-	long lastHeartbeatReceived = 0;
+	uint16_t lastHeartbeatReceived = 0;
 
 	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_ACS_POWER, ACS_PWR_MED); // Setup ACS power	
 	I2CTWI_transmit3Bytes(I2C_RP6_BASE_ADR, 0, CMD_SET_WDT, true); // Enable Watchdog for Interrupt requests	
@@ -115,6 +115,9 @@ int main(void)
 	changeDirection(FWD); // Initial driving direction.
 
 	uint8_t pressedButton = 0;
+
+	clearLCD();
+	writeStringLCD("Disconnected");	
 
 	//====================================================================================
 	// Main loop program
@@ -130,14 +133,16 @@ int main(void)
 			case DISCONNECTED:
 				if(getStopwatch1() > 20)
 				{	
-					clearLCD();
-					writeStringLCD("Disconnected");	
-
 					if(getIncomingSerialMessage(receiveBufferCommand, receiveBufferValue) == 0)
 					{
+						clearLCD();
+						writeStringLCD("Disconnected");	
+						
 						if(waitForConnectRequest(receiveBufferCommand, receiveBufferValue) == 0)
 						{
 							sendMessageWithValue(CONNECTED_ACK, RP6_NAME);
+
+							sendMessage(GENERAL_ACK);
 
 							clearLCD();
 							writeStringLCD("Connected");	
@@ -162,9 +167,11 @@ int main(void)
 							{
 								case STARTED_PROGRAM:
 									RP6State = STOPPED_PROGRAM;
+									lastHeartbeatReceived = getStopwatch1();
 									break;
 								case STOPPED_PROGRAM:
 									RP6State = STARTED_PROGRAM;
+									lastHeartbeatReceived = getStopwatch1();
 									break;
 							}	
 							// Send the new RP6 status to the wemos.
@@ -176,6 +183,50 @@ int main(void)
 					setStopwatch3(0);
 				}
 
+				if(getStopwatch4() > 10)
+				{	
+					if(getIncomingSerialMessage(receiveBufferCommand, receiveBufferValue) == 0)
+					{
+						writeString(receiveBufferCommand);
+
+						if(interpretMessageForSpeedValues(receiveBufferCommand, receiveBufferValue,
+																				&baseSpeed, &rightSpeed, &leftSpeed) == 0)
+						{
+							sendMessage(GENERAL_ACK);
+						}
+						else if(checkForHeartbeat(receiveBufferCommand) == 0)
+						{
+							sendMessage(GENERAL_ACK);
+							lastHeartbeatReceived = getStopwatch1();
+							clearLCD();
+							writeIntegerLCD(lastHeartbeatReceived, DEC);	
+						}
+						else if(checkForRP6StateChange(receiveBufferCommand) == 1)
+						{
+							sendMessage(GENERAL_ACK);
+							RP6State = STARTED_PROGRAM;
+						}
+						else if(checkForRP6StateChange(receiveBufferCommand) == 0)
+						{
+							sendMessage(GENERAL_ACK);
+							RP6State = STOPPED_PROGRAM;
+						}
+						else
+						{
+							sendMessage(GENERAL_NACK);
+						}
+					} 
+					
+					setStopwatch4(0);
+				}
+
+				if((getStopwatch1() -lastHeartbeatReceived) > MAX_HEARTBEAT_TIMEOUT)
+				{
+					clearLCD();
+					writeStringLCD("heartbeat timeout");
+					RP6ToWemosConnection = DISCONNECTED;
+					//RP6State = STOPPED_PROGRAM;
+				}
  	
 				// If the program is started.
 				switch(RP6State)
@@ -185,51 +236,9 @@ int main(void)
 
 						// Check if one of our self added buttons was pressed.
 						// Read the FSR value, convert it to grams and add it to the crashInfo struct.
-		 				if(getStopwatch4() > 5)
-						{	
-							if(getIncomingSerialMessage(receiveBufferCommand, receiveBufferValue) == 0)
-							{
-								writeString(receiveBufferCommand);
-								if(interpretMessageForSpeedValues(receiveBufferCommand, receiveBufferValue,
-																				&baseSpeed, &rightSpeed, &leftSpeed) == 0)
-								{
-									sendMessage(GENERAL_ACK);
-								}
-								else if(checkForHeartbeat(receiveBufferCommand) == 0)
-								{
-									sendMessage(GENERAL_ACK);
-									lastHeartbeatReceived = getStopwatch1();
-								}
-								else if(checkForRP6StateChange(receiveBufferCommand) == 1)
-								{
-									sendMessage(GENERAL_ACK);
-									RP6State = STARTED_PROGRAM;
-								}
-								else if(checkForRP6StateChange(receiveBufferCommand) == 0)
-								{
-									sendMessage(GENERAL_ACK);
-									RP6State = STOPPED_PROGRAM;
-								}
-								else
-								{
-									sendMessage(GENERAL_NACK);
-								}
-							} 
-
-							writeSpeedOnLCD(rightSpeed, leftSpeed);
-							
-							setStopwatch4(0);
-						}
-
-						if((getStopwatch1() -lastHeartbeatReceived) > MAX_HEARTBEAT_TIMEOUT)
-						{
-							//RP6ToWemosConnection = DISCONNECTED;
-							//RP6State = STOPPED_PROGRAM;
-						}
 
 						if(!pressed)
 						{
-							
 							drive();
 
 							// Update the variables representing the values of the base board sensors.
@@ -238,6 +247,8 @@ int main(void)
 							{
 								getAllSensors();
 								saveSpeedData();
+
+								//writeSpeedOnLCD(rightSpeed, leftSpeed);
 
 								setStopwatch2(0);
 							}

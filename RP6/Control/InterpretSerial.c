@@ -21,6 +21,7 @@ int interpretMessageForSpeedValues(char* receiveBufferCommand, char* receiveBuff
 	}
 
 	int indexOfValueSeparator = indexOf(receiveBufferValue, *MULTI_VALUE_SEPARATOR, MAX_VALUE_LENGTH);
+	if(indexOfValueSeparator == -1){return -1;}
 
 	// Copy the first value of the received value to the speedValueString and add a null terminator.
 	char speedValueString[5];
@@ -107,11 +108,6 @@ int interpretMessageForSpeedValues(char* receiveBufferCommand, char* receiveBuff
 	}
 }
 
-
-//!!!
-//TODO: make sure all paramters are valid.
-//!!!
-
 int waitForConnectRequest(char* receiveBufferCommand, char* receiveBufferValue)
 {	
 	if(receiveBufferCommand == NULL || receiveBufferValue == NULL){return -1;}
@@ -119,15 +115,21 @@ int waitForConnectRequest(char* receiveBufferCommand, char* receiveBufferValue)
 }
 
 int checkForHeartbeat(char* receiveBufferCommand)
-{
-	writeString("waitingForHeartbeat");	
-	if(receiveBufferCommand = NULL){return -1;}
-	return ((strcmp(receiveBufferCommand, HEARTBEAT_RP6) == 0) ? 0 : -1);
+{	
+	if(receiveBufferCommand == NULL){return -1;}
+	if(strcmp(receiveBufferCommand, HEARTBEAT_RP6) == 0)
+	{
+		return 0;
+	}
+	else 
+	{
+		return -1;
+	} 
 }
 
 int checkForRP6StateChange(char* receiveBufferCommand)
 {
-	if(receiveBufferCommand = NULL){return -1;}
+	if(receiveBufferCommand == NULL){return -1;}
 
 	if((strcmp(receiveBufferCommand, RP6_STARTED_PROGRAM) == 0))
 	{
@@ -145,12 +147,12 @@ int checkForRP6StateChange(char* receiveBufferCommand)
 
 int checkForACK(char* receiveBufferCommand)
 {
-	if(receiveBufferCommand = NULL){return -1;}
+	if(receiveBufferCommand == NULL){return -1;}
 	return ((strcmp(receiveBufferCommand, GENERAL_ACK) == 0) ? 0 : -1);
 }
 
 int checkForNACK(char* receiveBufferCommand)
 {
-	if(receiveBufferCommand = NULL){return -1;}
+	if(receiveBufferCommand == NULL){return -1;}
 	return ((strcmp(receiveBufferCommand, GENERAL_NACK) == 0) ? 0 : -1);
 }

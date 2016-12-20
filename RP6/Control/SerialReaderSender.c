@@ -4,6 +4,7 @@
 #include "ProtocolDefines.h"
 #include "Tools.h"
 #include "Stopwatch.h"
+#include "InterpretSerial.h"
 
 int START_READING_COMMAND = 0;
 int START_READING_VALUE = 0;
@@ -101,16 +102,18 @@ int getIncomingSerialMessage(char* receiveBufferCommand, char* receiveBufferValu
 	return -1;
 }
 
-void sendMessage(char* command)
+int sendMessage(char* command)
 {
 	if(makeProtocolMessage(command) == -1) {return -1;}
 	writeString(protocolMessageToSend);
+	return 0;
 }
 
-void sendMessageWithValue(char* command, char* value)
+int sendMessageWithValue(char* command, char* value)
 {
 	if(makeProtocolMessageWithValue(command, value) == -1) {return -1;}
 	writeString(protocolMessageToSend);
+	return 0;
 }
 
 int timeoutHandler(void)
@@ -140,4 +143,5 @@ int timeoutHandler(void)
 	}
 
 	if(nackCounter > MAX_NACK_COUNTER || (getStopwatch5() - timoutTimer) > MAX_HEARTBEAT_TIMEOUT) {return -1;}
+	return -1;
 }
