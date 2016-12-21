@@ -133,11 +133,11 @@ int main(void)
 			case DISCONNECTED:
 				if(getStopwatch1() > 20)
 				{	
+					clearLCD();
+					writeStringLCD("Disconnected");	
+
 					if(getIncomingSerialMessage(receiveBufferCommand, receiveBufferValue) == 0)
-					{
-						clearLCD();
-						writeStringLCD("Disconnected");	
-						
+					{						
 						if(waitForConnectRequest(receiveBufferCommand, receiveBufferValue) == 0)
 						{
 							sendMessageWithValue(CONNECTED_ACK, RP6_NAME);
@@ -261,7 +261,10 @@ int main(void)
 						else if(!crashInfoWasSend && pressed)
 						{
 							crashInfoWasSend = assignCrashInfo(&cInfo);
-							sendCrashInfo(&cInfo);
+							if(sendCrashInfo(&cInfo) == -1)
+							{
+								RP6ToWemosConnection = DISCONNECTED;
+							}
 						} 
 
 						// If the crash data is assigned and send stop the driving of the RP6.

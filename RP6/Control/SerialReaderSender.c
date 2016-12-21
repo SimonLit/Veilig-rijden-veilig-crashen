@@ -118,20 +118,21 @@ int sendMessageWithValue(char* command, char* value)
 
 int timeoutHandler(void)
 {
-	long timoutTimer = 0;
+	uint16_t timoutTimer = getStopwatch5();
 	int nackCounter = 0;
+
+	uint8_t result = -1;
 
 	char commandBuffer[MAX_COMMAND_LENGTH];
 	char valueBuffer[MAX_VALUE_LENGTH];
 
-	while (nackCounter < MAX_NACK_COUNTER && (getStopwatch5() - timoutTimer) < MAX_HEARTBEAT_TIMEOUT)
+	while (nackCounter < MAX_NACK_COUNTER && (getStopwatch5() - timoutTimer) < MAX_HEARTBEAT_TIMEOUT &&  result == -1)
 	{
-		writeString("inWhile");
 		if(getIncomingSerialMessage(commandBuffer, valueBuffer) == 0)
 		{
 			if(checkForACK(commandBuffer) == 0)
 			{
-				return 0;
+				result = 0;
 			}
 			else if(checkForNACK(commandBuffer) == 0)
 			{
@@ -142,6 +143,10 @@ int timeoutHandler(void)
 		}
 	}
 
-	if(nackCounter > MAX_NACK_COUNTER || (getStopwatch5() - timoutTimer) > MAX_HEARTBEAT_TIMEOUT) {return -1;}
-	return -1;
+	if(nackCounter > MAX_NACK_COUNTER || (getStopwatch5() - timoutTimer) > MAX_HEARTBEAT_TIMEOUT)
+    {
+        result = -1;
+    }
+
+	return result;
 }

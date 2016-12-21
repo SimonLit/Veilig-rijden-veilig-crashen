@@ -53,24 +53,41 @@ int assignCrashInfo(crashInfo* cInfo)
 int sendCrashInfo(crashInfo* cInfo)
 {
 	if(cInfo == NULL){return -1;}
-
+	uint8_t timeoutResult = 0;
 
 	uint8_tToString(cInfo->speed, valueBuffer, sizeof(valueBuffer)); // Convert the speed to string.
 	sendMessageWithValue(SPEED_PROTOCOL_SEND, valueBuffer);
+	//timeoutResult = timeoutHandler();
 
 	uint8_tToString(cInfo->sideHit, valueBuffer, sizeof(valueBuffer)); // Convert the hit side to string.
-	if(timeoutHandler() == 0){sendMessageWithValue(SIDE_HIT_PROTOCOL_SEND_RECEIVE, valueBuffer);} else {return -1;}
+	if(timeoutResult == 0)
+	{
+		sendMessageWithValue(SIDE_HIT_PROTOCOL_SEND_RECEIVE, valueBuffer);
+		//timeoutResult = timeoutHandler();
+	} 
 
 	uint16_tToString(cInfo->impactGram, valueBuffer, sizeof(valueBuffer)); // Convert the impact in grams to string.
-	if(timeoutHandler() == 0){sendMessageWithValue(IMPACT_PROTOCOL_SEND_RECEIVE, valueBuffer);} else {return -1;}
+	if(timeoutResult == 0)
+    {
+        sendMessageWithValue(IMPACT_PROTOCOL_SEND_RECEIVE, valueBuffer);
+        //timeoutResult = timeoutHandler();
+    } 
 
 	uint16_tToString(cInfo->distanceDrivenInCM, valueBuffer, sizeof(valueBuffer)); // Convert the distance driven to string.
-	if(timeoutHandler() == 0){sendMessageWithValue(DIST_DRIVEN_PROTOCOL_SEND_RECEIVE, valueBuffer);} else {return -1;}
+	if(timeoutResult == 0)
+    {
+        sendMessageWithValue(DIST_DRIVEN_PROTOCOL_SEND_RECEIVE, valueBuffer);
+        //timeoutResult = timeoutHandler();
+    } 
 
-	if(timeoutHandler() == 0){sendMessage(ORIENTATION_PROTOCOL_RECEIVE);} else {return -1;}
+	if(timeoutResult == 0)
+    {
+        sendMessage(ORIENTATION_PROTOCOL_RECEIVE);
+        //timeoutResult = timeoutHandler();
+    } 
 
 	crashInfoWasSend = true;
-	return 0;
+	return timeoutResult;
 }
 
 void buttenChanged(void)
