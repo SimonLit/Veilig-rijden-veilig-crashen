@@ -2,7 +2,7 @@ LIBS=libs/serversocket libs/file_handeling libs/response libs/handshake libs/ser
 INCLUDE_PATH=libs/
 
 boardcomputer_exec: libraries
-	gcc cli/boardcomputer.c $(wildcard libraries/*) -I$(INCLUDE_PATH) -o boardcomputer
+	gcc libs/boardcomputer.c $(wildcard libraries/*) -I$(INCLUDE_PATH) -o boardcomputer
 
 libraries:
 	mkdir libraries/
