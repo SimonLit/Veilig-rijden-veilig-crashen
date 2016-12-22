@@ -41,13 +41,10 @@ int formatMessageToProtocol(String message, String *pointer_protocolToSendArray)
 
 int checkForValidRP6Message(String message)
 {
-  Serial.print("MessageToCheck: ");
-  Serial.println(message);
   for (int i = 0; i < nrStringIn_arrayWithRP6Protcols; i++)
   {
     if (message.indexOf(arrayWithRP6Protocol_receive[i]) > -1)
     {
-      Serial.println("rp6 protoocol");
       // Message is a protocol.
       return 1;
     }
@@ -58,7 +55,6 @@ int checkForValidRP6Message(String message)
     }
   }
 
-  Serial.println("not rp6 protoocol");
   //Message is not a protocol.
   return 0;
 }

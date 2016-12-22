@@ -15,16 +15,18 @@ void actOnState_WemosToRP6Connection(void)
       if (timeoutHandlerWemosToRP6(protocolStringToSend, connectResponse) == 0)
       {
         WemosToRP6Connection = RP6_CONNECTED;
+        lastControllerReceiveTimer = millis();
+        lastHeartbeatTimer = millis();
+        lastYPRUpdate = millis();
       }
 
       break;
 
     case RP6_CONNECTED:
       // Send a heartbeatRequest to the RP6 every 1 second.
-      if ((millis() -  lastHeartbeatTimer) > heartbeatInterval)
-      {
-        sendHeartbeatToRP6();
-      }
+
+      sendHeartbeatToRP6();
+
 
       // Update the values in the currentYPR array to the latest YPR values from the MPU.
       // The YPR values are then corrected with the offset values.
@@ -48,8 +50,6 @@ void actOnState_WemosToRP6Connection(void)
       // When a '@' is received from the Serial line a potentional protocol message is received.
       if (receivedEndOfSerialString)
       {
-        Serial.print("stringFromSerial: ");
-        Serial.println(stringFromSerial);
         if (stringFromSerial != GENERAL_ACK)
         {
           if (checkForValidRP6Message(stringFromSerial) == 1)
@@ -70,6 +70,7 @@ void actOnState_WemosToRP6Connection(void)
             //  from the RP6 and can be send to the boardcomputer.
             if (stringFromSerial == ORIENTATION_PROTOCOL_RECEIVE)
             {
+              Serial.println("ori");
               //if (connectToBoardcomputer() == 1);
               //{
               //sendCrashData(protocolToSendArray, 5);
@@ -99,18 +100,21 @@ void actOnState_WemosToRP6Connection(void)
 
 void sendHeartbeatToRP6(void)
 {
-  makeProtocolString(HEARTBEAT_RP6);
+  if ((millis() -  lastHeartbeatTimer) > heartbeatInterval)
+  {
+    makeProtocolString(HEARTBEAT_RP6);
 
-  // No response from the RP6 was received on the heartbeat request.
-  if (timeoutHandlerWemosToRP6(protocolStringToSend, GENERAL_ACK) == -1)
-  {
-    WemosToRP6Connection = RP6_DISCONNECTED;
+    // No response from the RP6 was received on the heartbeat request.
+    if (timeoutHandlerWemosToRP6(protocolStringToSend, GENERAL_ACK) == -1)
+    {
+      WemosToRP6Connection = RP6_DISCONNECTED;
+    }
+    else
+    {
+      lastHeartbeatTimer = millis();
+    }
+    receivedEndOfSerialString = false;
   }
-  else
-  {
-    lastHeartbeatTimer = millis();
-  }
-  receivedEndOfSerialString = false;
 }
 
 void sendAndReceiveController()
@@ -128,7 +132,6 @@ void sendAndReceiveController()
       // Check is GENERAL_ACK is received from the RP6.
       if (timeoutHandlerWemosToRP6(controllerToRP6Protocol, GENERAL_ACK) == -1)
       {
-        Serial.println("No ACK on heartbeat");
         WemosToRP6Connection = RP6_DISCONNECTED;
       }
 

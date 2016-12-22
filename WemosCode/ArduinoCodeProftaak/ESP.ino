@@ -1,5 +1,5 @@
 WiFiClient client_Controller;
-const char* host_Controller = "192.168.1.101";
+const char* host_Controller = "192.168.1.100";
 const int httpPort_Controller = 80;
 
 WiFiClient client_sendCrashData;
@@ -173,6 +173,7 @@ int sendRP6StatusToBoardcomputer(void)
   while (client_sendCrashData.available() && ((millis() - timeoutTimer) <= maxResponseTimeout) && (nackCounter <= maxNACKCounter))
   {
     String crashDataResponse = client_sendCrashData.readString();
+     Serial.println(crashDataResponse);
 
     if (getIncommingStringFromMessage(crashDataResponse, &crashDataResponse, sizeof(crashDataResponse)))
     {

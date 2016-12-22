@@ -145,10 +145,10 @@ void dmpDataReady()
 // ================================================================
 // ===                      WIFI VARIABLES                      ===
 // ================================================================
-//const char* ssid = "Project";
-//const char* password = "123456780";
-const char* ssid = "eversveraa";
-const char* password = "qwerty69";
+const char* ssid = "Project";
+const char* password = "123456780";
+//const char* ssid = "eversveraa";
+//const char* password = "qwerty69";
 //const char* ssid = "HotSpotBoardComputer";
 //const char* password = "1234567890";
 
@@ -245,7 +245,6 @@ void setup() {
     delay(500);
     Serial.print(".");
   }
-
   Serial.println("");
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
