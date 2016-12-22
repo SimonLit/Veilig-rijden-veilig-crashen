@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "../datastruct/datastruct.h"
 
-static int findStartOfMessage(const char* message)
+int findStartOfMessage(const char* message)
 {
     char received[256];
     sprintf(received, "%s", message);
@@ -15,7 +15,7 @@ static int findStartOfMessage(const char* message)
     return -1;
 }
 
-static int findEndOfMessage(const char* message)
+int findEndOfMessage(const char* message)
 {
     char received[256];
     sprintf(received, "%s" ,message);
@@ -27,7 +27,7 @@ static int findEndOfMessage(const char* message)
     return -1;
 }
 
-static int lengthOfMessage(const char* message)
+int lengthOfMessage(const char* message)
 {
     int startPos = 0;
     int endPos = 0;
@@ -40,7 +40,7 @@ static int lengthOfMessage(const char* message)
     return (endPos - startPos);
 }
 
-static int correctFormatCheckRemoveBitshift(char** ms)
+int correctFormatCheckRemoveBitshift(char** ms)
 {
     printf("Message received is : %s\n", *ms);
     int indexStart, indexEnd, length;
