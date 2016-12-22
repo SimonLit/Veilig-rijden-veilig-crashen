@@ -8,8 +8,8 @@
 
 #define NodeInternal "10.10.0.1"
 #define ServiceInternal "5000"
-#define NodeExternal "192.168.1.101"
-#define SeriveExternal "5500"
+#define NodeExternal "192.168.1.105"
+#define SeriveExternal "6000"
 
 void networkFork(int fileadressInternal, int fileadressExternal);
 void mainFork(void);

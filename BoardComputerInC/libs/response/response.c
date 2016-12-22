@@ -2,7 +2,7 @@
 #include "response.h"
 #include "../datastruct/datastruct.h"
 
-int responseBlaBlaBla(void)
+int respond(DATAPACKET* dp)
 {
 	return 0;
 }

@@ -42,6 +42,7 @@ static int lengthOfMessage(const char* message)
 
 static int correctFormatCheckRemoveBitshift(char** ms)
 {
+    printf("Message received is : %s\n", *ms);
     int indexStart, indexEnd, length;
     indexStart = findStartOfMessage(*ms);
     indexEnd = findEndOfMessage(*ms);
@@ -51,6 +52,7 @@ static int correctFormatCheckRemoveBitshift(char** ms)
     for(int i = 0; i <= length; i++)
         *ms[i] = *ms[i + 1];
     *ms[indexEnd - 1] = '\0';
+    printf("Message cut is : %s\n", *ms);
 	return 0;
 }
 
@@ -134,7 +136,9 @@ static int checkSender(DATAPACKET* recv, const char* sender)
 int verificationStringCut(DATAPACKET* recv, char* bf)
 {
 	char* message = bf;
+    printf("Checking correct format.\n");
 	int rv = correctFormatCheckRemoveBitshift(&message);
+    printf("Correct format checked\n");
     if(rv == -1)
         return -1;
 	char **arr = NULL;
@@ -159,5 +163,8 @@ int verificationStringCut(DATAPACKET* recv, char* bf)
 
 int dataCutRecvResponse(DATAPACKET* recv, char bf, RESPONSES rsp)
 {
+
+
+
 	return 0;
 }

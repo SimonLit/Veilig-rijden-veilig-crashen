@@ -1,6 +1,8 @@
 #ifndef RESPONSE_H_
 #define RESPONSE_H_
 
-int responseBlaBlaBla(void);
+#include "../datastruct/datastruct.h"
+
+int respond(DATAPACKET* dp);
 
 #endif

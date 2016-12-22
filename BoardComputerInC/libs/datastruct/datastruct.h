@@ -45,7 +45,8 @@ typedef struct datapacket
 	char senderIpAdress[maxLength];	//Ip adress from sender
 	char messageReceived[maxLengthMessage]; //Full message received
 	char informationReceived[maxLengthMessage];
-	RESPONSES action; //The action that should be done with the received data
+	RESPONSES action; //The action that should be done with the received datas
+	bool sf; 
 	TIMESTAMP time;
 } DATAPACKET;
 

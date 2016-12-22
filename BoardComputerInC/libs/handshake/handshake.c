@@ -16,6 +16,7 @@
 #include "../response/response.h"
 #include "../message/message.h"
 #include "../file_handeling/file_handeling.h"
+#include "../response/response.h"
 
 char buffer[256];
 int j = 0;
@@ -70,11 +71,11 @@ static int connectVerify(int sockfd, DATAPACKET* recv)
 		 if(returnValue == -1)
 		 {
 		 	counter++;	
-		 	returnValue = send(sockfd, "NACK", 4, 0);
+		 	returnValue = send(sockfd, "#NACK@", 6, 0);
 		 	if(returnValue == -1)
 		 	{
 		 		perror("send");
-		 		send(sockfd, "NACK", 4, 0);
+		 		send(sockfd, "#NACK@", 6, 0);
 		 	}
 		 }
 		 else if(returnValue = 0)
@@ -94,7 +95,7 @@ static int connectVerify(int sockfd, DATAPACKET* recv)
 		return -1;	
 }
 
-static int recvData(int sockfd, DATAPACKET* recv, bool* sf)
+static int recvData(int sockfd, DATAPACKET* recv)
 {
 	memset(buffer, 0, sizeof(buffer));
 	RESPONSES rsp;
@@ -108,29 +109,35 @@ static int recvData(int sockfd, DATAPACKET* recv, bool* sf)
 			printf("The message is: %s\n", buffer);
 			returnValue = dataCutRecvResponse(recv, buffer, &rsp);
 			if(returnValue == -1)
+			{
+				returnValue = send(sockfd, "#NACK@", 6, 0);
+				if(returnValue == -1)
+				{
+					perror("send");
+					send(sockfd, "#NACK@", 6, 0);
+				}
 				return -1;
+			}
 			else	
 			{
-				//Do response
-				//Set sf flag
+				recv -> action = rsp;
+				returnValue = respond(recv);
 				return 0;
 			}
 		}
 	}
 	return -1;
-
 }
 
 int handshakeReceiveData(int sockfd, const char* ip)
 {
 	DATAPACKET connectionData;
-	bool sendFlag = false;
 	returnValue = connectVerify(sockfd, &connectionData);
 	if(returnValue == -1)
 		return -1;
 	else
 	{
-		returnValue = recvData(sockfd, &connectionData, &sendFlag);
+		returnValue = recvData(sockfd, &connectionData);
 		if(returnValue == -1)
 			return -1;
 		else
@@ -138,7 +145,7 @@ int handshakeReceiveData(int sockfd, const char* ip)
 			strcpy(connectionData.senderIpAdress, ip);
 			writeDataStructToFile(DATALOG, &connectionData);
 			printf("Wrote data to log file.\n");
-			if(sendFlag == true)
+			if(connectionData.sf == true)
 			{
 				writeDataStructToFile(DATASEND, &connectionData);
 				printf("Writing data to send file.\n");
