@@ -1,6 +1,8 @@
 #ifndef PROTOCOL_DEFINES_H
 #define PROTOCOL_DEFINES_H
 
+#include <stdint.h>
+
 // ================================================================
 // ===           GENERAL SERIAL COMMUNICATION PROTOCOL          ===
 // ================================================================
@@ -50,6 +52,7 @@ typedef enum
 	STARTED_PROGRAM,
 	STOPPED_PROGRAM
 } stateRP6;
- 
 
+extern uint16_t lastHeartbeatReceived;
+ 
 #endif

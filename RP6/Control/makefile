@@ -37,7 +37,7 @@ SRC += Crash.c
 SRC += SerialReaderSender.c
 SRC += InterpretSerial.c
 SRC += Tools.c
-
+SRC += ProtocolDefines.c
 
 SRC += $(RP6_LIB_PATH_CONTROL)/RP6ControlLib.c
 SRC += $(RP6_LIB_PATH)/RP6common/RP6uart.c

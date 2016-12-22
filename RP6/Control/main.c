@@ -15,7 +15,6 @@ stateRP6 RP6State = STARTED_PROGRAM;
 char* RP6StateStrings[] = {RP6_STARTED_PROGRAM, RP6_STOPPED_PROGRAM};
 
 long lastControllerValueReceived = 0;
-long lastHeartbeatRequestReceived = 0;
 
 // Show the speed of the tires on the LCD.
 void writeSpeedOnLCD(int rightSpeed, int leftSpeed)
@@ -147,6 +146,9 @@ int main(void)
 							clearLCD();
 							writeStringLCD("Connected");	
 							RP6ToWemosConnection = CONNECTED;
+							RP6State = STARTED_PROGRAM;
+							// Send the new RP6 status to the wemos.
+							sendMessage(RP6StateStrings[RP6State]);	
 							lastHeartbeatReceived = getStopwatch1();
 						}
 					}

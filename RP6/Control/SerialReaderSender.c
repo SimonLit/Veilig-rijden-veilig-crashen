@@ -6,6 +6,8 @@
 #include "Stopwatch.h"
 #include "InterpretSerial.h"
 
+#include "RP6ControlLib.h"
+
 int START_READING_COMMAND = 0;
 int START_READING_VALUE = 0;
 int STOP_READING = 0;
@@ -47,6 +49,9 @@ int getIncomingSerialMessage(char* receiveBufferCommand, char* receiveBufferValu
 
 			memset(receiveBufferCommand, 0, MAX_COMMAND_LENGTH);
 			memset(receiveBufferValue, 0, MAX_VALUE_LENGTH);
+
+			clearLCD();
+			writeStringLCD(receiveBufferCommand);	
 			
 			// Append the received message to the command and value char*.
 			// By using strcat the null terminator is added automatically.
@@ -118,15 +123,17 @@ int sendMessageWithValue(char* command, char* value)
 
 int timeoutHandler(void)
 {
+	char commandBuffer[MAX_COMMAND_LENGTH];
+	char valueBuffer[MAX_VALUE_LENGTH];
+	memset(commandBuffer, 0, MAX_COMMAND_LENGTH);
+	memset(valueBuffer, 0, MAX_VALUE_LENGTH);
+
 	uint16_t timoutTimer = getStopwatch5();
 	int nackCounter = 0;
 
-	uint8_t result = -1;
+	int result = -1;
 
-	char commandBuffer[MAX_COMMAND_LENGTH];
-	char valueBuffer[MAX_VALUE_LENGTH];
-
-	while (nackCounter < MAX_NACK_COUNTER && (getStopwatch5() - timoutTimer) < MAX_HEARTBEAT_TIMEOUT &&  result == -1)
+	while ((nackCounter < MAX_NACK_COUNTER) && ((getStopwatch5() - timoutTimer) < MAX_HEARTBEAT_TIMEOUT) && (result == -1))
 	{
 		if(getIncomingSerialMessage(commandBuffer, valueBuffer) == 0)
 		{
@@ -140,10 +147,15 @@ int timeoutHandler(void)
 				nackCounter++;
 				timoutTimer = getStopwatch5();
 			}
+			else if(checkForHeartbeat(commandBuffer) == 0)
+			{
+				sendMessage(GENERAL_ACK);
+				lastHeartbeatReceived = getStopwatch1();
+			}
 		}
 	}
 
-	if(nackCounter > MAX_NACK_COUNTER || (getStopwatch5() - timoutTimer) > MAX_HEARTBEAT_TIMEOUT)
+	if((nackCounter > MAX_NACK_COUNTER) || ((getStopwatch5() - timoutTimer) > MAX_HEARTBEAT_TIMEOUT))
     {
         result = -1;
     }

@@ -7,6 +7,8 @@
 #include "Tools.h"
 #include "ProtocolDefines.h"
 
+#include "RP6ControlLib.h"
+
 //====================================================================================
 // Crash
 //====================================================================================
@@ -57,33 +59,33 @@ int sendCrashInfo(crashInfo* cInfo)
 
 	uint8_tToString(cInfo->speed, valueBuffer, sizeof(valueBuffer)); // Convert the speed to string.
 	sendMessageWithValue(SPEED_PROTOCOL_SEND, valueBuffer);
-	//timeoutResult = timeoutHandler();
+	timeoutResult = timeoutHandler();
 
 	uint8_tToString(cInfo->sideHit, valueBuffer, sizeof(valueBuffer)); // Convert the hit side to string.
 	if(timeoutResult == 0)
-	{
+	{	
 		sendMessageWithValue(SIDE_HIT_PROTOCOL_SEND_RECEIVE, valueBuffer);
-		//timeoutResult = timeoutHandler();
+		timeoutResult = timeoutHandler();
 	} 
 
 	uint16_tToString(cInfo->impactGram, valueBuffer, sizeof(valueBuffer)); // Convert the impact in grams to string.
 	if(timeoutResult == 0)
     {
         sendMessageWithValue(IMPACT_PROTOCOL_SEND_RECEIVE, valueBuffer);
-        //timeoutResult = timeoutHandler();
+        timeoutResult = timeoutHandler();
     } 
 
 	uint16_tToString(cInfo->distanceDrivenInCM, valueBuffer, sizeof(valueBuffer)); // Convert the distance driven to string.
 	if(timeoutResult == 0)
     {
         sendMessageWithValue(DIST_DRIVEN_PROTOCOL_SEND_RECEIVE, valueBuffer);
-        //timeoutResult = timeoutHandler();
+        timeoutResult = timeoutHandler();
     } 
 
 	if(timeoutResult == 0)
     {
         sendMessage(ORIENTATION_PROTOCOL_RECEIVE);
-        //timeoutResult = timeoutHandler();
+        timeoutResult = timeoutHandler();
     } 
 
 	crashInfoWasSend = true;
