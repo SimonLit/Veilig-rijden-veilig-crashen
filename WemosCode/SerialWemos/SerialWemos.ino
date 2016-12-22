@@ -58,7 +58,6 @@ String stringFromSoftwareSerial = "";
 #define WEMOS_NAME "CAR"
 #define BOARDCOMPUTER_NAME "BOARDCOMPUTER"
 //=================================================================
-
 String protocolStringToSend = "";
 String protocolToSendArray[5] = {"a", "b", "c", "d", "e"}; // 0 = speed; 1 = sideHit; 2 = impact; 3 = distDriven; 4 = orientation;
 
@@ -135,7 +134,7 @@ float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gra
 
 bool MPUIsStable = false;
 
-int currentYPR[3] = {0, 0, 0};
+int currentYPR[3];
 long lastYPRUpdate = 0;
 long updateTime = 3000;
 
@@ -232,21 +231,26 @@ void loop()
   /*
      Make Sure the DMP values are stable.
   */
-  /* while (!MPUIsStable)
+  while (!MPUIsStable)
+  {
+    delay(1);
+    if (getMPUIsStabilized())
     {
-     if (getMPUIsStabilized())
-     {
-       Serial.println("MPU is stable");
-       MPUIsStable = true;
-       resetYPRValues();
-     }
-     else return;
-    }*/
+      Serial.println("MPU is stable");
+      MPUIsStable = true;
+      resetYPRValues();
+    }
+    else
+    {
+      return;
+    }
+  }
 
   /*
          Reset the orentation values close to 0.
   */
 
+  DMPRoutine();
 
   if (stringFromSerial == "RESET")
   {
@@ -256,6 +260,6 @@ void loop()
   }
 
   actOnState_WemosToRP6Connection();
-  actOnState_RP6State();
+  //actOnState_RP6State();
   actOnState_WemosToCTRLConnection();
 }

@@ -32,7 +32,7 @@ int formatMessageToProtocol(String message, String *pointer_protocolToSendArray)
 
   else if (message.indexOf(ORIENTATION_PROTOCOL_RECEIVE) > -1)
   {
-    pointer_protocolToSendArray[4] = (String)ORIENTATION_PROTOCOL_SEND +
+    pointer_protocolToSendArray[4] = (String)ORIENTATION_PROTOCOL_SEND + VALUE_CHARACTER +
                                      (String)(currentYPR[0]) + MULTI_VALUE_SEPARATOR +
                                      (String)(currentYPR[1]) + MULTI_VALUE_SEPARATOR +
                                      (String)(currentYPR[2]);

@@ -32,7 +32,7 @@ void actOnState_WemosToRP6Connection(void)
       // The YPR values are then corrected with the offset values.
       if ((millis() -  lastYPRUpdate) > updateTime)
       {
-        //updateCurrentOrientation(currentYPR);
+        updateCurrentOrientation(currentYPR);
         lastYPRUpdate = millis();
       }
 
@@ -62,10 +62,14 @@ void actOnState_WemosToRP6Connection(void)
             if (stringFromSerial == RP6_STARTED_PROGRAM)
             {
               RP6State = STARTED_PROGRAM;
+              makeProtocolString(RP6States[RP6State]);
+              softwareSerial.print(protocolStringToSend);
             }
             else if (stringFromSerial == RP6_STOPPED_PROGRAM)
             {
               RP6State = STOPPED_PROGRAM;
+              makeProtocolString(RP6States[RP6State]);
+              softwareSerial.print(protocolStringToSend);
             }
 
             //  When ORIENTATION is received it means all the crash data is received
@@ -125,9 +129,9 @@ void actOnState_WemosToRP6Connection(void)
         }
         else if (stringFromSoftwareSerial == "errorBoardComputer")
         {
-          
+
         }
-        
+
         receivedEndOfSoftwareSerialString = false;
       }
 
@@ -158,7 +162,8 @@ void actOnState_RP6State(void)
 {
   if (lastRP6State != RP6State)
   {
-    softwareSerial.print(RP6States[RP6State]);
+    makeProtocolString(RP6States[RP6State]);
+    softwareSerial.print(protocolStringToSend);
     lastRP6State = RP6State;
   }
 }

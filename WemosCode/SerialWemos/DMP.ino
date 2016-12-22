@@ -61,23 +61,21 @@ void getYPR(void)
 */
 void updateCurrentOrientation(int* YPRArrayToUpdate)
 {
-  DMPRoutine();
-
+  getYPR();
   YPRArrayToUpdate[0] = (ypr[0] * 180 / M_PI) - yawOffsetValue;
   YPRArrayToUpdate[1] = (ypr[1] * 180 / M_PI) - pitchOffsetValue;
   YPRArrayToUpdate[2] = (ypr[2] * 180 / M_PI) - rollOffsetValue;
 }
 
 // THIS CAN BE DELETED WHEN THE PROGRAM WORKS.
-void prinYawPitchRoll(void)
+void prinYawPitchRoll(int* YPRArrayToUpdate)
 {
-  getYPR();
   Serial.print("ypr\t");
-  Serial.print((ypr[0] * 180 / M_PI) - yawOffsetValue);
+  Serial.print(YPRArrayToUpdate[0]);
   Serial.print("\t");
-  Serial.print((ypr[1] * 180 / M_PI) - pitchOffsetValue);
+  Serial.print(YPRArrayToUpdate[1]);
   Serial.print("\t");
-  Serial.println((ypr[2] * 180 / M_PI) - rollOffsetValue);
+  Serial.println(YPRArrayToUpdate[2]);
 
   Serial.println();
 }
@@ -90,15 +88,15 @@ void prinYawPitchRoll(void)
 */
 bool getMPUIsStabilized(void)
 {
-  uint8_t yaw1 = 0;
-  uint8_t pitch1 = 0;
-  uint8_t roll1 = 0;
+  int yaw1 = 0;
+  int pitch1 = 0;
+  int roll1 = 0;
 
-  uint8_t yaw2 = 0;
-  uint8_t pitch2 = 0;
-  uint8_t roll2 = 0;
+  int yaw2 = 0;
+  int pitch2 = 0;
+  int roll2 = 0;
 
-  uint8_t errorMargin = 3;
+  int errorMargin = 5;
 
   DMPRoutine();
 

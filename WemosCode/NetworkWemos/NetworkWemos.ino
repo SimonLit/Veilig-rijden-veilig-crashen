@@ -74,12 +74,8 @@ typedef enum
 char* ctrlConnectionStates[] = {RP6_STARTED_PROGRAM, RP6_STOPPED_PROGRAM};
 
 connectionRP6 WemosToRP6Connection = RP6_DISCONNECTED;
-
 stateRP6 RP6State = STOPPED_PROGRAM;
-stateRP6 lastRP6State = STOPPED_PROGRAM;
-
 connectionController WemosToCTRLConnection = CTRL_DISCONNECTED;
-connectionController lastWemosToCTRLConnection = CTRL_DISCONNECTED;
 
 // ================================================================
 // ===                      WIFI VARIABLES                      ===
