@@ -7,70 +7,57 @@ String tempFormattedMessage = "";
 
 bool getIncommingString(String* stringFromSerial)
 {
-  if (Serial.available() > 64)
+  if (Serial.available() > 0)
   {
-    Serial.flush();
-  }
-  else
-  {
-    if (Serial.available() > 0)
+    char incommingChar = Serial.read();
+
+    if (incommingChar == END_CHARACTER)
     {
-      char incommingChar = Serial.read();
-
-      if (incommingChar == END_CHARACTER)
-      {
-        startReadingSerialMessage = false;
-        *stringFromSerial = internalTempMessageSerial;
-        return true;
-      }
-
-      if (startReadingSerialMessage)
-      {
-        internalTempMessageSerial += incommingChar;
-      }
-
-      if (incommingChar == START_CHARACTER)
-      {
-        startReadingSerialMessage = true;
-        internalTempMessageSerial = "";
-      }
+      startReadingSerialMessage = false;
+      *stringFromSerial = internalTempMessageSerial;
+      return true;
     }
-    return false;
+
+    if (startReadingSerialMessage)
+    {
+      internalTempMessageSerial += incommingChar;
+    }
+
+    if (incommingChar == START_CHARACTER)
+    {
+      startReadingSerialMessage = true;
+      internalTempMessageSerial = "";
+    }
   }
+  return false;
 }
 
 bool getIncommingStringFromSoftwareSerial(String* stringFromSerial)
 {
-  if (softwareSerial.available() > 64)
+
+  if (softwareSerial.available() > 0)
   {
-    softwareSerial.flush();
-  }
-  else
-  {
-    if (softwareSerial.available() > 0)
+    char incommingChar = softwareSerial.read();
+
+    if (incommingChar == END_CHARACTER)
     {
-      char incommingChar = softwareSerial.read();
-
-      if (incommingChar == END_CHARACTER)
-      {
-        startReadingSoftwareMessage = false;
-        *stringFromSerial = internalTempMessageSoftwareSerial;
-        return true;
-      }
-
-      if (startReadingSoftwareMessage)
-      {
-        internalTempMessageSoftwareSerial += incommingChar;
-      }
-
-      if (incommingChar == START_CHARACTER)
-      {
-        startReadingSoftwareMessage = true;
-        internalTempMessageSoftwareSerial = "";
-      }
+      startReadingSoftwareMessage = false;
+      *stringFromSerial = internalTempMessageSoftwareSerial;
+      return true;
     }
-    return false;
+
+    if (startReadingSoftwareMessage)
+    {
+      internalTempMessageSoftwareSerial += incommingChar;
+    }
+
+    if (incommingChar == START_CHARACTER)
+    {
+      startReadingSoftwareMessage = true;
+      internalTempMessageSoftwareSerial = "";
+    }
   }
+  return false;
 }
 
 bool getIncommingStringFromMessage(String message, String* formattedMessage, int messageLength)

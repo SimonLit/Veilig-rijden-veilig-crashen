@@ -40,7 +40,8 @@ void actOnState_WemosToRP6Connection(void)
       if ((millis() - lastControllerReceiveTimer) > controllerRequestInterval)
       {
         makeProtocolString(CONTROLLER_VALUE_PROTOCOL_REQUEST_SEND);
-        softwareSerial.print(protocolStringToSend);
+        //softwareSerial.print(protocolStringToSend);
+        lastControllerReceiveTimer = millis();
       }
 
       receivedEndOfSerialString = false;
@@ -71,13 +72,14 @@ void actOnState_WemosToRP6Connection(void)
             //  from the RP6 and can be send to the boardcomputer.
             if (stringFromSerial == ORIENTATION_PROTOCOL_RECEIVE)
             {
-              String crashDataForBoardcomputer =   + MULTI_COMMAND_SEPARATOR +
-                                                 protocolToSendArray[0] + MULTI_COMMAND_SEPARATOR +
-                                                 protocolToSendArray[1] + MULTI_COMMAND_SEPARATOR +
-                                                 protocolToSendArray[2] + MULTI_COMMAND_SEPARATOR +
-                                                 protocolToSendArray[3] + MULTI_COMMAND_SEPARATOR +
+              String crashDataForBoardcomputer = SEND_DATA_TO_BOARDCOMPUTER_INDICATOR + (String)MULTI_COMMAND_SEPARATOR +
+                                                 protocolToSendArray[0] + (String)MULTI_COMMAND_SEPARATOR +
+                                                 protocolToSendArray[1] + (String)MULTI_COMMAND_SEPARATOR +
+                                                 protocolToSendArray[2] + (String)MULTI_COMMAND_SEPARATOR +
+                                                 protocolToSendArray[3] + (String)MULTI_COMMAND_SEPARATOR +
                                                  protocolToSendArray[4];
-              softwareSerial.print(crashDataForBoardcomputer);
+              makeProtocolString(crashDataForBoardcomputer);
+              softwareSerial.print(protocolStringToSend);
             }
           }
 
@@ -103,6 +105,8 @@ void actOnState_WemosToRP6Connection(void)
 
       if (receivedEndOfSoftwareSerialString)
       {
+        Serial.print("ReceivedFromSoftwareSerial: ");
+        Serial.println(stringFromSoftwareSerial);
         if (stringFromSoftwareSerial.indexOf(CONTROLLER_VALUES) > -1)
         {
           int timeoutState = timeoutHandlerWemosToRP6(stringFromSoftwareSerial, GENERAL_ACK);
@@ -118,6 +122,10 @@ void actOnState_WemosToRP6Connection(void)
         else if (stringFromSoftwareSerial == "ControllerDisconnected")
         {
           WemosToRP6Connection = RP6_DISCONNECTED;
+        }
+        else if (stringFromSoftwareSerial == "errorBoardComputer")
+        {
+          
         }
         
         receivedEndOfSoftwareSerialString = false;

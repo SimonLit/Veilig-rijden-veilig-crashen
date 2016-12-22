@@ -5,37 +5,30 @@ String tempFormattedMessage = "";
 
 bool getIncommingString(String* stringFromSerial)
 {
-  if (Serial.available() > 64)
+
+  if (Serial.available() > 0)
   {
-    Serial.flush();
-  }
-  else
-  {
-    if (Serial.available() > 0)
+    char incommingChar = Serial.read();
+
+    if (incommingChar == END_CHARACTER)
     {
-      char incommingChar = Serial.read();
-      Serial.println(incommingChar);
-
-      if (incommingChar == END_CHARACTER)
-      {
-        startReadingSerialMessage = false;
-        *stringFromSerial = internalTempMessage;
-        return true;
-      }
-
-      if (startReadingSerialMessage)
-      {
-        internalTempMessage += incommingChar;
-      }
-
-      if (incommingChar == START_CHARACTER)
-      {
-        startReadingSerialMessage = true;
-        internalTempMessage = "";
-      }
+      startReadingSerialMessage = false;
+      *stringFromSerial = internalTempMessage;
+      return true;
     }
-    return false;
+
+    if (startReadingSerialMessage)
+    {
+      internalTempMessage += incommingChar;
+    }
+
+    if (incommingChar == START_CHARACTER)
+    {
+      startReadingSerialMessage = true;
+      internalTempMessage = "";
+    }
   }
+  return false;
 }
 
 bool getIncommingStringFromMessage(String message, String* formattedMessage, int messageLength)

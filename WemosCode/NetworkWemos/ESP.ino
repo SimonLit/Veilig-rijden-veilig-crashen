@@ -109,20 +109,14 @@ int connectToBoardcomputer(void)
 /*
    Send the crash data to the boardcomputer.
 */
-int sendCrashData(String CrashDataProtocol[], int numberOfCrashDataDataToSend)
+int sendCrashData(String CrashDataProtocol, int numberOfCrashDataDataToSend)
 {
   int nackCounter = 0;
   int timeoutTimer = millis();
 
   // The connection was verified. Now the crash data has to be send to the boardcomputer.
   // Send the chrash data to the boardcomputer.
-  String crashDataForBoardcomputer = SEND_DATA_TO_BOARDCOMPUTER_INDICATOR + MULTI_COMMAND_SEPARATOR +
-                                     CrashDataProtocol[0] + MULTI_COMMAND_SEPARATOR +
-                                     CrashDataProtocol[1] + MULTI_COMMAND_SEPARATOR +
-                                     CrashDataProtocol[2] + MULTI_COMMAND_SEPARATOR +
-                                     CrashDataProtocol[3] + MULTI_COMMAND_SEPARATOR +
-                                     CrashDataProtocol[4];
-  makeProtocolString(crashDataForBoardcomputer);
+  makeProtocolString(CrashDataProtocol);
   client_sendCrashData.print(protocolStringToSend);
 
   while (client_sendCrashData.available() && ((millis() - timeoutTimer) <= maxResponseTimeout) && (nackCounter <= maxNACKCounter))
@@ -145,7 +139,7 @@ int sendCrashData(String CrashDataProtocol[], int numberOfCrashDataDataToSend)
           break;
 
         case -1:
-          makeProtocolString(crashDataForBoardcomputer);
+          makeProtocolString(CrashDataProtocol);
           client_sendCrashData.print(protocolStringToSend);
           nackCounter++;
           timeoutTimer = millis();

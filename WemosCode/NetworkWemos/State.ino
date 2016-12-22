@@ -22,11 +22,7 @@ void checkAndAcktOnSerialMessage(void)
       int conectedToBoardcomputer = connectToBoardcomputer();
       if (conectedToBoardcomputer);
       {
-        sendCrashData(protocolToSendArray, 5);
-      }
-      else
-      {
-        Serial.println("canNotConnectToBoardcomputer"
+         sendCrashData(stringFromSerial, 5);
       }
     }
   }

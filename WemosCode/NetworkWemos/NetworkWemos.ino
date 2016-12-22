@@ -48,7 +48,6 @@ String stringFromSerial = "";
 //=================================================================
 
 String protocolStringToSend = "";
-String protocolToSendArray[5] = {"a", "b", "c", "d", "e"}; // 0 = speed; 1 = sideHit; 2 = impact; 3 = distDriven; 4 = orientation;
 
 int maxNACKCounter = 3;
 int maxResponseTimeout = 2000;
@@ -85,10 +84,10 @@ connectionController lastWemosToCTRLConnection = CTRL_DISCONNECTED;
 // ================================================================
 // ===                      WIFI VARIABLES                      ===
 // ================================================================
-const char* ssid = "Project";
-const char* password = "123456780";
-//const char* ssid = "eversveraa";
-//const char* password = "qwerty69";
+//const char* ssid = "Project";
+//const char* password = "123456780";
+const char* ssid = "eversveraa";
+const char* password = "qwerty69";
 //const char* ssid = "HotSpotBoardComputer";
 //const char* password = "1234567890";
 
@@ -128,5 +127,6 @@ void setup() {
 // ================================================================
 void loop()
 {
+  delay(2);
   checkAndAcktOnSerialMessage();
 }

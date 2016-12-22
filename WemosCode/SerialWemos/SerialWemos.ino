@@ -1,7 +1,7 @@
 // ================================================================
 // ===                        INCLUDES                          ===
 // ================================================================
-#include "SoftwareSerial.h"
+#include <SoftwareSerial.h>
 #include "I2Cdev.h"
 
 #include "MPU6050_6Axis_MotionApps20.h"
@@ -99,7 +99,10 @@ stateRP6 lastRP6State = STOPPED_PROGRAM;
 connectionController WemosToCTRLConnection = CTRL_DISCONNECTED;
 connectionController lastWemosToCTRLConnection = CTRL_DISCONNECTED;
 
-SoftwareSerial softwareSerial(D8, D9); //Rx, Tx
+SoftwareSerial softwareSerial(D6, D7); //Rx, Tx
+
+unsigned long lastControllerReceiveTimer = 0;
+int controllerRequestInterval = 100;
 
 // ================================================================
 // ===                   MPU VARIABLE SETUP                     ===
@@ -162,6 +165,8 @@ void setup() {
   // (115200 chosen because it is required for Teapot Demo output, but it's
   // really up to you depending on your project)
   Serial.begin(38400);
+
+  softwareSerial.begin(38400);
 
   // =========================SETUP FOR MPU=========================
 
