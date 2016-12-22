@@ -50,7 +50,6 @@ int getIncomingSerialMessage(char* receiveBufferCommand, char* receiveBufferValu
 			memset(receiveBufferCommand, 0, MAX_COMMAND_LENGTH);
 			memset(receiveBufferValue, 0, MAX_VALUE_LENGTH);
 
-			clearLCD();
 			writeStringLCD(receiveBufferCommand);	
 			
 			// Append the received message to the command and value char*.

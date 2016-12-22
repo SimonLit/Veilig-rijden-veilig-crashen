@@ -10,7 +10,7 @@
 #include <stdint.h>
 
 connection RP6ToWemosConnection = DISCONNECTED;
-stateRP6 RP6State = STARTED_PROGRAM;
+stateRP6 RP6State = STOPPED_PROGRAM;
 
 char* RP6StateStrings[] = {RP6_STARTED_PROGRAM, RP6_STOPPED_PROGRAM};
 
@@ -103,7 +103,8 @@ int main(void)
 	startStopwatch2(); // Timer for getting all the sensor data from the RP6 base board.
 	startStopwatch3(); // TImer for checking the start/stop program button.
 	startStopwatch4(); // Timer for checking if the heartbeat is received in time.
-	startStopwatch5();
+	startStopwatch5(); // Timer used for the timeoutHandler.
+	startStopwatch6(); // Timer used for checking the self added bumpers.
 
 	uint16_t lastHeartbeatReceived = 0;
 
@@ -132,9 +133,6 @@ int main(void)
 			case DISCONNECTED:
 				if(getStopwatch1() > 20)
 				{	
-					clearLCD();
-					writeStringLCD("Disconnected");	
-
 					if(getIncomingSerialMessage(receiveBufferCommand, receiveBufferValue) == 0)
 					{						
 						if(waitForConnectRequest(receiveBufferCommand, receiveBufferValue) == 0)
@@ -143,12 +141,13 @@ int main(void)
 
 							sendMessage(GENERAL_ACK);
 
-							clearLCD();
-							writeStringLCD("Connected");	
 							RP6ToWemosConnection = CONNECTED;
 							RP6State = STARTED_PROGRAM;
 							// Send the new RP6 status to the wemos.
 							sendMessage(RP6StateStrings[RP6State]);	
+
+							clearLCD();
+							writeStringLCD(RP6StateStrings[RP6State]);	
 							lastHeartbeatReceived = getStopwatch1();
 						}
 					}
@@ -163,7 +162,7 @@ int main(void)
 				if(startStopwatch3() > 50)
 				{		
 					switch(pressedButton)
-					{
+					{	
 						case 1:
 							switch(RP6State)
 							{
@@ -199,9 +198,7 @@ int main(void)
 						else if(checkForHeartbeat(receiveBufferCommand) == 0)
 						{
 							sendMessage(GENERAL_ACK);
-							lastHeartbeatReceived = getStopwatch1();
-							clearLCD();
-							writeIntegerLCD(lastHeartbeatReceived, DEC);	
+							lastHeartbeatReceived = getStopwatch1();	
 						}
 						else if(checkForRP6StateChange(receiveBufferCommand) == 1)
 						{
@@ -225,9 +222,9 @@ int main(void)
 				if((getStopwatch1() -lastHeartbeatReceived) > MAX_HEARTBEAT_TIMEOUT)
 				{
 					clearLCD();
-					writeStringLCD("heartbeat timeout");
+					writeStringLCD("Disconnected");	
 					RP6ToWemosConnection = DISCONNECTED;
-					//RP6State = STOPPED_PROGRAM;
+					RP6State = STOPPED_PROGRAM;
 				}
  	
 				// If the program is started.
@@ -250,7 +247,7 @@ int main(void)
 								getAllSensors();
 								saveSpeedData();
 
-								//writeSpeedOnLCD(rightSpeed, leftSpeed);
+								writeSpeedOnLCD(rightSpeed, leftSpeed);
 
 								setStopwatch2(0);
 							}

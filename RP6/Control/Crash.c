@@ -124,7 +124,7 @@ void buttenChanged(void)
 
 int task_checkButtonChanged(void)
 {
-	if(getStopwatch4() > 50)
+	if(getStopwatch6() > 50)
 	{
 		uint8_t button2State = PINC & IO_PC2;
 		uint8_t button3State = PINC & IO_PC3;
@@ -154,7 +154,7 @@ int task_checkButtonChanged(void)
 			return 0;
 		}	
 
-		setStopwatch4(0);
+		setStopwatch6(0);
 	}
 
 	return -1;
