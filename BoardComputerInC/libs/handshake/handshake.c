@@ -48,7 +48,7 @@ static int waitForFirstContact(int sockfd, DATAPACKET* recv)
 			perror("read");
 		else if( j == 0)//End of fd read
 		{
-			printf("The message is: %s\n", buffer);
+			printf("DEBUG:WAITFORFIRSTCONTACT: The message is: %s\n", buffer);
 			returnValue = verificationStringCut(recv, buffer);
 			if(returnValue == 0)
 			{
@@ -90,7 +90,10 @@ static int connectVerify(int sockfd, DATAPACKET* recv)
 		 }
 	}while(verifiedCon == false || counter < 4);
 	if(verifiedCon = true)
+	{
+		printf("DEBUG:CONNECTVERIFY: CONNECTION HAS BEEN VERIFIED\n");
 		return 0;
+	}
 	else
 		return -1;	
 }
@@ -106,7 +109,7 @@ static int recvData(int sockfd, DATAPACKET* recv)
 			perror("read");
 		else
 		{	
-			printf("The message is: %s\n", buffer);
+			printf("DEBUG:RECVDATA: The message is: %s\n", buffer);
 			returnValue = dataCutRecvResponse(recv, buffer, &rsp);
 			if(returnValue == -1)
 			{

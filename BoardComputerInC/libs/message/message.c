@@ -40,24 +40,30 @@ int lengthOfMessage(const char* message)
     return (endPos - startPos);
 }
 
-int correctFormatCheckRemoveBitshift(char** ms)
+int correctFormatCheckRemoveBitshift(char* ms)
 {
-    printf("Message received is : %s\n", *ms);
-    int indexStart, indexEnd, length;
-    indexStart = findStartOfMessage(*ms);
-    indexEnd = findEndOfMessage(*ms);
-    if(indexEnd < 1 || indexStart == -1)
+    int lenght, start, end;
+    start = findStartOfMessage(ms);
+    if(start == -1)
         return -1;
-    length = lengthOfMessage(*ms);
-    for(int i = 0; i <= length; i++)
-        *ms[i] = *ms[i + 1];
-    *ms[indexEnd - 1] = '\0';
-    printf("Message cut is : %s\n", *ms);
+    end = findEndOfMessage(ms);
+    if(end == -1)
+        return -1;
+    lenght = lengthOfMessage(ms);
+    if(lenght < 0)
+    {
+        return -1;
+    }
+    for(int i = 0; i < lenght; i++)
+    {
+        ms[i] = ms[i+1];
+    }
+    ms[end - 1] = '\0';
 	return 0;
 }
 
 
-static int split (char *str, char c, char ***arr)
+int split (char *str, char c, char ***arr)
 {
     int count = 1;
     int token_len = 1;
@@ -118,7 +124,7 @@ static int split (char *str, char c, char ***arr)
     return count;
 }
 
-static int checkSender(DATAPACKET* recv, const char* sender)
+int checkSender(DATAPACKET* recv, const char* sender)
 {
     if(strcmp(sender, "CAR") == 0)
     {
@@ -133,21 +139,19 @@ static int checkSender(DATAPACKET* recv, const char* sender)
     return -1;
 }
 
-int verificationStringCut(DATAPACKET* recv, char* bf)
+int verificationStringCut(DATAPACKET* recv, const char* bf)
 {
-	char* message = bf;
-    printf("Checking correct format.\n");
-	int rv = correctFormatCheckRemoveBitshift(&message);
-    printf("Correct format checked\n");
+    char message[] = "This is a string";
+    strcpy(message, bf);
+	int rv = correctFormatCheckRemoveBitshift(message);
     if(rv == -1)
         return -1;
 	char **arr = NULL;
 	int c = split(message, ':', &arr);
 	for(int i = 0; i < c; i++)
-		printf("The parts of the message are: %s\n", arr[i]);//Debug line
+		printf("DEBUG:VERIFICATION: The parts of the message are: %s\n", arr[i]);//Debug line
 	if(strcmp(arr[0], "CONNECT") == 0)
 	{
-		printf("Ontvangen CONNECT\n");
         rv = checkSender(recv, arr[1]);
         if(rv == 0)
             return 0;
@@ -158,13 +162,21 @@ int verificationStringCut(DATAPACKET* recv, char* bf)
 	{
 		return -1;
 	}
-	return 0;
 }
 
-int dataCutRecvResponse(DATAPACKET* recv, char bf, RESPONSES rsp)
+
+//Set respons, check bf on start and end point, split it save shit in datapacket
+int dataCutRecvResponse(DATAPACKET* recv, const char* bf, RESPONSES rsp)
 {
-
-
-
+    char message[] = "";
+    strcpy(message, bf);
+    int rv = correctFormatCheckRemoveBitshift(message);
+    if(rv == -1)
+        return -1;
+    char **array = NULL;
+    int c = split(message, ':', &array);
+    for(int i = 0; i < c; i++)
+        printf("DEBUG:DATARESPONSE: The parts of the message are: %s\n", array[i]);
+    
 	return 0;
 }

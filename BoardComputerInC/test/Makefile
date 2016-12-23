@@ -4,8 +4,9 @@ UNITY_FOLDER=Unity
 TEST_INC_DIRS=$(INC_DIRS) -I$(UNITY_FOLDER)
 
 TEST_FILES=$(UNITY_FOLDER)/unity.c \
-           message_test.c \
-           ../libs/message/message.c
+           boardcomputer_test.c \
+           ../libs/message/message.c \
+
 
 HEADER_FILES=../libs/message/message.h
 
