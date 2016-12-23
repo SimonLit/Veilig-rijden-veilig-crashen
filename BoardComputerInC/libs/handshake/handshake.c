@@ -18,7 +18,7 @@
 #include "../file_handeling/file_handeling.h"
 #include "../response/response.h"
 
-char buffer[256];
+char buffer[2048];
 int j = 0;
 int counter;
 int returnValue;
@@ -44,9 +44,10 @@ static int waitForFirstContact(int sockfd, DATAPACKET* recv)
 	while(1)//Break out with a timeout
 	{
 		j = read(sockfd, buffer, 255);
+		printf("DEBUG:READ: %s\n", buffer);
 		if(j < 0)
 			perror("read");
-		else if( j == 0)//End of fd read
+		else
 		{
 			printf("DEBUG:WAITFORFIRSTCONTACT: The message is: %s\n", buffer);
 			returnValue = verificationStringCut(recv, buffer);
@@ -65,7 +66,7 @@ static int waitForFirstContact(int sockfd, DATAPACKET* recv)
 
 static int connectVerify(int sockfd, DATAPACKET* recv)
 {
-	bool verifiedCon = false;
+	counter = 0;
 	do{
 		 returnValue = waitForFirstContact(sockfd, recv);
 		 if(returnValue == -1)
@@ -78,24 +79,19 @@ static int connectVerify(int sockfd, DATAPACKET* recv)
 		 		send(sockfd, "#NACK@", 6, 0);
 		 	}
 		 }
-		 else if(returnValue = 0)
+		 else if(returnValue == 0)
 		 {
-		 	verifiedCon = true;
-		 	returnValue = send(sockfd, "#ACK|VERIFIED@", 14, 0);
+		 	printf("DEBUG:CONNECT: Send verified\n");
+		 	returnValue = send(sockfd, "#ACK@", 5, 0);
 		 	if(returnValue == -1)
 		 	{
 		 		perror("send");
-		 		send(sockfd, "#ACK|VERIFIED@", 14, 0);
+		 		send(sockfd, "#ACK@", 5, 0);
 		 	}
+		 	return 0;
 		 }
-	}while(verifiedCon == false || counter < 4);
-	if(verifiedCon = true)
-	{
-		printf("DEBUG:CONNECTVERIFY: CONNECTION HAS BEEN VERIFIED\n");
-		return 0;
-	}
-	else
-		return -1;	
+	}while(counter < 4);
+	return -1;	
 }
 
 static int recvData(int sockfd, DATAPACKET* recv)
@@ -135,7 +131,9 @@ static int recvData(int sockfd, DATAPACKET* recv)
 int handshakeReceiveData(int sockfd, const char* ip)
 {
 	DATAPACKET connectionData;
+	memset(buffer, 0, sizeof(buffer));
 	returnValue = connectVerify(sockfd, &connectionData);
+	printf("DEBUG:HANDSHAKE: Broke out connectVerify\n");
 	if(returnValue == -1)
 		return -1;
 	else
@@ -145,12 +143,13 @@ int handshakeReceiveData(int sockfd, const char* ip)
 			return -1;
 		else
 		{
+			send(sockfd, "#ACK@", 5, 0);
 			strcpy(connectionData.senderIpAdress, ip);
-			writeDataStructToFile(DATALOG, &connectionData);
+			//writeDataStructToFile(DATALOG, &connectionData);
 			printf("Wrote data to log file.\n");
 			if(connectionData.sf == true)
 			{
-				writeDataStructToFile(DATASEND, &connectionData);
+				//writeDataStructToFile(DATASEND, &connectionData);
 				printf("Writing data to send file.\n");
 			}
 			return 0;

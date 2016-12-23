@@ -71,6 +71,15 @@ void message_Split_Test(void)
 	TEST_ASSERT_EQUAL_STRING( "CAR", ar[1]);
 }
 
+void message_Data_Split_Test(void)
+{
+	char ** ar = NULL;
+	char arrry[] = "DAT|SPEED:0|SIDE_HIT:1|IMPACT:0|DIST_DRIVEN:0|ORIENTATION_YPR:-11,5,-1";
+	rv = split(arrry, '|', &ar);
+	for(int i = 0; i < rv; i++)
+		printf("DEBUG %s\n", ar[i]);
+}
+
 void check_Sender_Test(void)
 {
 	DATAPACKET connection;
@@ -121,6 +130,9 @@ int main (int argc, char * argv[])
     tearDown();
     setUp();
     MY_RUN_TEST(message_Split_Test);
+    tearDown();
+    setUp();
+    MY_RUN_TEST(message_Data_Split_Test);
     tearDown();
     setUp();
     MY_RUN_TEST(check_Sender_Test);

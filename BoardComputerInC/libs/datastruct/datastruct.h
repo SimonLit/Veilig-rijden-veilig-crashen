@@ -28,6 +28,15 @@ typedef enum
 	GSMSTATUSREQUEST
 } RESPONSES;
 
+typedef struct 
+{
+	int speed;
+	int side_hit;
+	int impact;
+	int distance_driven;
+	int orientation_ypr;
+} DATCRASH;
+
 typedef struct
 {
 	int Day;
@@ -49,5 +58,6 @@ typedef struct datapacket
 	bool sf; 
 	TIMESTAMP time;
 } DATAPACKET;
+
 
 #endif

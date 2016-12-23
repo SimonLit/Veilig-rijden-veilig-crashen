@@ -141,11 +141,12 @@ int checkSender(DATAPACKET* recv, const char* sender)
 
 int verificationStringCut(DATAPACKET* recv, const char* bf)
 {
-    char message[] = "This is a string";
+    char message[] = "                                                                           ";
     strcpy(message, bf);
 	int rv = correctFormatCheckRemoveBitshift(message);
     if(rv == -1)
         return -1;
+
 	char **arr = NULL;
 	int c = split(message, ':', &arr);
 	for(int i = 0; i < c; i++)
@@ -164,19 +165,41 @@ int verificationStringCut(DATAPACKET* recv, const char* bf)
 	}
 }
 
-
 //Set respons, check bf on start and end point, split it save shit in datapacket
 int dataCutRecvResponse(DATAPACKET* recv, const char* bf, RESPONSES rsp)
 {
-    char message[] = "";
+    
+    char message[] = "                                                                         ";
     strcpy(message, bf);
     int rv = correctFormatCheckRemoveBitshift(message);
     if(rv == -1)
         return -1;
     char **array = NULL;
-    int c = split(message, ':', &array);
+    int c = split(message, '|', &array);
     for(int i = 0; i < c; i++)
         printf("DEBUG:DATARESPONSE: The parts of the message are: %s\n", array[i]);
-    
-	return 0;
+    if(strcmp(array[0], "DAT") == 0)
+    {
+        //Save all the data, set bool for send
+        //Set respons
+        return 0;
+    }
+    else if(strcmp(array[0], "START_RP6") == 0)
+    {
+        //Set bool if driving or not 
+        //Set response
+        return 0;
+    }
+    else if(strcmp(array[0], "STOP_RP6") == 0)
+    {
+        //Set bool if driving or not
+        //Set response
+        return 0;
+    }
+    else if(strcmp(array[0], "SOME_MESSAGE") == 0)
+    {
+        printf("DEBUG:PHONE Received data from phone\n");
+        return 0;
+    }
+	return -1;
 }
