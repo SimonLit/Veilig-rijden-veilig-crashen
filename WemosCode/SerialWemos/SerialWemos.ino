@@ -101,7 +101,7 @@ connectionController lastWemosToCTRLConnection = CTRL_DISCONNECTED;
 SoftwareSerial softwareSerial(D6, D7); //Rx, Tx
 
 unsigned long lastControllerReceiveTimer = 0;
-int controllerRequestInterval = 100;
+int controllerRequestInterval = 200;
 
 // ================================================================
 // ===                   MPU VARIABLE SETUP                     ===
