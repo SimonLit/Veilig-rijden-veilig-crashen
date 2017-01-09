@@ -120,7 +120,6 @@ static int recvData(int sockfd, DATAPACKET* recv)
 			else	
 			{
 				recv -> action = rsp;
-				returnValue = respond(recv);
 				return 0;
 			}
 		}
@@ -145,6 +144,12 @@ int handshakeReceiveData(int sockfd, const char* ip)
 		{
 			send(sockfd, "#ACK@", 5, 0);
 			strcpy(connectionData.senderIpAdress, ip);
+			returnValue = respond(recv);//Do respons
+			if(returnValue == -1)
+			{
+				printf("Something went wrong with respond\n");
+				return -1;
+			}
 			//writeDataStructToFile(DATALOG, &connectionData);
 			printf("Wrote data to log file.\n");
 			if(connectionData.sf == true)

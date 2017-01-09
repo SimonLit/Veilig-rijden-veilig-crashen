@@ -7,6 +7,8 @@
 #define DATALOG "logfile"
 #define DATASEND "sendfile"
 
+bool driving;
+
 typedef int bool;
 enum 
 {
