@@ -113,15 +113,17 @@ void actOnState_WemosToRP6Connection(void)
         Serial.println(stringFromSoftwareSerial);
         if (stringFromSoftwareSerial.indexOf(CONTROLLER_VALUES) > -1)
         {
-          int timeoutState = timeoutHandlerWemosToRP6(stringFromSoftwareSerial, GENERAL_ACK);
-          if (timeoutState == -1)
+          makeProtocolString(stringFromSoftwareSerial);
+          int timeoutState = timeoutHandlerWemosToRP6(protocolStringToSend, GENERAL_ACK);
+          /*if (timeoutState == -1)
           {
             WemosToRP6Connection = RP6_DISCONNECTED;
           }
           else if (timeoutState == 0)
           {
             WemosToRP6Connection = RP6_CONNECTED;
-          }
+          }*/
+          WemosToRP6Connection = RP6_CONNECTED;
         }
         else if (stringFromSoftwareSerial == "ControllerDisconnected")
         {

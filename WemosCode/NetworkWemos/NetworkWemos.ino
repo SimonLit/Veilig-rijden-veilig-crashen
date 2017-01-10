@@ -82,10 +82,10 @@ connectionController WemosToCTRLConnection = CTRL_DISCONNECTED;
 // ================================================================
 //const char* ssid = "Project";
 //const char* password = "123456780";
-const char* ssid = "eversveraa";
-const char* password = "qwerty69";
-//const char* ssid = "HotSpotBoardComputer";
-//const char* password = "1234567890";
+//const char* ssid = "eversveraa";
+//const char* password = "qwerty69";
+const char* ssid = "HotSpotBoardComputer";
+const char* password = "1234567890";
 
 String controllerToRP6Protocol = "";
 

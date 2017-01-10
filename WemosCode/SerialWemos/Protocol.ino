@@ -70,11 +70,12 @@ int timeoutHandlerWemosToRP6(String messageToSend, String messageToCheckFor)
 
   Serial.println(messageToSend);
 
-  while ((millis() - timeoutTimer) <= maxResponseTimeout && nackCounter <= maxNACKCounter)
+  while (((millis() - timeoutTimer) <= maxResponseTimeout) && (nackCounter <= maxNACKCounter))
   {
+    //sendHeartbeatToRP6();
     // Listen for a response from the RP6
     receivedEndOfSerialString = getIncommingString(&stringFromSerial);
-
+    
     if (receivedEndOfSerialString)
     {
       if (stringFromSerial == messageToCheckFor)

@@ -1,5 +1,5 @@
 WiFiClient client_Controller;
-const char* host_Controller = "192.168.1.100";
+const char* host_Controller = "10.10.0.30";
 const int httpPort_Controller = 80;
 
 WiFiClient client_sendCrashData;
@@ -28,7 +28,7 @@ int getControllerValues(String* controllerToRP6Protocol)
 
   makeProtocolString(CONTROLLER_VALUE_PROTOCOL_REQUEST_SEND);
   client_Controller.print(protocolStringToSend);
-  
+
   String controllerValuesString = client_Controller.readString();
 
   if (getIncommingStringFromMessage(controllerValuesString, &controllerValuesString, controllerValuesString.length()))
@@ -44,7 +44,7 @@ int getControllerValues(String* controllerToRP6Protocol)
     *controllerToRP6Protocol = protocolStringToSend;
 
     lastControllerReceiveTimer = millis();
-    
+
     client_Controller.stop();
     return 0;
   }
@@ -69,17 +69,19 @@ int connectToBoardcomputer(void)
   // Send the Identification info.
   makeProtocolStringWithValue(CONNECT_TO_DEVICE, (String)WEMOS_NAME);
   client_sendCrashData.print(protocolStringToSend);
+  Serial.println("Sending connect request to boardcomputer");
 
-  while (client_sendCrashData.available() && ((millis() - timeoutTimer) <= maxResponseTimeout) && (nackCounter <= maxNACKCounter))
+  while (((millis() - timeoutTimer) < maxResponseTimeout) && (nackCounter <= maxNACKCounter))
   {
     String crashDataResponse = client_sendCrashData.readString();
     Serial.println(crashDataResponse);
 
     if (getIncommingStringFromMessage(crashDataResponse, &crashDataResponse, sizeof(crashDataResponse)))
     {
-      if (crashDataResponse.substring(0, 8) == CONNECTED_ACK_RECEIVE && crashDataResponse.substring(10) == BOARDCOMPUTER_NAME)
+      if (crashDataResponse == GENERAL_ACK)
       {
         // If the identity is verified send the crash data to the boardcomputer.
+        Serial.println("Connected to boardcomputer");
         return 1;
       }
       else if (crashDataResponse == GENERAL_NACK)
@@ -102,6 +104,7 @@ int connectToBoardcomputer(void)
   if ((millis() - timeoutTimer) > maxResponseTimeout || (nackCounter > maxNACKCounter))
   {
     client_sendCrashData.stop();
+    Serial.println("Nope on connect request.");
     return -1;
   }
 }
@@ -118,17 +121,21 @@ int sendCrashData(String CrashDataProtocol, int numberOfCrashDataDataToSend)
   // Send the chrash data to the boardcomputer.
   makeProtocolString(CrashDataProtocol);
   client_sendCrashData.print(protocolStringToSend);
+  Serial.println("sending Crash data");
 
-  while (client_sendCrashData.available() && ((millis() - timeoutTimer) <= maxResponseTimeout) && (nackCounter <= maxNACKCounter))
+  while (((millis() - timeoutTimer) <= maxResponseTimeout) && (nackCounter <= maxNACKCounter))
   {
     String crashDataResponse = client_sendCrashData.readString();
+    Serial.println(crashDataResponse);
 
     if (getIncommingStringFromMessage(crashDataResponse, &crashDataResponse, sizeof(crashDataResponse)))
     {
+      Serial.println(crashDataResponse);
       switch (checkForValidBoardcomputerMessage(crashDataResponse))
       {
         case 1:
           client_sendCrashData.stop();
+          Serial.println("Succes sending crash data.");
           return 1;
 
         // The message that was send from the boardcomputer to the wemos doesn't
@@ -152,6 +159,7 @@ int sendCrashData(String CrashDataProtocol, int numberOfCrashDataDataToSend)
   if ((millis() - timeoutTimer) > maxResponseTimeout || (nackCounter > maxNACKCounter))
   {
     client_sendCrashData.stop();
+    Serial.println("Nope on sending crash data.");
     return -1;
   }
 }
@@ -163,32 +171,32 @@ int sendRP6StatusToBoardcomputer(void)
 
   makeProtocolString(RP6States[RP6State]);
   client_sendCrashData.print(protocolStringToSend);
+  Serial.println("Sending RP6 state.");
 
-  while (client_sendCrashData.available() && ((millis() - timeoutTimer) <= maxResponseTimeout) && (nackCounter <= maxNACKCounter))
+  while (((millis() - timeoutTimer) <= maxResponseTimeout) && (nackCounter <= maxNACKCounter))
   {
     String crashDataResponse = client_sendCrashData.readString();
-     Serial.println(crashDataResponse);
+    Serial.println(crashDataResponse);
 
     if (getIncommingStringFromMessage(crashDataResponse, &crashDataResponse, sizeof(crashDataResponse)))
     {
-      switch (checkForValidBoardcomputerMessage(crashDataResponse))
+      if (crashDataResponse == GENERAL_ACK)
       {
-        case 1:
-          client_sendCrashData.stop();
-          return 1;
-
-        // The message that was send from the boardcomputer to the wemos doesn't
-        // match any of the defined protocols.
-        case 0:
-          makeProtocolString(GENERAL_NACK);
-          client_sendCrashData.print(protocolStringToSend);
-          break;
-
-        case -1:
-          makeProtocolString(RP6States[RP6State]);
-          client_sendCrashData.print(protocolStringToSend);
-          break;
-
+        client_sendCrashData.stop();
+        Serial.println("Succes sending RP6 state.");
+        return 1;
+      }
+      else if (crashDataResponse == GENERAL_NACK)
+      {
+        makeProtocolString(RP6States[RP6State]);
+        client_sendCrashData.print(protocolStringToSend);
+      }
+      // The message that was send from the boardcomputer to the wemos doesn't
+      // match any of the defined protocols.
+      else
+      {
+        makeProtocolString(GENERAL_NACK);
+        client_sendCrashData.print(protocolStringToSend);
       }
     }
   }
@@ -196,6 +204,7 @@ int sendRP6StatusToBoardcomputer(void)
   if ((millis() - timeoutTimer) > maxResponseTimeout || (nackCounter > maxNACKCounter))
   {
     client_sendCrashData.stop();
+    Serial.println("Nope on sending RP6 state.");
     return -1;
   }
 }

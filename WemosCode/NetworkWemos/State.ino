@@ -1,3 +1,5 @@
+int conectedToBoardcomputer = 0;
+
 void checkAndAcktOnSerialMessage(void)
 {
   bool receivedMessage = getIncommingString(&stringFromSerial);
@@ -22,20 +24,32 @@ void checkAndAcktOnSerialMessage(void)
     else if (stringFromSerial.indexOf(SEND_DATA_TO_BOARDCOMPUTER_INDICATOR) > -1)
     {
       int conectedToBoardcomputer = connectToBoardcomputer();
-      if (conectedToBoardcomputer);
+      if (conectedToBoardcomputer)
       {
-         sendCrashData(stringFromSerial, 5);
+        sendCrashData(stringFromSerial, 5);
       }
     }
     else if (stringFromSerial == RP6_STARTED_PROGRAM)
     {
       RP6State = STARTED_PROGRAM;
-      sendRP6StatusToBoardcomputer();
+      conectedToBoardcomputer = connectToBoardcomputer();
+      if (conectedToBoardcomputer == 1)
+      {
+        Serial.println("Going to send RP6 status");
+        sendRP6StatusToBoardcomputer();
+      }
+      conectedToBoardcomputer = 0;
     }
     else if (stringFromSerial == RP6_STOPPED_PROGRAM)
     {
       RP6State = STOPPED_PROGRAM;
-      sendRP6StatusToBoardcomputer();
+      conectedToBoardcomputer = connectToBoardcomputer();
+      if (conectedToBoardcomputer == 1)
+      {
+        Serial.println("Going to send RP6 status");
+        sendRP6StatusToBoardcomputer();
+      }
+      conectedToBoardcomputer = 0;
     }
   }
 }

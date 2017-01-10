@@ -101,7 +101,7 @@ connectionController lastWemosToCTRLConnection = CTRL_DISCONNECTED;
 SoftwareSerial softwareSerial(D6, D7); //Rx, Tx
 
 unsigned long lastControllerReceiveTimer = 0;
-int controllerRequestInterval = 100;
+int controllerRequestInterval = 1000;
 
 // ================================================================
 // ===                   MPU VARIABLE SETUP                     ===
@@ -231,7 +231,7 @@ void loop()
   /*
      Make Sure the DMP values are stable.
   */
-  while (!MPUIsStable)
+  /*while (!MPUIsStable)
   {
     delay(1);
     if (getMPUIsStabilized())
@@ -244,7 +244,7 @@ void loop()
     {
       return;
     }
-  }
+  }*/
 
   /*
          Reset the orentation values close to 0.
