@@ -5,8 +5,6 @@ void checkAndAcktOnSerialMessage(void)
   bool receivedMessage = getIncommingString(&stringFromSerial);
   if (receivedMessage)
   {
-    Serial.print("Received message: ");
-    Serial.println(stringFromSerial);
     if (stringFromSerial == CONTROLLER_VALUE_PROTOCOL_REQUEST_SEND)
     {
       String controllerValues = "";

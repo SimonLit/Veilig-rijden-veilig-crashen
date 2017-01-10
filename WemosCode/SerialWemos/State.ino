@@ -40,7 +40,7 @@ void actOnState_WemosToRP6Connection(void)
       if ((millis() - lastControllerReceiveTimer) > controllerRequestInterval)
       {
         makeProtocolString(CONTROLLER_VALUE_PROTOCOL_REQUEST_SEND);
-        //softwareSerial.print(protocolStringToSend);
+        softwareSerial.print(protocolStringToSend);
         lastControllerReceiveTimer = millis();
       }
 
@@ -63,13 +63,13 @@ void actOnState_WemosToRP6Connection(void)
             {
               RP6State = STARTED_PROGRAM;
               makeProtocolString(RP6States[RP6State]);
-              softwareSerial.print(protocolStringToSend);
+              //softwareSerial.print(protocolStringToSend);
             }
             else if (stringFromSerial == RP6_STOPPED_PROGRAM)
             {
               RP6State = STOPPED_PROGRAM;
               makeProtocolString(RP6States[RP6State]);
-              softwareSerial.print(protocolStringToSend);
+              //softwareSerial.print(protocolStringToSend);
             }
 
             //  When ORIENTATION is received it means all the crash data is received
@@ -109,13 +109,12 @@ void actOnState_WemosToRP6Connection(void)
 
       if (receivedEndOfSoftwareSerialString)
       {
-        Serial.print("ReceivedFromSoftwareSerial: ");
-        Serial.println(stringFromSoftwareSerial);
         if (stringFromSoftwareSerial.indexOf(CONTROLLER_VALUES) > -1)
         {
           makeProtocolString(stringFromSoftwareSerial);
-          int timeoutState = timeoutHandlerWemosToRP6(protocolStringToSend, GENERAL_ACK);
-          /*if (timeoutState == -1)
+          Serial.println(protocolStringToSend);
+          /*int timeoutState = timeoutHandlerWemosToRP6(protocolStringToSend, GENERAL_ACK);
+          if (timeoutState == -1)
           {
             WemosToRP6Connection = RP6_DISCONNECTED;
           }
@@ -123,7 +122,6 @@ void actOnState_WemosToRP6Connection(void)
           {
             WemosToRP6Connection = RP6_CONNECTED;
           }*/
-          WemosToRP6Connection = RP6_CONNECTED;
         }
         else if (stringFromSoftwareSerial == "ControllerDisconnected")
         {

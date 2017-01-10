@@ -90,8 +90,6 @@ const char* password = "1234567890";
 String controllerToRP6Protocol = "";
 
 long currentMillis = 0;
-long lastControllerReceiveTimer = 0;
-int controllerRequestInterval = 100;
 
 // ================================================================
 // ===                    SETUP FOR ESP                         ===
@@ -123,6 +121,5 @@ void setup() {
 // ================================================================
 void loop()
 {
-  delay(2);
   checkAndAcktOnSerialMessage();
 }

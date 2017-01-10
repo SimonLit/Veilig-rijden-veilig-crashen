@@ -67,7 +67,7 @@ int timeoutHandlerWemosToRP6(String messageToSend, String messageToCheckFor)
 {
   int nackCounter = 0;
   int timeoutTimer = millis();
-
+  
   Serial.println(messageToSend);
 
   while (((millis() - timeoutTimer) <= maxResponseTimeout) && (nackCounter <= maxNACKCounter))
