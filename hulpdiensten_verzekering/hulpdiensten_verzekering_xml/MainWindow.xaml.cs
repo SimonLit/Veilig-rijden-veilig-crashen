@@ -13,8 +13,11 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.IO.Packaging;
 using System.Collections;
+using System.Windows.Threading;
 using Microsoft.Maps.MapControl.WPF;
 
 
@@ -25,10 +28,20 @@ namespace hulpdiensten_verzekering_xml
     /// </summary>
     public partial class MainWindow : Window
     {
+        bool connected = false;
         Administration administration;
+        AsynchronousSocketListener asynclisten;
+        string data_received;
         public MainWindow()
         {
             administration = new Administration();
+            
+            DispatcherTimer dtClockTime = new DispatcherTimer();
+            dtClockTime.Interval = new TimeSpan(0, 0, 10);
+            dtClockTime.Tick += dtClockTime_Tick;
+            
+
+            dtClockTime.Start();
             try
             {
                 string[] fileEntries = Directory.GetFiles(@"C:\\Users\\Gebruiker\\Documents\\Mobile dash\\InsuranceRapport");
@@ -76,6 +89,10 @@ namespace hulpdiensten_verzekering_xml
             myMap.ZoomLevel = 16;
             foreach (PoliceRapport p in administration.PoliceRapports) {
                 listBox.Items.Add(p.PoliceRapportNumber);
+            foreach (InsuranceRapport i in administration.InsuranceRapports)
+            {
+                    listBox_insurance.Items.Add(i.InsuranceRapportNumber);
+            }
             }
 
         }
@@ -87,8 +104,28 @@ namespace hulpdiensten_verzekering_xml
             myMap.Center = new Location(policeRapport.locationxDouble, policeRapport.locationyDouble);
         }
 
+        private void dtClockTime_Tick(object sender, EventArgs e)
+        {
+            lblClockTime.Content = DateTime.Now.ToLongTimeString();
+            if(connected == true)
+            {
+                if (AsynchronousSocketListener.Data_Received_Export != "")
+                {
+                    data_received = AsynchronousSocketListener.Data_Received_Export;
+                    testlabel.Content = data_received;
+                }
+
+            }
+        }
+
         private void listBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
+            ___Grid2_.Visibility = Visibility.Visible;
+            PoliceRapport policeRapport;
+            policeRapport = administration.FindPoliceRapport(Convert.ToInt32(listBox.SelectedItem.ToString()));
+            lbl_police_date.Content = Convert.ToString(policeRapport.Date);
+            lbl_police_rapport_number.Content = Convert.ToString(policeRapport.PoliceRapportNumber);
+            btn_remove_image_police.IsEnabled = true;
         }
 
         private void listBox_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -99,6 +136,37 @@ namespace hulpdiensten_verzekering_xml
         private void listBox_MouseDown(object sender, MouseButtonEventArgs e)
         {
 
+        }
+
+        private void btn_remove_image_police_Click(object sender, RoutedEventArgs e)
+        {
+            ___Grid2_.Visibility = Visibility.Hidden;
+            ___Grid3_.Visibility = Visibility.Hidden;
+            btn_remove_image_police.IsEnabled = false;
+        }
+
+        private void listBox_insurance_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            ___Grid3_.Visibility = Visibility.Visible;
+            InsuranceRapport insuranceRapport;
+            insuranceRapport = administration.FindInsuranceRapport(Convert.ToInt32(listBox_insurance.SelectedItem.ToString()));
+            lbl_insurance_date.Content = Convert.ToString(insuranceRapport.Date);
+            lbl_insurance_rapport_number.Content = Convert.ToString(insuranceRapport.InsuranceRapportNumber);
+            btn_remove_image_police.IsEnabled = true;
+        }
+
+        private void button_connect_Click(object sender, RoutedEventArgs e)
+        {
+
+            try 
+            {
+                asynclisten = new AsynchronousSocketListener();
+
+                AsynchronousSocketListener.MainSocketListen();
+            }
+            catch
+            {
+            }
         }
     }
 }

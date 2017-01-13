@@ -84,12 +84,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Administration.cs" />
+    <Compile Include="AsynchronousSocketListener.cs" />
     <Compile Include="InsuranceRapport.cs" />
     <Compile Include="InsuranceRapportExtractor.cs" />
     <Compile Include="IRapport.cs" />
     <Compile Include="PoliceRapport.cs" />
     <Compile Include="PoliceRapportExtractor.cs" />
     <Compile Include="Rapport.cs" />
+    <Compile Include="StateObject.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

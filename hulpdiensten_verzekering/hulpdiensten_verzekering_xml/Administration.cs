@@ -27,6 +27,16 @@ namespace hulpdiensten_verzekering_xml
             InsuranceRapports.Add(rapport);
         }
 
+        public void SplitStringsRapport(string joinedstring)
+        {
+
+
+            PoliceRapport policerapport = PoliceRapportExtractor.CreateNewPoliceRapportFromstring(policeRapportString);
+            AddPoliceRapport(policerapport);
+            InsuranceRapport insurancerapport = InsuranceRapportExtractor.CreateNewInsuranceRapportFromstring(insuranceRapportString);
+            AddInsuranceRapport(insurancerapport);
+        }
+
         public PoliceRapport FindPoliceRapport(int policeRapportNumber)
         {
             PoliceRapport policeRapportToReturn = null;
@@ -46,6 +56,27 @@ namespace hulpdiensten_verzekering_xml
 
 
             return policeRapportToReturn;
+        }
+
+        public InsuranceRapport FindInsuranceRapport(int insuranceRapportNumber)
+        {
+            InsuranceRapport insuranceRapportToReturn = null;
+
+            if (insuranceRapportNumber < 0)
+            {
+                throw new ArgumentOutOfRangeException("Could not find a insurance rapport with that number");
+            }
+            foreach (InsuranceRapport element in InsuranceRapports)
+            {
+                if (element.InsuranceRapportNumber == insuranceRapportNumber)
+                {
+                    insuranceRapportToReturn = element;
+                    break;
+                }
+            }
+
+
+            return insuranceRapportToReturn;
         }
 
 

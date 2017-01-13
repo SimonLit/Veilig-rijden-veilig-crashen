@@ -6,12 +6,24 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:hulpdiensten_verzekering_xml"
         mc:Ignorable="d"
-        Title="MainWindow" Height="700" Width="993.866">
+        Title="MainWindow" Height="811.896" Width="993.866">
     <Grid>
         <m:Map CredentialsProvider="INSERT_YOUR_BING_MAPS_KEY" x:Name="myMap"  Height="515" Width="750" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         <ListBox x:Name="listBox" HorizontalAlignment="Left" Height="515" VerticalAlignment="Top" Width="237" Margin="750,0,0,0" SelectionChanged="listBox_SelectionChanged" MouseDoubleClick="listBox_MouseDoubleClick" MouseLeftButtonDown="listBox_MouseLeftButtonDown" MouseDown="listBox_MouseDown"/>
-        <Grid x:Name="___Grid2_" d:IsHidden="True">
-            <Image x:Name="image" HorizontalAlignment="Left" Height="100" Margin="331,290,0,0" VerticalAlignment="Top" Width="100" Source="C:\Users\Gebruiker\Documents\Git\VeiligRijdenVeiligCrashen\hulpdiensten_verzekering\hulpdiensten_verzekering_xml/Images/PoliceRapportTemplate-1.png"/>
+        <Grid x:Name="___Grid2_" d:IsHidden="False" Visibility="Hidden">
+            <Image x:Name="image" HorizontalAlignment="Left" Height="782" Margin="203,0,0,0" VerticalAlignment="Top" Width="551" Source="C:\Users\Gebruiker\Documents\Git\VeiligRijdenVeiligCrashen\hulpdiensten_verzekering\hulpdiensten_verzekering_xml/Images/PoliceRapportTemplate-1.png"/>
+            <Label x:Name="lbl_police_date" Content="Label" HorizontalAlignment="Left" Height="17" Margin="285,230,0,0" VerticalAlignment="Top" Width="67" FontSize="6"/>
+            <Label x:Name="lbl_police_rapport_number" Content="Label" HorizontalAlignment="Left" Height="20" Margin="285,205,0,0" VerticalAlignment="Top" Width="158" FontSize="6"/>
         </Grid>
+        <Button x:Name="btn_remove_image_police" Content="Back" HorizontalAlignment="Left" Margin="871,746,0,0" Width="106" Height="26" VerticalAlignment="Top" Click="btn_remove_image_police_Click" IsEnabled="False"/>
+        <ListBox x:Name="listBox_insurance" HorizontalAlignment="Left" Height="262" Margin="0,520,0,0" VerticalAlignment="Top" Width="750" MouseDoubleClick="listBox_insurance_MouseDoubleClick"/>
+        <Button x:Name="button_connect" Content="Connect" HorizontalAlignment="Left" Margin="871,702,0,0" VerticalAlignment="Top" Width="106" Height="26" Click="button_connect_Click"/>
+        <Grid x:Name="___Grid3_" d:IsHidden="False" Visibility="Hidden">
+            <Image x:Name="image_insurance" HorizontalAlignment="Left" Height="782" Margin="203,0,0,0" VerticalAlignment="Top" Width="551" Source="C:\Users\Gebruiker\Documents\Git\VeiligRijdenVeiligCrashen\hulpdiensten_verzekering\hulpdiensten_verzekering_xml/Images/PoliceRapportTemplate-1.png"/>
+            <Label x:Name="lbl_insurance_date" Content="Label" HorizontalAlignment="Left" Height="17" Margin="285,230,0,0" VerticalAlignment="Top" Width="67" FontSize="6"/>
+            <Label x:Name="lbl_insurance_rapport_number" Content="Label" HorizontalAlignment="Left" Height="20" Margin="285,205,0,0" VerticalAlignment="Top" Width="158" FontSize="6"/>
+        </Grid>
+        <Label x:Name="lblClockTime" Content="Label" HorizontalAlignment="Left" Margin="750,833,0,-75.6" VerticalAlignment="Top" Width="134"/>
+        <Label x:Name="testlabel" Content="Label" HorizontalAlignment="Left" Margin="772,533,0,0" VerticalAlignment="Top" Height="41" Width="185"/>
     </Grid>
 </Window>
