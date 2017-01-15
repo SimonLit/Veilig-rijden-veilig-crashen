@@ -59,12 +59,12 @@ int uint8_tToString(uint8_t value, char* string, unsigned int stringLength)
 {
 	if(string == NULL) {return -1;}
 	memset(string, 0, stringLength);
-	return snprintf(string, stringLength, "%d", value);
+	return snprintf(string, stringLength, "%d", value);// Return the number is characters written.
 }
 
 int uint16_tToString(uint16_t value, char* string, unsigned int stringLength)
 {
 	if(string == NULL) {return -1;}
 	memset(string, 0, stringLength);
-	return snprintf(string, stringLength, "%d", value);
+	return snprintf(string, stringLength, "%d", value);// Return the number is characters written.
 }

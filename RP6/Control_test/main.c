@@ -1,6 +1,7 @@
 #include "unity.h"
 #include <stdio.h>
 #include "interpretSerial_test.h"
+#include "tools_test.h"
 
 /*****************************************************************************/
 
@@ -27,6 +28,7 @@ int main(void)
 	UnityBegin();
 
 	interpretSerial_RunTestcases();
+	tools_RunTestcases();
 	
 	UnityEnd();
 }
