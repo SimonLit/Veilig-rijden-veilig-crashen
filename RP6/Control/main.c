@@ -133,8 +133,6 @@ int main(void)
 			case DISCONNECTED:
 				if(getStopwatch1() > 20)
 				{	
-					clearLCD();
-					writeStringLCD("Disconnected");	
 					if(getIncomingSerialMessage(receiveBufferCommand, receiveBufferValue) == 0)
 					{						
 						if(waitForConnectRequest(receiveBufferCommand, receiveBufferValue) == 0)
@@ -150,8 +148,8 @@ int main(void)
 							// Send the new RP6 status to the wemos.
 							sendMessage(RP6StateStrings[RP6State]);	
 
-							clearLCD();
-							writeStringLCD(RP6StateStrings[RP6State]);	
+							//clearLCD();
+							//writeStringLCD(RP6StateStrings[RP6State]);	
 							lastHeartbeatReceived = getStopwatch1();
 						}
 					}
@@ -166,6 +164,7 @@ int main(void)
 				if(startStopwatch3() > 50)
 				{		
 					switch(pressedButton)
+					{
 						case 1:
 							switch(RP6State)
 							{
@@ -281,6 +280,7 @@ int main(void)
 						baseSpeed = 0;
 						rightSpeed = 0;
 						leftSpeed = 0;
+						stop();
 						break;
 			}
 			break;	

@@ -6,7 +6,7 @@
 
 int indexOf(char* array, char value, const int sizeOfArray)
 {
-	if(array == NULL || value == NULL || sizeOfArray < 1) {return -1;}
+	if(array == NULL || sizeOfArray < 1) {return -1;}
 	
 	int index = 0;
 	while(index < sizeOfArray && array[index] != value) {index++;}
