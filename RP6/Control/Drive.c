@@ -36,7 +36,7 @@ uint16_t calculateAverageSpeed(void)
 
 	for(uint8_t i = 0; i < sDataArraySize; i++)
 	{
-		sum += (sDataArray[i].speedLeft + sDataArray[i].speedRight);
+		sum += (sDataArray[i].speedLeft + sDataArray[i].speedRight)/2;
 	}
 
 	return sum/sDataArraySize;

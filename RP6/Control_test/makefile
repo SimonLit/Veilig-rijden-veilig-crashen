@@ -34,8 +34,10 @@ EXTRAINCDIRS = $(RP6_LIB_PATH) $(RP6_LIB_PATH_OTHERS) $(UNITY_LIB_PATH) $(CODE_T
 # Main Source file is _automatically_ added here:
 SRC = $(TARGET).c
 SRC += interpretSerial_test.c
+SRC += tools_test.c
 
 SRC += $(CODE_TO_TEST_PATH)/InterpretSerial.c
+SRC += $(CODE_TO_TEST_PATH)/Tools.c
 
 #Additional files for the unit-testing framework and logging
 SRC += $(UNITY_LIB_PATH)/unity.c
