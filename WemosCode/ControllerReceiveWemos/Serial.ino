@@ -1,12 +1,11 @@
 bool startReadingSerialMessage = false;
-bool startReadingSoftwareMessage = false;
 bool startReadingStringMessage = false;
-String internalTempMessageSerial = "";
-String internalTempMessageSoftwareSerial = "";
+String internalTempMessage = "";
 String tempFormattedMessage = "";
 
 bool getIncommingString(String* stringFromSerial)
 {
+
   if (Serial.available() > 0)
   {
     char incommingChar = Serial.read();
@@ -14,47 +13,20 @@ bool getIncommingString(String* stringFromSerial)
     if (incommingChar == END_CHARACTER)
     {
       startReadingSerialMessage = false;
-      *stringFromSerial = internalTempMessageSerial;
+      *stringFromSerial = internalTempMessage;
+      //Serial.println(internalTempMessage);
       return true;
     }
 
     if (startReadingSerialMessage)
     {
-      internalTempMessageSerial += incommingChar;
+      internalTempMessage += incommingChar;
     }
 
     if (incommingChar == START_CHARACTER)
     {
       startReadingSerialMessage = true;
-      internalTempMessageSerial = "";
-    }
-  }
-  return false;
-}
-
-bool getIncommingStringFromControllerSoftwareSerial(String* stringFromSerial)
-{
-
-  if (ControllerSoftwareSerial.available() > 0)
-  {
-    char incommingChar = ControllerSoftwareSerial.read();
-
-    if (incommingChar == END_CHARACTER)
-    {
-      startReadingSoftwareMessage = false;
-      *stringFromSerial = internalTempMessageSoftwareSerial;
-      return true;
-    }
-
-    if (startReadingSoftwareMessage)
-    {
-      internalTempMessageSoftwareSerial += incommingChar;
-    }
-
-    if (incommingChar == START_CHARACTER)
-    {
-      startReadingSoftwareMessage = true;
-      internalTempMessageSoftwareSerial = "";
+      internalTempMessage = "";
     }
   }
   return false;

@@ -14,7 +14,7 @@
 #endif
 
 String stringFromSerial = "";
-String stringFromSoftwareSerial = "";
+String stringFromControllerSoftwareSerial = "";
 
 // ================================================================
 // ===           GENERAL SERIAL COMMUNICATION PROTOCOL          ===
@@ -67,7 +67,7 @@ int heartbeatInterval = 1000;
 int maxNACKCounter = 3;
 int maxResponseTimeout = 2000;
 bool receivedEndOfSerialString = false;
-bool receivedEndOfSoftwareSerialString = false;
+bool receivedEndOfControllerSoftwareSerialString = false;
 
 typedef enum
 {
@@ -98,7 +98,8 @@ stateRP6 lastRP6State = STOPPED_PROGRAM;
 connectionController WemosToCTRLConnection = CTRL_DISCONNECTED;
 connectionController lastWemosToCTRLConnection = CTRL_DISCONNECTED;
 
-SoftwareSerial softwareSerial(D6, D7); //Rx, Tx
+SoftwareSerial softwareSerial(D8, D7); //Rx, Tx
+SoftwareSerial ControllerSoftwareSerial(D5, D6); //Rx, Tx
 
 unsigned long lastControllerReceiveTimer = 0;
 int controllerRequestInterval = 200;
@@ -166,7 +167,8 @@ void setup() {
   Serial.begin(38400);
 
   softwareSerial.begin(38400);
-
+  ControllerSoftwareSerial.begin(38400);
+  
   // =========================SETUP FOR MPU=========================
 
   // NOTE: 8MHz or slower host processors, like the Teensy @ 3.3v or Ardunio
