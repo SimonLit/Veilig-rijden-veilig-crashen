@@ -40,7 +40,7 @@ void actOnState_WemosToRP6Connection(void)
       if ((millis() - lastControllerReceiveTimer) > controllerRequestInterval)
       {
         makeProtocolString(CONTROLLER_VALUE_PROTOCOL_REQUEST_SEND);
-        softwareSerial.print(protocolStringToSend);
+        //softwareSerial.print(protocolStringToSend);
         lastControllerReceiveTimer = millis();
       }
 
@@ -63,13 +63,13 @@ void actOnState_WemosToRP6Connection(void)
             {
               RP6State = STARTED_PROGRAM;
               makeProtocolString(RP6States[RP6State]);
-              //softwareSerial.print(protocolStringToSend);
+              softwareSerial.print(protocolStringToSend);
             }
             else if (stringFromSerial == RP6_STOPPED_PROGRAM)
             {
               RP6State = STOPPED_PROGRAM;
               makeProtocolString(RP6States[RP6State]);
-              //softwareSerial.print(protocolStringToSend);
+              softwareSerial.print(protocolStringToSend);
             }
 
             //  When ORIENTATION is received it means all the crash data is received
@@ -81,7 +81,7 @@ void actOnState_WemosToRP6Connection(void)
                                                  protocolToSendArray[1] + (String)MULTI_COMMAND_SEPARATOR +
                                                  protocolToSendArray[2] + (String)MULTI_COMMAND_SEPARATOR +
                                                  protocolToSendArray[3] + (String)MULTI_COMMAND_SEPARATOR +
-                                                 protocolToSendArray[4];
+                                                 protocolToSendArray[4];  
               makeProtocolString(crashDataForBoardcomputer);
               softwareSerial.print(protocolStringToSend);
             }
@@ -125,7 +125,7 @@ void actOnState_WemosToRP6Connection(void)
         }
         else if (stringFromSoftwareSerial == "ControllerDisconnected")
         {
-          WemosToRP6Connection = RP6_DISCONNECTED;
+          //WemosToRP6Connection = RP6_DISCONNECTED;
         }
         else if (stringFromSoftwareSerial == "errorBoardComputer")
         {

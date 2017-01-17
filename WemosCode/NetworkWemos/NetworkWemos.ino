@@ -96,7 +96,7 @@ long currentMillis = 0;
 // ================================================================
 void setup() {
   Serial.begin(38400);
-  
+
   // Connect to WiFi network
   Serial.println();
   Serial.println();
@@ -105,8 +105,16 @@ void setup() {
 
   WiFi.begin(ssid, password);
 
+  // config static IP
+  IPAddress ip(10, 10, 0, 3); // where xx is the desired IP Address
+  IPAddress gateway(10, 10, 0, 1); // set gateway to match your network
+  Serial.print(F("Setting static ip to : "));
+  Serial.println(ip);
+  IPAddress subnet(255, 255, 255, 0); // set subnet mask to match your network
+  WiFi.config(ip, gateway, subnet);
+
   // If the router isn't available for use comment this while loop.
- while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
@@ -114,6 +122,10 @@ void setup() {
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+  Serial.println("IP gateway: ");
+  Serial.println(WiFi.gatewayIP());
+  Serial.println("subnet: ");
+  Serial.println(WiFi.subnetMask());
 }
 
 // ================================================================

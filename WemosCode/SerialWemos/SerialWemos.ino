@@ -260,6 +260,6 @@ void loop()
   }
 
   actOnState_WemosToRP6Connection();
-  //actOnState_RP6State();
+  actOnState_RP6State();
   actOnState_WemosToCTRLConnection();
 }

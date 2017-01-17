@@ -1,4 +1,4 @@
-/*
+  /*
    Format a protocol string.
    The protocol is stored in the protocolStringToSend variable.
 */
