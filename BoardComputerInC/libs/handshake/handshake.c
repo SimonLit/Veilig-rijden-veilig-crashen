@@ -11,6 +11,7 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <time.h>
 #include "handshake.h"
 #include "../datastruct/datastruct.h"
 #include "../response/response.h"
@@ -94,19 +95,28 @@ static int connectVerify(int sockfd, DATAPACKET* recv)
 	return -1;	
 }
 
-static int recvData(int sockfd, DATAPACKET* recv)
+static int recvData(int sockfd, DATAPACKET* recveid)
 {
+	//char buf[255];
 	memset(buffer, 0, sizeof(buffer));
+	printf("Buffer is %d\n", buffer[0]);
 	RESPONSES rsp;
 	while(1)//Break out with a timeout
 	{
+	//	j = read(sockfd, buf, 1);
 		j = read(sockfd, buffer, 255);
+		printf("Amount received is %d\n",j);
 		if(j < 0)
 			perror("read");
 		else
 		{	
 			printf("DEBUG:RECVDATA: The message is: %s\n", buffer);
-			returnValue = dataCutRecvResponse(recv, buffer, &rsp);
+			for(int i = 0; i < 10; i++)
+			{
+				printf("Byte value %d\n", buffer[i]);
+			}
+			returnValue = dataCutRecvResponse(recveid, buffer, &rsp);
+			printf("Returnvalue data cut recv response %d\n", returnValue);
 			if(returnValue == -1)
 			{
 				returnValue = send(sockfd, "#NACK@", 6, 0);
@@ -119,7 +129,7 @@ static int recvData(int sockfd, DATAPACKET* recv)
 			}
 			else	
 			{
-				recv -> action = rsp;
+				recveid -> action = rsp;
 				return 0;
 			}
 		}
@@ -130,9 +140,11 @@ static int recvData(int sockfd, DATAPACKET* recv)
 int handshakeReceiveData(int sockfd, const char* ip)
 {
 	DATAPACKET connectionData;
+	connectionData.sockFd = sockfd;
 	memset(buffer, 0, sizeof(buffer));
 	returnValue = connectVerify(sockfd, &connectionData);
 	printf("DEBUG:HANDSHAKE: Broke out connectVerify\n");
+	printf("Return value %d\n", returnValue);
 	if(returnValue == -1)
 		return -1;
 	else
@@ -144,17 +156,17 @@ int handshakeReceiveData(int sockfd, const char* ip)
 		{
 			send(sockfd, "#ACK@", 5, 0);
 			strcpy(connectionData.senderIpAdress, ip);
-			returnValue = respond(recv);//Do respons
+			returnValue = respond(&connectionData);//Do respons
 			if(returnValue == -1)
 			{
 				printf("Something went wrong with respond\n");
 				return -1;
 			}
-			//writeDataStructToFile(DATALOG, &connectionData);
+			writeDataStructToFile(DATALOG, &connectionData);
 			printf("Wrote data to log file.\n");
 			if(connectionData.sf == true)
 			{
-				//writeDataStructToFile(DATASEND, &connectionData);
+				writeDataStructToFile(DATASEND, &connectionData);
 				printf("Writing data to send file.\n");
 			}
 			return 0;

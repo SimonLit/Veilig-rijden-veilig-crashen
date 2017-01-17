@@ -6,19 +6,10 @@
 
 int writeDataStructToFile(char* filename, const DATAPACKET* value)
 {
-	if(filename == NULL)
-		return -1;
-	if(value == NULL)
-		return -1;
 	FILE* fp;
-	if(access(filename, F_OK) == 0)
-		fp = fopen(filename, "r+");
-	else
-		fp = fopen(filename, "r+");
-	if(fp == NULL)
-		return -1;//File does not exist
-	fclose(fp);
 	fp = fopen(filename, "a");
+	if(fp == NULL)
+		return -1;
 	int returnvalueWrite = fwrite(value, sizeof(DATAPACKET), 1, fp);
 	fclose(fp);
 	if(returnvalueWrite == 1)

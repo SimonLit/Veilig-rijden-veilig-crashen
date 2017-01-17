@@ -7,14 +7,14 @@
 #define DATALOG "logfile"
 #define DATASEND "sendfile"
 
-bool driving;
-
 typedef int bool;
 enum 
 {
 	false,
 	true
 };
+
+bool driving;
 
 typedef enum
 {
@@ -27,7 +27,8 @@ typedef enum
 {
 	CRASHDATA,
 	RP6STATUS,
-	GSMSTATUSREQUEST
+	GSMSTATUSREQUEST,
+	DRIVING
 } RESPONSES;
 
 typedef struct 

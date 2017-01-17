@@ -5,26 +5,26 @@
 #include "serial/sercom.h"
 #include "handshake/handshake.h"
 #include "serversocket/serverSocket.h"
+#include "client/client.h"
 
 #define NodeInternal "10.10.0.1"
 #define ServiceInternal "5000"
-#define NodeExternal "192.168.1.105"
-#define SeriveExternal "6000"
+#define NodeExternal "192.168.1.102"
+int SerivecExternal  = 6000;
 
-void networkFork(int fileadressInternal, int fileadressExternal);
+void networkFork(int fileadressInternal);
 void mainFork(void);
 
 int main(int argc, char const *argv[])
 {
     int internalNetwork = 0;
-    int extrenalNetwork = 0;
+
 	setupCommunicationServer(NodeInternal, ServiceInternal, &internalNetwork);
-    //setupCommunicationServer(NodeExternal, SeriveExternal, &extrenalNetwork);
 	pid_t pid;
 	pid = fork();
 	if(pid == 0)
 	{
-		networkFork(internalNetwork, extrenalNetwork);	
+		networkFork(internalNetwork);	
 	}
 	else
 	{
@@ -33,7 +33,7 @@ int main(int argc, char const *argv[])
     return 0;
 }
 
-void networkFork(int fileadressInternal, int fileadressExternal)
+void networkFork(int fileadressInternal)
 {
 	pid_t pid;
 	pid = fork();
@@ -46,7 +46,19 @@ void networkFork(int fileadressInternal, int fileadressExternal)
 	}
 	else
 	{
-		//acceptinConnectionsOnServer(fileadressExternal);	
+		int extrenalNetwork = 0;
+		int rv = -1;
+		char bufferToSend[255];
+		while(rv == -1)
+		{
+			rv = setupClientConnection(NodeExternal, SerivecExternal, &extrenalNetwork);
+		}
+		while(1)
+		{
+			//Read out file every x amount of second if the file exists 
+			//Take out the data to send
+			rv = sendDataOverConnection(extrenalNetwork, bufferToSend);
+		}
 	}
 }
 

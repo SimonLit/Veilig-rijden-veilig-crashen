@@ -172,6 +172,7 @@ int dataCutRecvResponse(DATAPACKET* recv, const char* bf, RESPONSES* rsp)
 {
     char message[] = "                                                                         ";
     strcpy(message, bf);
+    printf("Print message%s\n",message);
     int rv = correctFormatCheckRemoveBitshift(message);
     if(rv == -1)
         return -1;
@@ -198,10 +199,16 @@ int dataCutRecvResponse(DATAPACKET* recv, const char* bf, RESPONSES* rsp)
         driving = false;
         return 0;
     }
-    else if(strcmp(array[0], "SOME_MESSAGE") == 0)
+    else if(strcmp(array[0], "REQ") == 0)
     {
         printf("DEBUG:PHONE Received data from phone\n");
-        return 0;
+        if(strcmp(array[1], "DRI") == 0)
+        {
+            printf("Received driving request\n");
+            *rsp = DRIVING;
+            return 0;
+        }
+        return 1;
     }
 	return -1;
 }

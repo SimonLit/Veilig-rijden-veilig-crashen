@@ -1,9 +1,14 @@
 #include "../libs/datastruct/datastruct.h"
 #include "../libs/message/message.h"
+#include "../libs/file_handeling/file_handeling.h"
 #include <string.h>
+#include <unistd.h>
 #include "unity.h"
 
 #define MY_RUN_TEST(func) RUN_TEST(func, 0)
+
+#define outputFilePath "testWriteFile.bin"
+#define fileWithDataStructs "testFileRead.bin"
 
 const char* ms = "#CONNECT:CAR@";
 char buffer[256];
@@ -17,6 +22,20 @@ void setUp(void)
 	}
 	rv = -10;
 	tmp = 0;
+	if(access(outputFilePath, F_OK) == 0)
+	{
+		remove(outputFilePath);
+	}
+	if(access(fileWithDataStructs, F_OK) == 0)
+	{
+		remove(fileWithDataStructs);
+	}
+	DATAPACKET test;
+	DATAPACKET test1;
+	test.sockFd = 22556688;
+	test1.sockFd = 1122334455;
+	writeDataStructToFile(fileWithDataStructs, &test);
+	writeDataStructToFile(fileWithDataStructs, &test1);
 }
 
 void tearDown(void)
@@ -27,6 +46,14 @@ void tearDown(void)
 	}    
 	rv = 0;
 	tmp = 0;
+	if(access(outputFilePath, F_OK) == 0)
+	{
+		remove(outputFilePath);
+	}
+	if(access(fileWithDataStructs, F_OK) == 0)
+	{
+		remove(fileWithDataStructs);
+	}
 }
 
 ////////////////////////////////////////////////////
@@ -112,6 +139,27 @@ void verification_Test(void)
 ///                                              ///
 ////////////////////////////////////////////////////
 
+void write_Data_To_File_Test(void)
+{
+	DATAPACKET data;
+	data.sockFd = 215202;
+	rv = writeDataStructToFile(outputFilePath, &data);
+	TEST_ASSERT_EQUAL(0, rv);
+	DATAPACKET temp;
+	FILE* fp = fopen(outputFilePath, "r");
+	rv = fread(&temp, sizeof(DATAPACKET), 1, fp);
+	fclose(fp);
+	TEST_ASSERT_EQUAL(1, rv);
+	TEST_ASSERT_EQUAL(215202, temp.sockFd);
+}	
+
+void read_All_Data_From_File_Test(void)
+{
+	DATAPACKET arrayTest[5];
+	rv = readAllDataFromFile(fileWithDataStructs, arrayTest, 2);
+	TEST_ASSERT_EQUAL(22556688 ,arrayTest[0].sockFd);
+	TEST_ASSERT_EQUAL(1122334455 ,arrayTest[1].sockFd);
+}
 
 int main (int argc, char * argv[])
 {
@@ -139,6 +187,12 @@ int main (int argc, char * argv[])
     tearDown();
     setUp();
     MY_RUN_TEST(verification_Test);
+    tearDown();
+    setUp();
+    MY_RUN_TEST(write_Data_To_File_Test);
+    tearDown();
+    setUp();
+    MY_RUN_TEST(read_All_Data_From_File_Test);
     tearDown();
     return UnityEnd();
 }
