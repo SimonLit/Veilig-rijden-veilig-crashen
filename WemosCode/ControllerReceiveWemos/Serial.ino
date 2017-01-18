@@ -5,7 +5,13 @@ String tempFormattedMessage = "";
 
 bool getIncommingString(String* stringFromSerial)
 {
-
+  if(Serial.available() > 50)
+  {
+    while(Serial.available())
+    {
+      Serial.read();
+    }
+  }
   if (Serial.available() > 0)
   {
     char incommingChar = Serial.read();

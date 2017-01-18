@@ -120,8 +120,7 @@ void actOnState_WemosToRP6Connection(void)
         if (stringFromControllerSoftwareSerial.indexOf(CONTROLLER_VALUES) > -1)
         {
           makeProtocolString(stringFromControllerSoftwareSerial);
-          Serial.println(protocolStringToSend);
-          /*int timeoutState = timeoutHandlerWemosToRP6(protocolStringToSend, GENERAL_ACK);
+          int timeoutState = timeoutHandlerWemosToRP6(protocolStringToSend, GENERAL_ACK);
           if (timeoutState == -1)
           {
             WemosToRP6Connection = RP6_DISCONNECTED;
@@ -129,11 +128,11 @@ void actOnState_WemosToRP6Connection(void)
           else if (timeoutState == 0)
           {
             WemosToRP6Connection = RP6_CONNECTED;
-          }*/
+          }
         }
         else if (stringFromControllerSoftwareSerial == "ControllerDisconnected")
         {
-          //WemosToRP6Connection = RP6_DISCONNECTED;
+          WemosToRP6Connection = RP6_DISCONNECTED;
         }
         else if (stringFromControllerSoftwareSerial == "errorBoardComputer")
         {

@@ -1,11 +1,8 @@
-int conectedToBoardcomputer = 0;
-
 void checkAndAcktOnSerialMessage(void)
 {
   bool receivedMessage = getIncommingString(&stringFromSerial);
   if (receivedMessage)
   {
-    Serial.println(stringFromSerial);
     if (stringFromSerial == CONTROLLER_VALUE_PROTOCOL_REQUEST_SEND)
     {
       String controllerValues = "";

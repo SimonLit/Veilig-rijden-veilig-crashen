@@ -102,7 +102,7 @@ SoftwareSerial softwareSerial(D8, D7); //Rx, Tx
 SoftwareSerial ControllerSoftwareSerial(D5, D6); //Rx, Tx
 
 unsigned long lastControllerReceiveTimer = 0;
-int controllerRequestInterval = 200;
+int controllerRequestInterval = 300;
 
 // ================================================================
 // ===                   MPU VARIABLE SETUP                     ===

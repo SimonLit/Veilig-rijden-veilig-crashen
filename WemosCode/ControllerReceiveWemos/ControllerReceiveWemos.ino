@@ -50,7 +50,7 @@ void setup() {
   WiFi.begin(ssid, password);
 
   // config static IP
-  /*IPAddress ip(10, 10, 0, 4); // where xx is the desired IP Address
+  /*IPAddress ip(10, 10, 0, 3); // where xx is the desired IP Address
   IPAddress gateway(10, 10, 0, 1); // set gateway to match your network
   Serial.print(F("Setting static ip to : "));
   Serial.println(ip);

@@ -1,15 +1,7 @@
 WiFiClient client_Controller;
-const char* host_Controller = "10.10.0.2";
+const char* host_Controller = "192.168.1.101";
 const int httpPort_Controller = 80;
 
-/*
-   Request the speed value from the controller.
-   The string to sent to the RP6 are stored in the String pointers
-   from the parameters.
-
-   Return: -1 if connection with the controller broke.
-            0 if the controller values are received
-*/
 int getControllerValues(String* controllerToRP6Protocol)
 {
   String speedValue = "";
@@ -24,8 +16,6 @@ int getControllerValues(String* controllerToRP6Protocol)
   client_Controller.print(protocolStringToSend);
 
   String controllerValuesString = client_Controller.readStringUntil('@');
-  //if (getIncommingStringFromMessage(controllerValuesString, &controllerValuesString, controllerValuesString.length()))
-  //{
   if (controllerValuesString.substring(1, 17) == CONTROLLER_VALUE_PROTOCOL_RECEIVE)
   {
     valueSeparetor = controllerValuesString.indexOf(MULTI_VALUE_SEPARATOR);
@@ -36,10 +26,6 @@ int getControllerValues(String* controllerToRP6Protocol)
   makeProtocolStringWith2Value(CONTROLLER_VALUES, speedValue, steerValue);
   *controllerToRP6Protocol = protocolStringToSend;
 
-  //client_Controller.stop();
+  client_Controller.stop();
   return 0;
-  //}
-
-  //client_Controller.stop();
-  //return -1;
 }
