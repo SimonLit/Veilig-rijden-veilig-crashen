@@ -31,7 +31,6 @@ int saveSpeedData(void)
 
 uint16_t calculateAverageSpeed(void)
 {
-	// COULD BE OPTIMIZED
 	uint16_t sum = 0;
 
 	for(uint8_t i = 0; i < sDataArraySize; i++)
