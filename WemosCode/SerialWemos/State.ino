@@ -40,8 +40,6 @@ void actOnState_WemosToRP6Connection(void)
       // Receive the controller values and send these to the RP6.
       if ((millis() - lastControllerReceiveTimer) > controllerRequestInterval)
       {
-        ControllerSoftwareSerial.begin(38400);
-        
         makeProtocolString(CONTROLLER_VALUE_PROTOCOL_REQUEST_SEND);
         ControllerSoftwareSerial.print(protocolStringToSend);
         lastControllerReceiveTimer = millis();
@@ -57,6 +55,7 @@ void actOnState_WemosToRP6Connection(void)
       {
         if (stringFromSerial != GENERAL_ACK)
         {
+          Serial.println(stringFromSerial);
           if (checkForValidRP6Message(stringFromSerial) == 1)
           {
             makeProtocolString(GENERAL_ACK);
@@ -64,33 +63,28 @@ void actOnState_WemosToRP6Connection(void)
 
             if (stringFromSerial == RP6_STARTED_PROGRAM)
             {
-              softwareSerial.begin(38400);
-              
               RP6State = STARTED_PROGRAM;
-              makeProtocolString(RP6States[RP6State]);
-              softwareSerial.print(protocolStringToSend);
+              Serial.println(RP6State);
+              //makeProtocolString(RP6States[RP6State]);
+              //softwareSerial.print(protocolStringToSend);
             }
             else if (stringFromSerial == RP6_STOPPED_PROGRAM)
             {
-              softwareSerial.begin(38400);
-              
               RP6State = STOPPED_PROGRAM;
-              makeProtocolString(RP6States[RP6State]);
-              softwareSerial.print(protocolStringToSend);
+              //makeProtocolString(RP6States[RP6State]);
+              //softwareSerial.print(protocolStringToSend);
             }
 
             //  When ORIENTATION is received it means all the crash data is received
             //  from the RP6 and can be send to the boardcomputer.
             if (stringFromSerial == ORIENTATION_PROTOCOL_RECEIVE)
             {
-              softwareSerial.begin(38400);
-              
               String crashDataForBoardcomputer = SEND_DATA_TO_BOARDCOMPUTER_INDICATOR + (String)MULTI_COMMAND_SEPARATOR +
                                                  protocolToSendArray[0] + (String)MULTI_COMMAND_SEPARATOR +
                                                  protocolToSendArray[1] + (String)MULTI_COMMAND_SEPARATOR +
                                                  protocolToSendArray[2] + (String)MULTI_COMMAND_SEPARATOR +
                                                  protocolToSendArray[3] + (String)MULTI_COMMAND_SEPARATOR +
-                                                 protocolToSendArray[4];  
+                                                 protocolToSendArray[4];
               makeProtocolString(crashDataForBoardcomputer);
               softwareSerial.print(protocolStringToSend);
             }
@@ -116,16 +110,20 @@ void actOnState_WemosToRP6Connection(void)
       // Check if the network wemos send a message.
       receivedEndOfControllerSoftwareSerialString = getIncommingStringFromControllerSoftwareSerial(&stringFromControllerSoftwareSerial);
 
-      if((millis() - lastControllerReceived) > 2000)
+      if ((millis() - lastControllerReceived) > 2000)
       {
         RP6State = STOPPED_PROGRAM;
+      }
+      else
+      {
+        RP6State = STARTED_PROGRAM;
       }
       if (receivedEndOfControllerSoftwareSerialString)
       {
         if (stringFromControllerSoftwareSerial.indexOf(CONTROLLER_VALUES) > -1)
         {
           makeProtocolString(stringFromControllerSoftwareSerial);
-     
+
           int timeoutState = timeoutHandlerWemosToRP6(protocolStringToSend, GENERAL_ACK);
           if (timeoutState == -1)
           {
@@ -173,8 +171,6 @@ void actOnState_RP6State(void)
 {
   if (lastRP6State != RP6State)
   {
-    softwareSerial.begin(38400);
-    
     makeProtocolString(RP6States[RP6State]);
     softwareSerial.print(protocolStringToSend);
     lastRP6State = RP6State;
