@@ -5,7 +5,6 @@ void checkAndAcktOnSerialMessage(void)
   bool receivedMessage = getIncommingString(&stringFromSerial);
   if (receivedMessage)
   {
-    Serial.println(stringFromSerial);
     if (stringFromSerial.indexOf(SEND_DATA_TO_BOARDCOMPUTER_INDICATOR) > -1)
     {
       int connectedToBoardcomputer = connectToBoardcomputer();

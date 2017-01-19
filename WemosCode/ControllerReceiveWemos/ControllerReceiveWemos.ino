@@ -24,10 +24,10 @@ String protocolStringToSend = "";
 // ================================================================
 // ===                      WIFI VARIABLES                      ===
 // ================================================================
-//const char* ssid = "Project";
-//const char* password = "123456780";
-const char* ssid = "eversveraa";
-const char* password = "qwerty69";
+const char* ssid = "Project";
+const char* password = "123456780";
+//const char* ssid = "eversveraa";
+//const char* password = "qwerty69";
 //const char* ssid = "HotSpotBoardComputer";
 //const char* password = "1234567890";
 
@@ -50,12 +50,12 @@ void setup() {
   WiFi.begin(ssid, password);
 
   // config static IP
-  /*IPAddress ip(10, 10, 0, 3); // where xx is the desired IP Address
-  IPAddress gateway(10, 10, 0, 1); // set gateway to match your network
+  IPAddress ip(192, 168, 1, 3); // where xx is the desired IP Address
+  IPAddress gateway(192, 168, 1, 0); // set gateway to match your network
   Serial.print(F("Setting static ip to : "));
   Serial.println(ip);
   IPAddress subnet(255, 255, 255, 0); // set subnet mask to match your network
-  WiFi.config(ip, gateway, subnet);*/
+  WiFi.config(ip, gateway, subnet);
 
   // If the router isn't available for use comment this while loop.
   while (WiFi.status() != WL_CONNECTED) {

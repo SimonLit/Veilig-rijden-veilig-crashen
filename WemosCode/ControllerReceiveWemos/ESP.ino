@@ -1,5 +1,5 @@
 WiFiClient client_Controller;
-const char* host_Controller = "192.168.1.101";
+const char* host_Controller = "192.168.1.2";
 const int httpPort_Controller = 80;
 
 int getControllerValues(String* controllerToRP6Protocol)

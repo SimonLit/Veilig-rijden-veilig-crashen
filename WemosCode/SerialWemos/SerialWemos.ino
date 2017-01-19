@@ -233,7 +233,7 @@ void loop()
   /*
      Make Sure the DMP values are stable.
   */
-  /*while (!MPUIsStable)
+  while (!MPUIsStable)
   {
     delay(1);
     if (getMPUIsStabilized())
@@ -246,7 +246,7 @@ void loop()
     {
       return;
     }
-  }*/
+  }
 
   /*
          Reset the orentation values close to 0.

@@ -1,4 +1,5 @@
 String connectResponse = CONNECTED_ACK_RECEIVE + (String)VALUE_CHARACTER + (String)RP6_NAME;
+long lastControllerReceived = 0;
 
 void actOnState_WemosToRP6Connection(void)
 {
@@ -115,11 +116,16 @@ void actOnState_WemosToRP6Connection(void)
       // Check if the network wemos send a message.
       receivedEndOfControllerSoftwareSerialString = getIncommingStringFromControllerSoftwareSerial(&stringFromControllerSoftwareSerial);
 
+      if((millis() - lastControllerReceived) > 2000)
+      {
+        RP6State = STOPPED_PROGRAM;
+      }
       if (receivedEndOfControllerSoftwareSerialString)
       {
         if (stringFromControllerSoftwareSerial.indexOf(CONTROLLER_VALUES) > -1)
         {
           makeProtocolString(stringFromControllerSoftwareSerial);
+     
           int timeoutState = timeoutHandlerWemosToRP6(protocolStringToSend, GENERAL_ACK);
           if (timeoutState == -1)
           {
@@ -134,10 +140,8 @@ void actOnState_WemosToRP6Connection(void)
         {
           WemosToRP6Connection = RP6_DISCONNECTED;
         }
-        else if (stringFromControllerSoftwareSerial == "errorBoardComputer")
-        {
 
-        }
+        lastControllerReceived = millis();
 
         receivedEndOfControllerSoftwareSerialString = false;
       }
