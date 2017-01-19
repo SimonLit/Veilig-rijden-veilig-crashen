@@ -22,6 +22,9 @@ void mainFork(void);
 int main(int argc, char const *argv[])
 {
 	writeToFile(carStatusFile, 2);
+	removeFile(carCrashData);
+	removeFile(phoneCrashFile);
+	removeFile(phoneInsFile);
 	if(access(DATALOG, F_OK) == 0)
 	{
 		remove(DATALOG);
@@ -57,11 +60,8 @@ void networkFork(int fileadressInternal)
 		int extrenalNetwork = 0;
 		int rv = -1;
 		char bufferToSend[255];
-		int position = 0;
-		int currentSizeFile = 0;
-		int lastKnowSizeOfFile = 0;
 		int lenght = 0;
-		DATAPACKET toSend;
+		DATAPACKET tempA, tempB;
 		while(rv == -1)
 		{
 			rv = setupClientConnection(NodeExternal, SerivecExternal, &extrenalNetwork);
@@ -69,36 +69,40 @@ void networkFork(int fileadressInternal)
 		while(1)
 		{
 			sleep(1);	
-			//Read if file exist with data of phone crash data
-			//If exist make message with data car and phone and send, remove files car phone Crash and phone Ins
-			
-
-			//IF Read if file exist with data of stopPhone
-			//Make message and send , remove phoneIns file
-
-
-
-
-/*
-			memset(bufferToSend, 0, sizeof(bufferToSend));
-			currentSizeFile = getNrOfDatStructs(DATASEND);
-			printf("Size of file is %d\n", currentSizeFile);
-			for(int i = 0; i < (currentSizeFile - lastKnowSizeOfFile); i++)
+			if(access(phoneCrashFile, F_OK) == 0)
 			{
-				printf("Loop number %d\n", i);
-				printf("Dat before reading %s\n", toSend.messageReceived);
-				readDataStructFromFile(DATASEND, &toSend, position);
-				printf("Data to send is %s\n", toSend.messageReceived);
-				makeMessageToSend(toSend.messageReceived, &toSend, &lenght);
-				printf("Message to send is %s\n", toSend.infoSend);
-				strcpy(bufferToSend, toSend.infoSend);
-				rv = sendDataOverConnection(extrenalNetwork, bufferToSend, lenght);//Send to C# app	
-				position++;
-				memset(toSend.infoSend, 0, maxLengthMessage);
-				memset(toSend.messageReceived, 0, maxLengthMessage);
+				if(access(carCrashData, F_OK) == 0)
+				{
+					//If exist make message with data car and phone and send, remove files car phone Crash and phone Ins
+					memset(bufferToSend, 0, sizeof(bufferToSend));
+					readDataStructFromFile(carCrashData, &tempA, 0);
+					readDataStructFromFile(phoneCrashFile, &tempB, 0);
+					messageCrashSend(bufferToSend, &tempA, &tempB, &lenght);
+					printf("Crash buffer to send is %s\n", bufferToSend);
+					sendDataOverConnection(extrenalNetwork, bufferToSend, lenght);
+					lenght = 0;
+					memset(bufferToSend, 0, sizeof(bufferToSend));
+				}
+				removeFile(phoneCrashFile);
+				removeFile(carCrashData);
+				if(access(phoneInsFile, F_OK) == 0)
+				{
+					removeFile(phoneInsFile);
+				}
 			}
-			lastKnowSizeOfFile = currentSizeFile;
-*/		}
+			else if(access(phoneInsFile, F_OK) == 0)
+			{
+				//Make message and send , remove phoneIns file
+				memset(bufferToSend, 0, sizeof(bufferToSend));
+				readDataStructFromFile(phoneInsFile, &tempA, 0);
+				messageInsSend(bufferToSend, &tempA, &lenght);
+				printf("Insurance buffer to send is %s\n", bufferToSend);
+				sendDataOverConnection(extrenalNetwork, bufferToSend, lenght);
+				lenght = 0;
+				memset(bufferToSend, 0, sizeof(bufferToSend));
+				removeFile(phoneInsFile);
+			}		
+		}
 	}
 }
 

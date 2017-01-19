@@ -9,6 +9,6 @@ int split (char *str, char c, char ***arr);
 int checkSender(DATAPACKET* recv, const char* sender);
 int verificationStringCut(DATAPACKET* recv, const char* bf);
 int dataCutRecvResponse(DATAPACKET* recv, const char* bf);
-int makeMessageToSend(const char* string, DATAPACKET* d, int* l);
-
+int messageCrashSend(char* string, DATAPACKET* d, DATAPACKET* e, int* l);
+int messageInsSend(char* string, DATAPACKET* d, int* l);
 #endif

@@ -7,6 +7,8 @@
 #include "../file_handeling/file_handeling.h"
 #include "../handshake/handshake.h"
 
+#define VictimId "114457896"
+
 int findStartOfMessage(const char* message)
 {
     char received[256];
@@ -153,8 +155,6 @@ int verificationStringCut(DATAPACKET* recv, const char* bf)
 
 	char **arr = NULL;
 	int c = split(message, ':', &arr);
-	for(int i = 0; i < c; i++)
-		printf("DEBUG:VERIFICATION: The parts of the message are: %s\n", arr[i]);//Debug line
 	if(strcmp(arr[0], "CONNECT") == 0)
 	{
         rv = checkSender(recv, arr[1]);
@@ -179,8 +179,6 @@ int dataCutRecvResponse(DATAPACKET* recv, const char* bf)
         return -1;
     char **array = NULL;
     int c = split(message, '|', &array);
-    for(int i = 0; i < c; i++)
-        printf("DEBUG:DATARESPONSE: The parts of the message are: %s\n", array[i]);
     if(strcmp(array[0], "DAT") == 0)
     {
         strcpy(recv -> messageReceived, message);
@@ -206,7 +204,6 @@ int dataCutRecvResponse(DATAPACKET* recv, const char* bf)
     }
     else if(strcmp(array[0], "REQ") == 0)
     {
-        printf("DEBUG:PHONE Received data from phone\n");
         if(strcmp(array[1], "DRI") == 0)
         {
             recv->Sender = PHONE;
@@ -229,6 +226,12 @@ int dataCutRecvResponse(DATAPACKET* recv, const char* bf)
                     secondDataRec(recv);
                     writeToFile(carStatusFile, 2);
                     break;
+                case 4:
+                    printf("Send touched\n");
+                    send(recv->sockFd, "#TOUCHED@\n", 10,0);
+                    //sleep(5);
+                    //writeToFile(carStatusFile, 2);
+                    break;
                 default:
                     printf("Error\n");
                     send(recv->sockFd, "#NODATA@\n", 9,0);
@@ -237,18 +240,43 @@ int dataCutRecvResponse(DATAPACKET* recv, const char* bf)
         }
         return 0;
     }
+    else if(strcmp(array[0], "TOUCH") == 0)
+    {
+        printf("Phone touched by %s\n", array[1]);
+        writeToFile(carStatusFile, 4);
+        return 0;
+    }
 	return -1;
 }
 
-int makeMessageToSend(const char* string, DATAPACKET* d, int* l)
+int messageCrashSend(char* string, DATAPACKET* d, DATAPACKET* e, int* l)
 {
     char message[maxLengthMessage];
     strcpy(message, "\0");
     strcat(message, "#");
+    strcat(message, VictimId);
+    strcat(message, "|");
     strcat(message, d->messageReceived);
+    strcat(message, "|");
+    strcat(message, e->crahsPhoneData);
     strcat(message, "@");
     *l = lengthOfMessage(message);
     *l += 1;
-    strcpy(d->infoSend ,message);
+    strcpy(string, message);
+    return 0;
+}
+
+int messageInsSend(char* string, DATAPACKET* d, int *l)
+{
+    char message[maxLengthMessage];
+    strcpy(message, "\0");
+    strcat(message, "#");
+    strcat(message, VictimId);
+    strcat(message, "|");
+    strcat(message, d->stopPhoneData);
+    strcat(message, "@");
+    *l = lengthOfMessage(message);
+    *l += 1;
+    strcpy(string, message);
     return 0;
 }

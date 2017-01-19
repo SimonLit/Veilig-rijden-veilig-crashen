@@ -30,11 +30,14 @@ int waitForAckFromClient(int sockfd)
 	{
 		j = read(sockfd, buffer, 255);
 		if(j < 0)
+		{
 			perror("read");
-		printf("Buffer wait ACK is %s\n", buffer);
+		}
 		if(strcmp(buffer, "#ACK@") == 0)
+		{
 			ack = true;
-		sleep(1);
+		}
+		sleep(2);
 		memset(buffer, 0, sizeof(buffer));
 	}
 	return 1;
@@ -45,14 +48,11 @@ static int waitForFirstContact(int sockfd, DATAPACKET* recv)
 	memset(buffer, 0, sizeof(buffer));
 	while(1)//Break out with a timeout
 	{
-		//sleep(0.5);
 		j = read(sockfd, buffer, 255);
-		printf("DEBUG:READ: %s\n", buffer);
 		if(j < 0)
 			perror("read");
 		else
 		{
-			printf("DEBUG:WAITFORFIRSTCONTACT: The message is: %s\n", buffer);
 			returnValue = verificationStringCut(recv, buffer);
 			if(returnValue == 0)
 			{
@@ -84,7 +84,7 @@ static int connectVerify(int sockfd, DATAPACKET* recv)
 		 }
 		 else if(returnValue == 0)
 		 {
-		 	printf("DEBUG:CONNECT: Send verified\n");
+		 	printf("DEBUG:CONNECTION:VERIFIED\n");
 		 	returnValue = send(sockfd, "#ACK@\n", 6, 0);
 		 	if(returnValue == -1)
 		 	{
@@ -107,7 +107,7 @@ static int recvData(int sockfd, DATAPACKET* recveid)
 			perror("read");
 		else
 		{	
-			printf("DEBUG:RECVDATA: The message is: %s\n", buffer);
+			printf("DEBUG:RECVDATA: The message is: %s", buffer);
 			returnValue = dataCutRecvResponse(recveid, buffer);
 			if(returnValue == -1)
 			{
@@ -134,7 +134,6 @@ int handshakeReceiveData(int sockfd, const char* ip)
 	connectionData.sockFd = sockfd;
 	memset(buffer, 0, sizeof(buffer));
 	returnValue = connectVerify(sockfd, &connectionData);
-	printf("DEBUG:HANDSHAKE: Broke out connectVerify\n");
 	if(returnValue == -1)
 		return -1;
 	else
@@ -155,7 +154,7 @@ int handshakeReceiveData(int sockfd, const char* ip)
 			if(connectionData.sf == true)
 			{
 				writeDataStructToFile(carCrashData, &connectionData);
-				printf("Writing data to send file.\n");
+				printf("Writing data to car crash file file.\n");
 			}
 			return 0;
 		}
@@ -173,7 +172,7 @@ int secondDataRec(DATAPACKET* d)
 				perror("read");
 			else
 			{	
-				printf("DEBUG:SECONDRECVDATA: The message is: %s\n", secondBuffer);
+				printf("DEBUG:SECONDRECVDATA: The message is: %s", secondBuffer);
 				int rv = correctFormatCheckRemoveBitshift(secondBuffer);
 				char** ar = NULL;
 				int t = split(secondBuffer, '|', &ar);
