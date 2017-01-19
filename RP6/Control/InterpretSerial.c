@@ -41,11 +41,6 @@ int interpretMessageForSpeedValues(char* receiveBufferCommand, char* receiveBuff
 	int speedValue = atoi(speedValueString);
 	int steerValue = atoi(steerValueString);
 
-	if(speedValue > 150 || speedValue < -150 || steerValue > 100 || steerValue < -100)
-	{
-		// SEND A NACK OR SOMETHING.
-	}
-
 	if(strcmp(receiveBufferCommand, CONTROLLER_VALUES) == 0)
 	{	
 		*baseSpeed = speedValue;
