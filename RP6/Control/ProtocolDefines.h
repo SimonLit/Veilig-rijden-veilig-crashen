@@ -37,9 +37,7 @@
 #define MAX_COMMAND_LENGTH 20
 #define MAX_VALUE_LENGTH 20
 #define MAX_NACK_COUNTER 3
-#define MAX_HEARTBEAT_TIMEOUT 4000 // Since every 1 second a heartbeat is supposed
-								   // to be received there can be a 200 ms delay before
-								   // deciding the connection to the wemos is broken.
+#define MAX_HEARTBEAT_TIMEOUT 2000 
 
 typedef enum
 {

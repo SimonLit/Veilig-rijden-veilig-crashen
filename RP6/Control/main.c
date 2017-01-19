@@ -99,10 +99,10 @@ int main(void)
 	mleft_dist = 0;
 	mright_dist = 0;
 
-	startStopwatch1(); // Timer for checking button state and measuring the FSR.
+	startStopwatch1(); // Timer for checking the heartbeat.
 	startStopwatch2(); // Timer for getting all the sensor data from the RP6 base board.
 	startStopwatch3(); // TImer for checking the start/stop program button.
-	startStopwatch4(); // Timer for checking if the heartbeat is received in time.
+	startStopwatch4(); // Timer for checking serial messages.
 	startStopwatch5(); // Timer used for the timeoutHandler.
 	startStopwatch6(); // Timer used for checking the self added bumpers.
 
@@ -131,27 +131,24 @@ int main(void)
 		{	
 			// Wait for a connect request from the wemos.
 			case DISCONNECTED:
-				if(getStopwatch1() > 20)
-				{	
-					if(getIncomingSerialMessage(receiveBufferCommand, receiveBufferValue) == 0)
-					{						
-						if(waitForConnectRequest(receiveBufferCommand, receiveBufferValue) == 0)
-						{
-							sendMessageWithValue(CONNECTED_ACK, RP6_NAME);
+				if(getIncomingSerialMessage(receiveBufferCommand, receiveBufferValue) == 0)
+				{						
+					if(waitForConnectRequest(receiveBufferCommand, receiveBufferValue) == 0)
+					{
+						sendMessageWithValue(CONNECTED_ACK, RP6_NAME);
 
-							sendMessage(GENERAL_ACK);
+						sendMessage(GENERAL_ACK);
 
-							clearLCD();
-							writeStringLCD("Connected");	
-							RP6ToWemosConnection = CONNECTED;
-							RP6State = STARTED_PROGRAM;
-							// Send the new RP6 status to the wemos.
-							sendMessage(RP6StateStrings[RP6State]);	
+						clearLCD();
+						writeStringLCD("Connected");	
+						RP6ToWemosConnection = CONNECTED;
+						RP6State = STARTED_PROGRAM;
+						// Send the new RP6 status to the wemos.
+						sendMessage(RP6StateStrings[RP6State]);	
 
-							//clearLCD();
-							//writeStringLCD(RP6StateStrings[RP6State]);	
-							lastHeartbeatReceived = getStopwatch1();
-						}
+						//clearLCD();
+						//writeStringLCD(RP6StateStrings[RP6State]);	
+						lastHeartbeatReceived = getStopwatch1();
 					}
 				}
 				break;
