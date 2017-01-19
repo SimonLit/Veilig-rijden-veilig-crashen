@@ -96,7 +96,7 @@ bool getMPUIsStabilized(void)
   int pitch2 = 0;
   int roll2 = 0;
 
-  int errorMargin = 5;
+  int errorMargin = 10;
 
   DMPRoutine();
 

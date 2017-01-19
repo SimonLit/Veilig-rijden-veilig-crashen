@@ -56,7 +56,6 @@ String stringFromControllerSoftwareSerial = "";
 #define GENERAL_NACK "NACK"
 #define RP6_NAME "RP6"
 #define WEMOS_NAME "CAR"
-#define BOARDCOMPUTER_NAME "BOARDCOMPUTER"
 //=================================================================
 String protocolStringToSend = "";
 String protocolToSendArray[5] = {"a", "b", "c", "d", "e"}; // 0 = speed; 1 = sideHit; 2 = impact; 3 = distDriven; 4 = orientation;
@@ -248,18 +247,8 @@ void loop()
     }
   }
 
-  /*
-         Reset the orentation values close to 0.
-  */
 
   DMPRoutine();
-
-  if (stringFromSerial == "RESET")
-  {
-    Serial.println(stringFromSerial);
-    stringFromSerial = "";
-    resetYPRValues();
-  }
 
   actOnState_WemosToRP6Connection();
   actOnState_RP6State();

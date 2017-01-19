@@ -5,7 +5,7 @@
 void makeProtocolString(String command)
 {
   protocolStringToSend = "";
-  protocolStringToSend = START_CHARACTER + command + END_CHARACTER;
+  protocolStringToSend = START_CHARACTER + command + END_CHARACTER + '\n';
 }
 
 /*
@@ -15,7 +15,7 @@ void makeProtocolString(String command)
 void makeProtocolStringWithValue(String command, String value)
 {
   protocolStringToSend = "";
-  protocolStringToSend = START_CHARACTER + command + VALUE_CHARACTER + value + END_CHARACTER;
+  protocolStringToSend = START_CHARACTER + command + VALUE_CHARACTER + value + END_CHARACTER + '\n';
 }
 
 /*
@@ -24,5 +24,5 @@ void makeProtocolStringWithValue(String command, String value)
 void makeProtocolStringWith2Value(String command, String value1, String value2)
 {
   protocolStringToSend = "";
-  protocolStringToSend = START_CHARACTER + command + VALUE_CHARACTER + value1 + MULTI_VALUE_SEPARATOR + value2 + END_CHARACTER;
+  protocolStringToSend = START_CHARACTER + command + VALUE_CHARACTER + value1 + MULTI_VALUE_SEPARATOR + value2 + END_CHARACTER + '\n';
 }

@@ -55,7 +55,6 @@ void actOnState_WemosToRP6Connection(void)
       {
         if (stringFromSerial != GENERAL_ACK)
         {
-          Serial.println(stringFromSerial);
           if (checkForValidRP6Message(stringFromSerial) == 1)
           {
             makeProtocolString(GENERAL_ACK);
@@ -64,15 +63,10 @@ void actOnState_WemosToRP6Connection(void)
             if (stringFromSerial == RP6_STARTED_PROGRAM)
             {
               RP6State = STARTED_PROGRAM;
-              Serial.println(RP6State);
-              //makeProtocolString(RP6States[RP6State]);
-              //softwareSerial.print(protocolStringToSend);
             }
             else if (stringFromSerial == RP6_STOPPED_PROGRAM)
             {
               RP6State = STOPPED_PROGRAM;
-              //makeProtocolString(RP6States[RP6State]);
-              //softwareSerial.print(protocolStringToSend);
             }
 
             //  When ORIENTATION is received it means all the crash data is received
@@ -87,6 +81,7 @@ void actOnState_WemosToRP6Connection(void)
                                                  protocolToSendArray[4];
               makeProtocolString(crashDataForBoardcomputer);
               softwareSerial.print(protocolStringToSend);
+              //RP6State = STOPPED_PROGRAM;
             }
           }
 
@@ -110,7 +105,7 @@ void actOnState_WemosToRP6Connection(void)
       // Check if the network wemos send a message.
       receivedEndOfControllerSoftwareSerialString = getIncommingStringFromControllerSoftwareSerial(&stringFromControllerSoftwareSerial);
 
-      if ((millis() - lastControllerReceived) > 2000)
+      if ((millis() - lastControllerReceived) > 5000)
       {
         RP6State = STOPPED_PROGRAM;
       }
