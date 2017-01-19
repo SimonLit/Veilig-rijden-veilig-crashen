@@ -53,7 +53,7 @@ namespace hulpdiensten_verzekering_xml
 
         public string InsuranceDetails { get; private set; }
 
-        public int ClaimNr { get; private set; }
+        public int ClaimNr { get;  set; }
 
         public InsuranceRapport(int InputVictimId, DateTime date, int insuranceRapportNumber, string insuranceDetails, int claimNr): base (date)
         {

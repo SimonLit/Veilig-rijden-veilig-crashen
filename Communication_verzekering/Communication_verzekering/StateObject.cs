@@ -7,7 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
-namespace hulpdiensten_verzekering_xml
+namespace Communication_verzekering
 {
     class StateObject
     {

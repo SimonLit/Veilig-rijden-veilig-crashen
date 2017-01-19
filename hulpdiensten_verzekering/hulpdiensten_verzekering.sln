@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hulpdiensten_programma", "H
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hulpdiensten_verzekering_xml", "hulpdiensten_verzekering_xml\hulpdiensten_verzekering_xml.csproj", "{C7219438-A3B5-4694-B15D-E7F21F65F0C5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hulpdiensten_test", "administrationTest\hulpdiensten_test.csproj", "{B83E42BB-FC04-41DF-9A66-E890E79649BC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{C7219438-A3B5-4694-B15D-E7F21F65F0C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7219438-A3B5-4694-B15D-E7F21F65F0C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C7219438-A3B5-4694-B15D-E7F21F65F0C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B83E42BB-FC04-41DF-9A66-E890E79649BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B83E42BB-FC04-41DF-9A66-E890E79649BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B83E42BB-FC04-41DF-9A66-E890E79649BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B83E42BB-FC04-41DF-9A66-E890E79649BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

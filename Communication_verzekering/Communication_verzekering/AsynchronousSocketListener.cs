@@ -5,9 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using System.IO;
 using System.Threading;
 
-namespace hulpdiensten_verzekering_xml
+namespace Communication_verzekering
 {
     class AsynchronousSocketListener
     {
@@ -32,39 +33,40 @@ namespace hulpdiensten_verzekering_xml
             //IPAddress ipAddress = ipHostInfo.AddressList[0];
             //IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 6000);
 
-            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse(""), 6000);
+            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse("192.168.1.101"), 6000);
 
             // Create a TCP/IP socket.
             Socket listener = new Socket(AddressFamily.InterNetwork,
                 SocketType.Stream, ProtocolType.Tcp);
 
             // Bind the socket to the local endpoint and listen for incoming connections.
-            //try
-            //{
-
-            listener.Bind(localEndPoint);
-            listener.Listen(100);
-
-            while (true)
+            try
             {
-                // Set the event to nonsignaled state.
-                allDone.Reset();
 
-                // Start an asynchronous socket to listen for connections.
-                //Console.WriteLine("Waiting for a connection...");
-                listener.BeginAccept(
-                    new AsyncCallback(AcceptCallback),
-                    listener);
+                listener.Bind(localEndPoint);
+                listener.Listen(100);
 
-                // Wait until a connection is made before continuing.
-                allDone.WaitOne();
+                while (true)
+                {
+                    // Set the event to nonsignaled state.
+                    Console.WriteLine("connection");
+                    allDone.Reset();
+
+                    // Start an asynchronous socket to listen for connections.
+                    //Console.WriteLine("Waiting for a connection...");
+                    listener.BeginAccept(
+                        new AsyncCallback(AcceptCallback),
+                        listener);
+
+                    // Wait until a connection is made before continuing.
+                    allDone.WaitOne();
+                }
+
             }
-
-            //}
-            //catch (Exception e)
-            //{
-            //Console.WriteLine(e.ToString());
-            //}
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
 
             //Console.WriteLine("\nPress ENTER to continue...");
             //Console.Read();
@@ -101,6 +103,7 @@ namespace hulpdiensten_verzekering_xml
 
             if (bytesRead > 0)
             {
+                
                 // There  might be more data, so store the data received so far.
                 state.sb.Append(Encoding.ASCII.GetString(
                     state.buffer, 0, bytesRead));
@@ -108,24 +111,78 @@ namespace hulpdiensten_verzekering_xml
                 // Check for end-of-file tag. If it is not there, read 
                 // more data.
                 content = state.sb.ToString();
-                if (content.IndexOf('@') > -1)
+                Console.WriteLine(content);
+                if (content.IndexOf('#') > -1)
                 {
+
                     // All the data has been read from the 
                     // client. Display it on the console.
                     //Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
                     //    content.Length, content);
                     // Echo the data back to the client.
-                    if (bytesRead == 600)
+                    int count = 0;
+                    foreach (char c in content)
+                        if (c == '|') count++;
+                    if (count >= 1)
                     {
+                        if(content.Substring(11, 3) == "DAT")
+                        {
+                            DateTime datumstring = new DateTime();
+                            datumstring = DateTime.Now;
+                            content = content + "|" + datumstring.ToString();
+                        }
                         Data_Received_Export = content;
-                        Send(handler, "ACK");
+                        int endingIndex = content.IndexOf("#");
+                        content = content.Remove(0, endingIndex + 1);
+                        int beginningIndex = content.IndexOf("@");
+                        content = content.Substring(0, beginningIndex);
+                        DateTime datum = new DateTime();
+                        datum = DateTime.Now;
+                        string filename = datum.ToString();
+                        filename = filename + ".txt";
+                        filename = filename.Replace(':', ',');
+                        //filename = @"C:\Gebruiker\Documents\Mobile dash\" + filename + ".txt";
+                        using (StreamWriter streamWriter = new StreamWriter(filename))
+                        {
+                            streamWriter.WriteLine(content);
+                        }
+                        Send(handler, "#ACK@");
+                        bytesRead = 0;
+                        content = "";
+                        Array.Clear(state.buffer, 0, state.buffer.Length);
+                        state.sb.Clear();
+                        Console.WriteLine(content);
+                        handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+                        new AsyncCallback(ReadCallback), state);
                     }
+                    else if (content == "#CONNECT@")
+                    {
+                        Send(handler, "#ACK@");
+                        bytesRead = 0;
+                        content = "";
+                        Array.Clear(state.buffer, 0, state.buffer.Length);
+                        state.sb.Clear();
+                        Console.WriteLine(state.buffer);
+                        handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+                        new AsyncCallback(ReadCallback), state);
+                    
+
+                    }
+
                     else
                     {
-                        Send(handler, "Not ACK");
+                        Send(handler, "#Not ACK@");
                         Data_Received_Export = "";
+                        bytesRead = 0;
+                        content = "";
+                        Array.Clear(state.buffer, 0, state.buffer.Length);
+                        state.sb.Clear();
+                        Console.WriteLine(state.buffer);
+                        handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+                        new AsyncCallback(ReadCallback), state);
                     }
                 }
+
                 else
                 {
                     // Not all data received. Get more.
@@ -137,8 +194,8 @@ namespace hulpdiensten_verzekering_xml
 
         public static void Export_data(IAsyncResult ar)
         {
-        StateObject state = (StateObject)ar.AsyncState;
-        string Data_Received_export = state.sb.ToString();
+            StateObject state = (StateObject)ar.AsyncState;
+            string Data_Received_export = state.sb.ToString();
         }
 
         private static void Send(Socket handler, String data)
@@ -155,20 +212,20 @@ namespace hulpdiensten_verzekering_xml
         {
             //try
             //{
-                // Retrieve the socket from the state object.
-                Socket handler = (Socket)ar.AsyncState;
+            // Retrieve the socket from the state object.
+            Socket handler = (Socket)ar.AsyncState;
 
-                // Complete sending the data to the remote device.
-                int bytesSent = handler.EndSend(ar);
-                //Console.WriteLine("Sent {0} bytes to client.", bytesSent);
+            // Complete sending the data to the remote device.
+            int bytesSent = handler.EndSend(ar);
+            //Console.WriteLine("Sent {0} bytes to client.", bytesSent);
 
-                handler.Shutdown(SocketShutdown.Both);
-                handler.Close();
+            //handler.Shutdown(SocketShutdown.Both);
+            //handler.Close();
 
             //}
             //catch (Exception e)
             //{
-                //Console.WriteLine(e.ToString());
+            //Console.WriteLine(e.ToString());
             //}
         }
 
@@ -179,5 +236,6 @@ namespace hulpdiensten_verzekering_xml
             return 0;
 
         }
+
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace hulpdiensten_verzekering_xml
 {
-    class PoliceRapport : Rapport
+    public class PoliceRapport : Rapport
     {
         private int victimID;
         public override int VictimID

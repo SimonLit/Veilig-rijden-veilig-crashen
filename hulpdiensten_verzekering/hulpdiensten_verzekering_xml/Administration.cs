@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace hulpdiensten_verzekering_xml
 {
-    class Administration
+    public class Administration
     {
         public List<PoliceRapport> PoliceRapports { get; private set; }
         public List<InsuranceRapport> InsuranceRapports { get; private set; }
@@ -29,7 +29,23 @@ namespace hulpdiensten_verzekering_xml
 
         public void SplitStringsRapport(string joinedstring)
         {
-
+            int count = 0;
+            int split = 0;
+            for (int i = 0; i < joinedstring.Length; i++)
+            {
+                if (joinedstring[i] == ',')
+                {
+                    count++;
+                    if (count == 6)
+                    {
+                        split = i;
+                    }
+                }
+            }
+            if(split == 0)
+            { throw new ArgumentOutOfRangeException("could not split string"); }
+            string policeRapportString = joinedstring.Substring(0, split);
+            string insuranceRapportString = joinedstring.Substring((split + 1), (joinedstring.Length - (split+1)));
 
             PoliceRapport policerapport = PoliceRapportExtractor.CreateNewPoliceRapportFromstring(policeRapportString);
             AddPoliceRapport(policerapport);

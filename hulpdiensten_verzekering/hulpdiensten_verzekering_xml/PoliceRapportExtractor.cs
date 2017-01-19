@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace hulpdiensten_verzekering_xml
 {
-    class PoliceRapportExtractor
+    public class PoliceRapportExtractor
     {
         public static PoliceRapport CreateNewPoliceRapportFromstring(string policeRapport)
         {
