@@ -7,7 +7,7 @@
 int writeDataStructToFile(char* filename, const DATAPACKET* value)
 {
 	FILE* fp;
-	fp = fopen(filename, "a");
+	fp = fopen(filename, "w+");
 	if(fp == NULL)
 		return -1;
 	int returnvalueWrite = fwrite(value, sizeof(DATAPACKET), 1, fp);
@@ -21,7 +21,7 @@ int writeDataStructArrayToFile(char* filename, DATAPACKET* array, int amountOfDa
 {
 	if(array == NULL)
 		return -1;
-	FILE* fp = fopen(filename, "a");
+	FILE* fp = fopen(filename, "w+");
 	if(fp == NULL)
 		return -1;
 	int rv = fwrite(array, sizeof(DATAPACKET), amountOfDatapackets, fp);
@@ -29,6 +29,34 @@ int writeDataStructArrayToFile(char* filename, DATAPACKET* array, int amountOfDa
 	if(rv == amountOfDatapackets)
 		return 0;
 	return -1;
+}
+
+int write_To_Log_file(char* filename, DATAPACKET* array)
+{
+	if(array == NULL)
+		return -1;
+	FILE* fp = fopen(filename, "a+");
+	if(fp == NULL)
+		return -1;
+	int rv = fwrite(array, sizeof(DATAPACKET), 1, fp);
+	fclose(fp);
+	return rv;
+}
+
+int writeToFile(char* filename, int value)
+{
+	FILE* fp = fopen(filename, "w+");
+	fwrite(&value, sizeof(int), 1, fp);
+	fclose(fp);
+	return 0;
+}
+
+int readFromFile(char* filename, int* value)
+{
+	FILE* fp = fopen(filename, "r+");
+	fread(value, sizeof(int), 1, fp);
+	fclose(fp);
+	return 0;
 }
 
 int getNrOfDatStructs(char* filename)

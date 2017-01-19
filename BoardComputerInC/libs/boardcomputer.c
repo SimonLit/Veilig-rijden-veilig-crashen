@@ -21,7 +21,11 @@ void mainFork(void);
 
 int main(int argc, char const *argv[])
 {
-	//Remove old files first
+	writeToFile(carStatusFile, 2);
+	if(access(DATALOG, F_OK) == 0)
+	{
+		remove(DATALOG);
+	}
     int internalNetwork = 0;
 	setupCommunicationServer(NodeInternal, ServiceInternal, &internalNetwork);
 	pid_t pid;
@@ -64,13 +68,25 @@ void networkFork(int fileadressInternal)
 		}
 		while(1)
 		{
-			sleep(1);		
+			sleep(1);	
+			//Read if file exist with data of phone crash data
+			//If exist make message with data car and phone and send, remove files car phone Crash and phone Ins
+			
+
+			//IF Read if file exist with data of stopPhone
+			//Make message and send , remove phoneIns file
+
+
+
+
+/*
 			memset(bufferToSend, 0, sizeof(bufferToSend));
 			currentSizeFile = getNrOfDatStructs(DATASEND);
 			printf("Size of file is %d\n", currentSizeFile);
 			for(int i = 0; i < (currentSizeFile - lastKnowSizeOfFile); i++)
 			{
 				printf("Loop number %d\n", i);
+				printf("Dat before reading %s\n", toSend.messageReceived);
 				readDataStructFromFile(DATASEND, &toSend, position);
 				printf("Data to send is %s\n", toSend.messageReceived);
 				makeMessageToSend(toSend.messageReceived, &toSend, &lenght);
@@ -78,9 +94,11 @@ void networkFork(int fileadressInternal)
 				strcpy(bufferToSend, toSend.infoSend);
 				rv = sendDataOverConnection(extrenalNetwork, bufferToSend, lenght);//Send to C# app	
 				position++;
+				memset(toSend.infoSend, 0, maxLengthMessage);
+				memset(toSend.messageReceived, 0, maxLengthMessage);
 			}
 			lastKnowSizeOfFile = currentSizeFile;
-		}
+*/		}
 	}
 }
 

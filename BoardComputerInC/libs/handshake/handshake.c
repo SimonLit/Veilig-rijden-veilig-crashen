@@ -14,10 +14,8 @@
 #include <time.h>
 #include "handshake.h"
 #include "../datastruct/datastruct.h"
-#include "../response/response.h"
 #include "../message/message.h"
 #include "../file_handeling/file_handeling.h"
-#include "../response/response.h"
 
 char buffer[2048];
 int j = 0;
@@ -102,7 +100,6 @@ static int connectVerify(int sockfd, DATAPACKET* recv)
 static int recvData(int sockfd, DATAPACKET* recveid)
 {
 	memset(buffer, 0, sizeof(buffer));
-	RESPONSES rsp;
 	while(1)//Break out with a timeout
 	{
 		j = read(sockfd, buffer, 255);
@@ -111,7 +108,7 @@ static int recvData(int sockfd, DATAPACKET* recveid)
 		else
 		{	
 			printf("DEBUG:RECVDATA: The message is: %s\n", buffer);
-			returnValue = dataCutRecvResponse(recveid, buffer, &rsp);
+			returnValue = dataCutRecvResponse(recveid, buffer);
 			if(returnValue == -1)
 			{
 				returnValue = send(sockfd, "#NACK@\n", 7, 0);
@@ -124,7 +121,6 @@ static int recvData(int sockfd, DATAPACKET* recveid)
 			}
 			else	
 			{
-				recveid -> action = rsp;
 				return 0;
 			}
 		}
@@ -149,20 +145,54 @@ int handshakeReceiveData(int sockfd, const char* ip)
 		else
 		{
 			strcpy(connectionData.senderIpAdress, ip);
-			returnValue = respond(&connectionData);//Do respons
 			if(returnValue == -1)
 			{
 				printf("Something went wrong with respond\n");
 				return -1;
 			}
-			writeDataStructToFile(DATALOG, &connectionData);
+			write_To_Log_file(DATALOG, &connectionData);
 			printf("Wrote data to log file.\n");
 			if(connectionData.sf == true)
 			{
-				writeDataStructToFile(DATASEND, &connectionData);
+				writeDataStructToFile(carCrashData, &connectionData);
 				printf("Writing data to send file.\n");
 			}
 			return 0;
 		}
 	}
 }
+
+int secondDataRec(DATAPACKET* d)
+{
+	char secondBuffer[255];
+	memset(secondBuffer, 0, sizeof(secondBuffer));
+	while(1)//Break out with a timeout
+		{
+			j = read(d->sockFd, secondBuffer, 255);
+			if(j < 0)
+				perror("read");
+			else
+			{	
+				printf("DEBUG:SECONDRECVDATA: The message is: %s\n", secondBuffer);
+				int rv = correctFormatCheckRemoveBitshift(secondBuffer);
+				char** ar = NULL;
+				int t = split(secondBuffer, '|', &ar);
+			    if(strcmp(ar[0], "PDA") == 0)
+    			{
+        			strcpy(d->stopPhoneData, secondBuffer);
+        			send(d->sockFd ,"#ACK@\n", 6,0);
+					writeDataStructToFile(phoneInsFile, d);
+        			return 0;
+    			}
+    			else if(strcmp(ar[0], "PDB") == 0)
+    			{
+        			strcpy(d->crahsPhoneData, secondBuffer);
+        			send(d->sockFd ,"#ACK@\n", 6,0);
+        			writeDataStructToFile(phoneCrashFile, d);	
+        			return 0;
+    			}
+    			return -1;
+			}
+		}
+}
+

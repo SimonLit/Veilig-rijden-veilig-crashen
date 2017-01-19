@@ -4,9 +4,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include "../datastruct/datastruct.h"
-
-extern bool driving;
-extern bool crashed;
+#include "../file_handeling/file_handeling.h"
+#include "../handshake/handshake.h"
 
 int findStartOfMessage(const char* message)
 {
@@ -171,11 +170,10 @@ int verificationStringCut(DATAPACKET* recv, const char* bf)
 }
 
 //Set respons, check bf on start and end point, split it save shit in datapacket
-int dataCutRecvResponse(DATAPACKET* recv, const char* bf, RESPONSES* rsp)
+int dataCutRecvResponse(DATAPACKET* recv, const char* bf)
 {
     char message[] = "                                                                         ";
     strcpy(message, bf);
-    printf("Print message%s\n",message);
     int rv = correctFormatCheckRemoveBitshift(message);
     if(rv == -1)
         return -1;
@@ -185,25 +183,25 @@ int dataCutRecvResponse(DATAPACKET* recv, const char* bf, RESPONSES* rsp)
         printf("DEBUG:DATARESPONSE: The parts of the message are: %s\n", array[i]);
     if(strcmp(array[0], "DAT") == 0)
     {
-        *rsp = CRASHDATA;
         strcpy(recv -> messageReceived, message);
         recv -> sf = true;
-        crashed = true;
+        recv-> Sender = CAR;
         send(recv->sockFd, "#ACK@", 5, 0);
+        writeToFile(carStatusFile, 3);
         return 0;
     }
     else if(strcmp(array[0], "START_RP6") == 0)
     {
-        *rsp = RP6STATUS;
-        driving = true;
+        recv->Sender = CAR;
         send(recv->sockFd, "#ACK@", 5, 0);
+        writeToFile(carStatusFile, 1);
         return 0;
     }
     else if(strcmp(array[0], "STOP_RP6") == 0)
     {
-        *rsp = RP6STATUS;
-        driving = false;
+        recv->Sender = CAR;
         send(recv->sockFd, "#ACK@", 5, 0);
+        writeToFile(carStatusFile, 2);
         return 0;
     }
     else if(strcmp(array[0], "REQ") == 0)
@@ -211,12 +209,33 @@ int dataCutRecvResponse(DATAPACKET* recv, const char* bf, RESPONSES* rsp)
         printf("DEBUG:PHONE Received data from phone\n");
         if(strcmp(array[1], "DRI") == 0)
         {
+            recv->Sender = PHONE;
+            int v = 0;
             printf("Received driving request\n");
-            *rsp = DRIVING;
-            //Send driving information to Phone
-            return 0;
+            readFromFile(carStatusFile, &v);
+            switch(v){
+                case 1:
+                    printf("Send drive\n");
+                    send(recv->sockFd, "#DRIVE@\n", 8,0);//Niks terug
+                break; 
+                case 2:
+                     printf("Send stop\n");
+                     send(recv->sockFd, "#STOP@\n", 7,0);//PDA|INS:int@
+                     secondDataRec(recv);
+                break;
+                case 3:
+                    printf("Send crash\n");
+                    send(recv->sockFd, "#CRASH@\n", 8,0);//PDB|INS:int|COR:double8:double8@
+                    secondDataRec(recv);
+                    writeToFile(carStatusFile, 2);
+                    break;
+                default:
+                    printf("Error\n");
+                    send(recv->sockFd, "#NODATA@\n", 9,0);
+                break;
+            }
         }
-        return 1;
+        return 0;
     }
 	return -1;
 }

@@ -1,6 +1,5 @@
 LIBS=libs/serversocket \
 	 libs/file_handeling \
-	 libs/response \
 	 libs/handshake \
 	 libs/serial \
 	 libs/message \

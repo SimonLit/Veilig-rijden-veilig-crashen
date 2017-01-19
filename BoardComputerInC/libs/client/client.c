@@ -56,6 +56,7 @@ int sendDataOverConnection(int socketFd, const char* string, int lenghtMessage)
 	printf("Send connect to C#\n");
 	if(rv == -1)
 	{
+		printf("Retrying sending connect\n");
 		send(socketFd, "#CONNECT@", 9,0);
 	}
 	printf("Wainting for ACK from C#\n");

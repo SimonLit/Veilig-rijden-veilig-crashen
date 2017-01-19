@@ -6,7 +6,7 @@ TEST_INC_DIRS=$(INC_DIRS) -I$(UNITY_FOLDER)
 TEST_FILES=$(UNITY_FOLDER)/unity.c \
            boardcomputer_test.c \
            ../libs/message/message.c \
-           ../libs/file_handeling/file_handeling.c
+           ../libs/file_handeling/file_handeling.c \
 
 HEADER_FILES=../libs/message/message.h \
 			 ../libs/file_handeling/file_handeling.h
