@@ -126,6 +126,16 @@ void verification_Test(void)
 	TEST_ASSERT_EQUAL(CAR, connection.Sender);
 }
 
+void make_Send_Message_Test(void)
+{
+	DATAPACKET p;
+	int lenght;
+	strcpy(p.messageReceived, "BLA"); 
+	makeMessageToSend(p.messageReceived, &p, &lenght);
+	TEST_ASSERT_EQUAL(5, lenght);
+	TEST_ASSERT_EQUAL_STRING("#BLA@", p.infoSend);
+}
+
 ////////////////////////////////////////////////////
 ///                                              ///
 ///              RESPONSE TESTS                  ///
@@ -161,6 +171,14 @@ void read_All_Data_From_File_Test(void)
 	TEST_ASSERT_EQUAL(1122334455 ,arrayTest[1].sockFd);
 }
 
+void read_Datapacket_On_Position_Test(void)
+{
+	DATAPACKET d;
+	rv = readDataStructFromFile(fileWithDataStructs, &d, 0);
+	TEST_ASSERT_EQUAL(0, rv);
+	TEST_ASSERT_EQUAL(22556688 ,d.sockFd);
+}
+
 int main (int argc, char * argv[])
 {
     UnityBegin();
@@ -186,6 +204,9 @@ int main (int argc, char * argv[])
     MY_RUN_TEST(check_Sender_Test);
     tearDown();
     setUp();
+    MY_RUN_TEST(make_Send_Message_Test);
+    tearDown();
+    setUp();
     MY_RUN_TEST(verification_Test);
     tearDown();
     setUp();
@@ -193,6 +214,9 @@ int main (int argc, char * argv[])
     tearDown();
     setUp();
     MY_RUN_TEST(read_All_Data_From_File_Test);
+    tearDown();
+    setUp();
+    MY_RUN_TEST(read_Datapacket_On_Position_Test);
     tearDown();
     return UnityEnd();
 }

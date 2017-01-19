@@ -45,7 +45,20 @@ int getNrOfDatStructs(char* filename)
 
 int readDataStructFromFile(char* filename, DATAPACKET* info, int pos)
 {
-	return 0;
+	FILE* fp = fopen(filename, "r");
+	if(fp == NULL)
+	{
+		fclose(fp);
+		return -1;
+	}
+	fseek(fp, (pos * sizeof(DATAPACKET)), SEEK_SET);
+	int rv = fread(info, sizeof(DATAPACKET), 1, fp);
+	fclose(fp);
+	if(rv == 1)
+	{
+		return 0;
+	}
+	return -1;
 }
 
 int readAllDataFromFile(char* filename, DATAPACKET* array, int number)

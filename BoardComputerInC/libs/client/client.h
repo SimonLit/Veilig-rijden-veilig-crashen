@@ -3,6 +3,6 @@
 #include "../datastruct/datastruct.h"
 
 int setupClientConnection(const char* node,int service, int* socknumber);
-int sendDataOverConnection(int socketFd, const char* string);
+int sendDataOverConnection(int socketFd, const char* string,  int lenghtMessage);
 
 #endif

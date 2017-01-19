@@ -2,7 +2,7 @@
 #define DATASTRUCT_H_
 
 #define maxLength 25
-#define maxLengthMessage 100
+#define maxLengthMessage 255
 
 #define DATALOG "logfile"
 #define DATASEND "sendfile"
@@ -15,6 +15,7 @@ enum
 };
 
 bool driving;
+bool crashed;
 
 typedef enum
 {
@@ -56,7 +57,7 @@ typedef struct datapacket
 	int  sockFd;	//Socket file discriptor
 	char senderIpAdress[maxLength];	//Ip adress from sender
 	char messageReceived[maxLengthMessage]; //Full message received
-	char informationReceived[maxLengthMessage];
+	char infoSend[maxLengthMessage];
 	RESPONSES action; //The action that should be done with the received datas
 	bool sf; 
 	TIMESTAMP time;

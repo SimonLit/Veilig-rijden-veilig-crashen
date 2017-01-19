@@ -1,9 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include "../datastruct/datastruct.h"
 
 extern bool driving;
+extern bool crashed;
 
 int findStartOfMessage(const char* message)
 {
@@ -185,18 +188,22 @@ int dataCutRecvResponse(DATAPACKET* recv, const char* bf, RESPONSES* rsp)
         *rsp = CRASHDATA;
         strcpy(recv -> messageReceived, message);
         recv -> sf = true;
+        crashed = true;
+        send(recv->sockFd, "#ACK@", 5, 0);
         return 0;
     }
     else if(strcmp(array[0], "START_RP6") == 0)
     {
         *rsp = RP6STATUS;
         driving = true;
+        send(recv->sockFd, "#ACK@", 5, 0);
         return 0;
     }
     else if(strcmp(array[0], "STOP_RP6") == 0)
     {
         *rsp = RP6STATUS;
         driving = false;
+        send(recv->sockFd, "#ACK@", 5, 0);
         return 0;
     }
     else if(strcmp(array[0], "REQ") == 0)
@@ -206,9 +213,23 @@ int dataCutRecvResponse(DATAPACKET* recv, const char* bf, RESPONSES* rsp)
         {
             printf("Received driving request\n");
             *rsp = DRIVING;
+            //Send driving information to Phone
             return 0;
         }
         return 1;
     }
 	return -1;
+}
+
+int makeMessageToSend(const char* string, DATAPACKET* d, int* l)
+{
+    char message[maxLengthMessage];
+    strcpy(message, "\0");
+    strcat(message, "#");
+    strcat(message, d->messageReceived);
+    strcat(message, "@");
+    *l = lengthOfMessage(message);
+    *l += 1;
+    strcpy(d->infoSend ,message);
+    return 0;
 }

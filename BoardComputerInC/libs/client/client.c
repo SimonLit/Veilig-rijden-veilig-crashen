@@ -5,8 +5,11 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <errno.h>
+#include <string.h>
 #include "client.h"
 #include "../datastruct/datastruct.h"
+#include "../handshake/handshake.h"
 
 int setupClientConnection(const char* node, int service, int* socknumber)
 {
@@ -31,7 +34,6 @@ int setupClientConnection(const char* node, int service, int* socknumber)
 	addr_size = sizeof(serverAddr);
 	printf("Trying to connect.\n");
 	rv = connect(clientSocket, (struct  sockaddr*) &serverAddr, addr_size);
-	printf("Return value conncet %d\n", rv);
 	if(rv == 0)
 	{
 		printf("\n");
@@ -41,33 +43,41 @@ int setupClientConnection(const char* node, int service, int* socknumber)
 	}
 	else if(rv == -1)
 	{
-		printf("Connection error to server\n");
+		printf("Connection error to server, %s\n", strerror(errno));
 		return -1;
 	}
 	return 1;
 }
 
-int sendDataOverConnection(int socketFd, const char* string)
+int sendDataOverConnection(int socketFd, const char* string, int lenghtMessage)
 {
 	int rv;
-	char buffer[1024];
-	//Request connection
-	//#CONNECT@
-	//Listen for ack
-	//#ACK@ #NACK@
-	//Send data from parameter
-
-	//listen for ack
-
-	//Exit connection
-
-
-	//printf("Sending data over socketFd\n");
-	rv = send(socketFd, "#Hqsf,eqsf,lqfs,lqsf,oqsf,qdfq,qsd@", 35, 0);
-	rv = read(socketFd, buffer, 255);
-	if(rv < 0)
-		printf("Read error\n");
-	printf("Read buffer is %s \n", buffer );
-	return 0;
-
+	rv = send(socketFd, "#CONNECT@", 9,0);
+	printf("Send connect to C#\n");
+	if(rv == -1)
+	{
+		send(socketFd, "#CONNECT@", 9,0);
+	}
+	printf("Wainting for ACK from C#\n");
+	rv = waitForAckFromClient(socketFd);//Server send ACK and we are connected
+	if(rv == 1)
+	{
+		sleep(0.5);
+		printf("Send data to c#\n");
+		printf("String is %s, %d\n", string, lenghtMessage);
+		rv = send(socketFd, string, lenghtMessage, 0);		
+		if(rv == -1)
+		{
+			send(socketFd, string, lenghtMessage, 0);
+		}
+		printf("Waiting for ACK\n");
+		rv = waitForAckFromClient(socketFd);
+		if(rv == 1)
+		{
+			printf("Succesfull send data to pc\n");
+			return 0;
+		}
+		return -1;
+	}
+	return -1;
 }
