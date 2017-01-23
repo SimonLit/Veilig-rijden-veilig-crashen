@@ -84,7 +84,6 @@ static int connectVerify(int sockfd, DATAPACKET* recv)
 		 }
 		 else if(returnValue == 0)
 		 {
-		 	printf("DEBUG:CONNECTION:VERIFIED\n");
 		 	returnValue = send(sockfd, "#ACK@\n", 6, 0);
 		 	if(returnValue == -1)
 		 	{
@@ -107,7 +106,7 @@ static int recvData(int sockfd, DATAPACKET* recveid)
 			perror("read");
 		else
 		{	
-			printf("DEBUG:RECVDATA: The message is: %s", buffer);
+			printf("RECVDATAONNE: The message is: %s", buffer);
 			returnValue = dataCutRecvResponse(recveid, buffer);
 			if(returnValue == -1)
 			{

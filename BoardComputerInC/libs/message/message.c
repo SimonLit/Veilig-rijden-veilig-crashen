@@ -208,7 +208,7 @@ int dataCutRecvResponse(DATAPACKET* recv, const char* bf)
         {
             recv->Sender = PHONE;
             int v = 0;
-            printf("Received driving request\n");
+            printf("Received car mode request\n");
             readFromFile(carStatusFile, &v);
             switch(v){
                 case 1:
@@ -242,7 +242,7 @@ int dataCutRecvResponse(DATAPACKET* recv, const char* bf)
     }
     else if(strcmp(array[0], "TOUCH") == 0)
     {
-        printf("Phone touched by %s\n", array[1]);
+        printf("Phone touched by user: %s\n", array[1]);
         writeToFile(carStatusFile, 4);
         return 0;
     }

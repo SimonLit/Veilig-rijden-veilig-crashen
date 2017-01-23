@@ -53,25 +53,20 @@ int sendDataOverConnection(int socketFd, const char* string, int lenghtMessage)
 {
 	int rv;
 	rv = send(socketFd, "#CONNECT@", 9,0);
-	printf("Send connect to C#\n");
 	if(rv == -1)
 	{
-		printf("Retrying sending connect\n");
 		send(socketFd, "#CONNECT@", 9,0);
 	}
-	printf("Wainting for ACK from C#\n");
 	rv = waitForAckFromClient(socketFd);//Server send ACK and we are connected
 	if(rv == 1)
 	{
 		sleep(0.5);
-		printf("Send data to c#\n");
-		printf("String is %s, %d\n", string, lenghtMessage);
+		printf("Data to send is %s, %d\n", string, lenghtMessage);
 		rv = send(socketFd, string, lenghtMessage, 0);		
 		if(rv == -1)
 		{
 			send(socketFd, string, lenghtMessage, 0);
 		}
-		printf("Waiting for ACK\n");
 		rv = waitForAckFromClient(socketFd);
 		if(rv == 1)
 		{

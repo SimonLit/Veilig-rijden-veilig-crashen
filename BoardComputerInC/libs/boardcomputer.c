@@ -13,7 +13,7 @@
 
 #define NodeInternal "10.10.0.1"
 #define ServiceInternal "5000"
-#define NodeExternal "192.168.1.101"
+#define NodeExternal "192.168.1.100"
 int SerivecExternal  = 6000;
 
 void networkFork(int fileadressInternal);
@@ -73,12 +73,11 @@ void networkFork(int fileadressInternal)
 			{
 				if(access(carCrashData, F_OK) == 0)
 				{
-					//If exist make message with data car and phone and send, remove files car phone Crash and phone Ins
 					memset(bufferToSend, 0, sizeof(bufferToSend));
 					readDataStructFromFile(carCrashData, &tempA, 0);
 					readDataStructFromFile(phoneCrashFile, &tempB, 0);
 					messageCrashSend(bufferToSend, &tempA, &tempB, &lenght);
-					printf("Crash buffer to send is %s\n", bufferToSend);
+					printf("Message to send from crash %s\n", bufferToSend);
 					sendDataOverConnection(extrenalNetwork, bufferToSend, lenght);
 					lenght = 0;
 					memset(bufferToSend, 0, sizeof(bufferToSend));
@@ -92,11 +91,10 @@ void networkFork(int fileadressInternal)
 			}
 			else if(access(phoneInsFile, F_OK) == 0)
 			{
-				//Make message and send , remove phoneIns file
 				memset(bufferToSend, 0, sizeof(bufferToSend));
 				readDataStructFromFile(phoneInsFile, &tempA, 0);
 				messageInsSend(bufferToSend, &tempA, &lenght);
-				printf("Insurance buffer to send is %s\n", bufferToSend);
+				printf("Message to send after stop %s\n", bufferToSend);
 				sendDataOverConnection(extrenalNetwork, bufferToSend, lenght);
 				lenght = 0;
 				memset(bufferToSend, 0, sizeof(bufferToSend));
