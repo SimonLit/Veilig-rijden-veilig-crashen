@@ -11,18 +11,18 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <time.h>
 #include "handshake.h"
 #include "../datastruct/datastruct.h"
-#include "../response/response.h"
 #include "../message/message.h"
 #include "../file_handeling/file_handeling.h"
 
-char buffer[256];
+char buffer[2048];
 int j = 0;
 int counter;
 int returnValue;
 
-static int waitForAckFromClient(int sockfd)
+int waitForAckFromClient(int sockfd)
 {
 	bool ack = false;
 	memset(buffer, 0, sizeof(buffer));
@@ -30,9 +30,15 @@ static int waitForAckFromClient(int sockfd)
 	{
 		j = read(sockfd, buffer, 255);
 		if(j < 0)
+		{
 			perror("read");
+		}
 		if(strcmp(buffer, "#ACK@") == 0)
+		{
 			ack = true;
+		}
+		sleep(2);
+		memset(buffer, 0, sizeof(buffer));
 	}
 	return 1;
 }
@@ -45,9 +51,8 @@ static int waitForFirstContact(int sockfd, DATAPACKET* recv)
 		j = read(sockfd, buffer, 255);
 		if(j < 0)
 			perror("read");
-		else if( j == 0)//End of fd read
+		else
 		{
-			printf("The message is: %s\n", buffer);
 			returnValue = verificationStringCut(recv, buffer);
 			if(returnValue == 0)
 			{
@@ -64,34 +69,36 @@ static int waitForFirstContact(int sockfd, DATAPACKET* recv)
 
 static int connectVerify(int sockfd, DATAPACKET* recv)
 {
-	bool verifiedCon = false;
+	counter = 0;
 	do{
 		 returnValue = waitForFirstContact(sockfd, recv);
 		 if(returnValue == -1)
 		 {
 		 	counter++;	
-		 	returnValue = send(sockfd, "NACK", 4, 0);
+		 	returnValue = send(sockfd, "#NACK@\n", 7, 0);
 		 	if(returnValue == -1)
 		 	{
 		 		perror("send");
-		 		send(sockfd, "NACK", 4, 0);
+		 		send(sockfd, "#NACK@\n", 7, 0);
 		 	}
 		 }
-		 else if(returnValue = 0)
+		 else if(returnValue == 0)
 		 {
-		 	verifiedCon = true;
+		 	returnValue = send(sockfd, "#ACK@\n", 6, 0);
+		 	if(returnValue == -1)
+		 	{
+		 		perror("send");
+		 		send(sockfd, "#ACK@\n", 6, 0);
+		 	}
+		 	return 0;
 		 }
-	}while(verifiedCon == false || counter < 4);
-	if(verifiedCon = true)
-		return 0;
-	else
-		return -1;	
+	}while(counter < 4);
+	return -1;	
 }
 
-static int recvData(int sockfd, DATAPACKET* recv, bool* sf)
+static int recvData(int sockfd, DATAPACKET* recveid)
 {
 	memset(buffer, 0, sizeof(buffer));
-	RESPONSES rsp;
 	while(1)//Break out with a timeout
 	{
 		j = read(sockfd, buffer, 255);
@@ -99,45 +106,91 @@ static int recvData(int sockfd, DATAPACKET* recv, bool* sf)
 			perror("read");
 		else
 		{	
-			printf("The message is: %s\n", buffer);
-			returnValue = dataCutRecvResponse(recv, buffer, &rsp);
+			printf("RECVDATAONNE: The message is: %s", buffer);
+			returnValue = dataCutRecvResponse(recveid, buffer);
 			if(returnValue == -1)
+			{
+				returnValue = send(sockfd, "#NACK@\n", 7, 0);
+				if(returnValue == -1)
+				{
+					perror("send");
+					send(sockfd, "#NACK@\n", 7, 0);
+				}
 				return -1;
+			}
 			else	
 			{
-				//Do response
-				//Set sf flag
 				return 0;
 			}
 		}
 	}
 	return -1;
-
 }
 
 int handshakeReceiveData(int sockfd, const char* ip)
 {
 	DATAPACKET connectionData;
-	bool sendFlag = false;
+	connectionData.sockFd = sockfd;
+	memset(buffer, 0, sizeof(buffer));
 	returnValue = connectVerify(sockfd, &connectionData);
 	if(returnValue == -1)
 		return -1;
 	else
 	{
-		returnValue = recvData(sockfd, &connectionData, &sendFlag);
+		returnValue = recvData(sockfd, &connectionData);
 		if(returnValue == -1)
 			return -1;
 		else
 		{
 			strcpy(connectionData.senderIpAdress, ip);
-			writeDataStructToFile(DATALOG, &connectionData);
-			printf("Wrote data to log file.\n");
-			if(sendFlag == true)
+			if(returnValue == -1)
 			{
-				writeDataStructToFile(DATASEND, &connectionData);
-				printf("Writing data to send file.\n");
+				printf("Something went wrong with respond\n");
+				return -1;
+			}
+			write_To_Log_file(DATALOG, &connectionData);
+			printf("Wrote data to log file.\n");
+			if(connectionData.sf == true)
+			{
+				writeDataStructToFile(carCrashData, &connectionData);
+				printf("Writing data to car crash file file.\n");
 			}
 			return 0;
 		}
 	}
 }
+
+int secondDataRec(DATAPACKET* d)
+{
+	char secondBuffer[255];
+	memset(secondBuffer, 0, sizeof(secondBuffer));
+	while(1)//Break out with a timeout
+		{
+			j = read(d->sockFd, secondBuffer, 255);
+			if(j < 0)
+				perror("read");
+			else
+			{	
+				printf("DEBUG:SECONDRECVDATA: The message is: %s", secondBuffer);
+				int rv = correctFormatCheckRemoveBitshift(secondBuffer);
+				char** ar = NULL;
+				int t = split(secondBuffer, '|', &ar);
+			    if(strcmp(ar[0], "PDA") == 0)
+    			{
+        			strcpy(d->stopPhoneData, secondBuffer);
+        			send(d->sockFd ,"#ACK@\n", 6,0);
+					writeDataStructToFile(phoneInsFile, d);
+        			return 0;
+    			}
+    			else if(strcmp(ar[0], "PDB") == 0)
+    			{
+        			strcpy(d->crahsPhoneData, secondBuffer);
+        			send(d->sockFd ,"#ACK@\n", 6,0);
+        			writeDataStructToFile(phoneCrashFile, d);	
+        			return 0;
+    			}
+    			return -1;
+			}
+		}
+}
+

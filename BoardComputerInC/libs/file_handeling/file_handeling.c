@@ -6,19 +6,10 @@
 
 int writeDataStructToFile(char* filename, const DATAPACKET* value)
 {
-	if(filename == NULL)
-		return -1;
-	if(value == NULL)
-		return -1;
 	FILE* fp;
-	if(access(filename, F_OK) == 0)
-		fp = fopen(filename, "r+");
-	else
-		fp = fopen(filename, "r+");
+	fp = fopen(filename, "w+");
 	if(fp == NULL)
-		return -1;//File does not exist
-	fclose(fp);
-	fp = fopen(filename, "a");
+		return -1;
 	int returnvalueWrite = fwrite(value, sizeof(DATAPACKET), 1, fp);
 	fclose(fp);
 	if(returnvalueWrite == 1)
@@ -30,7 +21,7 @@ int writeDataStructArrayToFile(char* filename, DATAPACKET* array, int amountOfDa
 {
 	if(array == NULL)
 		return -1;
-	FILE* fp = fopen(filename, "a");
+	FILE* fp = fopen(filename, "w+");
 	if(fp == NULL)
 		return -1;
 	int rv = fwrite(array, sizeof(DATAPACKET), amountOfDatapackets, fp);
@@ -38,6 +29,34 @@ int writeDataStructArrayToFile(char* filename, DATAPACKET* array, int amountOfDa
 	if(rv == amountOfDatapackets)
 		return 0;
 	return -1;
+}
+
+int write_To_Log_file(char* filename, DATAPACKET* array)
+{
+	if(array == NULL)
+		return -1;
+	FILE* fp = fopen(filename, "a+");
+	if(fp == NULL)
+		return -1;
+	int rv = fwrite(array, sizeof(DATAPACKET), 1, fp);
+	fclose(fp);
+	return rv;
+}
+
+int writeToFile(char* filename, int value)
+{
+	FILE* fp = fopen(filename, "w+");
+	fwrite(&value, sizeof(int), 1, fp);
+	fclose(fp);
+	return 0;
+}
+
+int readFromFile(char* filename, int* value)
+{
+	FILE* fp = fopen(filename, "r+");
+	fread(value, sizeof(int), 1, fp);
+	fclose(fp);
+	return 0;
 }
 
 int getNrOfDatStructs(char* filename)
@@ -54,7 +73,20 @@ int getNrOfDatStructs(char* filename)
 
 int readDataStructFromFile(char* filename, DATAPACKET* info, int pos)
 {
-	return 0;
+	FILE* fp = fopen(filename, "r");
+	if(fp == NULL)
+	{
+		fclose(fp);
+		return -1;
+	}
+	fseek(fp, (pos * sizeof(DATAPACKET)), SEEK_SET);
+	int rv = fread(info, sizeof(DATAPACKET), 1, fp);
+	fclose(fp);
+	if(rv == 1)
+	{
+		return 0;
+	}
+	return -1;
 }
 
 int readAllDataFromFile(char* filename, DATAPACKET* array, int number)

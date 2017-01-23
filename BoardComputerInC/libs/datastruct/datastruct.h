@@ -2,10 +2,13 @@
 #define DATASTRUCT_H_
 
 #define maxLength 25
-#define maxLengthMessage 100
+#define maxLengthMessage 200
 
-#define DATALOG "logfile"
-#define DATASEND "sendfile"
+#define DATALOG "logfile.bin"
+#define carCrashData "carCrashData.bin"
+#define carStatusFile "carStatusFile.bin"
+#define phoneCrashFile "phoneCrashFile.bin"
+#define phoneInsFile "phoneInsFile.bin"
 
 typedef int bool;
 enum 
@@ -16,17 +19,19 @@ enum
 
 typedef enum
 {
-	RP6,
+	NOBODY,
+	CAR,
 	PHONE,
-	WEMOS
 } SENDER;
 
-typedef enum
+typedef struct 
 {
-	CRASHDATA
-	RP6STATUS
-	GSMSTATUSREQUEST
-} RESPONSES;
+	int speed;
+	int side_hit;
+	int impact;
+	int distance_driven;
+	int orientation_ypr;
+} DATCRASH;
 
 typedef struct
 {
@@ -44,9 +49,11 @@ typedef struct datapacket
 	int  sockFd;	//Socket file discriptor
 	char senderIpAdress[maxLength];	//Ip adress from sender
 	char messageReceived[maxLengthMessage]; //Full message received
-	char informationReceived[maxLengthMessage];
-	RESPONSES action; //The action that should be done with the received data
-	TIMESTAMP time;
+	char infoSend[maxLengthMessage];
+	char crahsPhoneData[maxLengthMessage];
+	char stopPhoneData[maxLengthMessage];
+	bool sf; 
 } DATAPACKET;
+
 
 #endif

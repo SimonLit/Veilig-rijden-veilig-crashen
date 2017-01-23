@@ -3,6 +3,8 @@
 
 #include "../datastruct/datastruct.h"
 
+int waitForAckFromClient(int sockfd);
 int handshakeReceiveData(int sockfd, const char* ip);
+int secondDataRec(DATAPACKET* recv);
 
 #endif
