@@ -32,7 +32,7 @@ int formatMessageToProtocol(String message, String *pointer_protocolToSendArray)
 
   else if (message.indexOf(ORIENTATION_PROTOCOL_RECEIVE) > -1)
   {
-    pointer_protocolToSendArray[4] = (String)ORIENTATION_PROTOCOL_SEND +
+    pointer_protocolToSendArray[4] = (String)ORIENTATION_PROTOCOL_SEND + VALUE_CHARACTER +
                                      (String)(currentYPR[0]) + MULTI_VALUE_SEPARATOR +
                                      (String)(currentYPR[1]) + MULTI_VALUE_SEPARATOR +
                                      (String)(currentYPR[2]);
@@ -59,44 +59,6 @@ int checkForValidRP6Message(String message)
   return 0;
 }
 
-int checkForValidBoardcomputerMessage(String message)
-{
-  if (message.indexOf(GENERAL_ACK) > -1)
-  {
-    // Message is a protocol.
-    return 1;
-  }
-  else if (message.indexOf(GENERAL_NACK) > -1)
-  {
-    // Message is a NACK
-    return -1;
-  }
-  else
-  {
-    //Message is not a protocol.
-    return 0;
-  }
-}
-
-int checkForValidControllerMessage(String message)
-{
-  if (message.indexOf(CONTROLLER_VALUE_PROTOCOL_RECEIVE) > -1)
-  {
-    //Message is a protocol.
-    return 1;
-  }
-  else if (message.indexOf(GENERAL_NACK) > -1)
-  {
-    // Message is a NACK
-    return -1;
-  }
-  else
-  {
-    //Message is not a protocol.
-    return 0;
-  }
-}
-
 /*
    Return: 0 if the messageToCheckFor was received.
           -1 if to many times NACK was received or it took to long to receive a response.
@@ -105,14 +67,15 @@ int timeoutHandlerWemosToRP6(String messageToSend, String messageToCheckFor)
 {
   int nackCounter = 0;
   int timeoutTimer = millis();
-
+  
   Serial.println(messageToSend);
 
-  while ((millis() - timeoutTimer) <= maxResponseTimeout && nackCounter <= maxNACKCounter)
+  while (((millis() - timeoutTimer) <= maxResponseTimeout) && (nackCounter <= maxNACKCounter))
   {
+    //sendHeartbeatToRP6();
     // Listen for a response from the RP6
     receivedEndOfSerialString = getIncommingString(&stringFromSerial);
-
+    
     if (receivedEndOfSerialString)
     {
       if (stringFromSerial == messageToCheckFor)

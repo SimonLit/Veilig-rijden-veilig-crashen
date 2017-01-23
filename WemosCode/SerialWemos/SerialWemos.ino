@@ -1,7 +1,7 @@
 // ================================================================
 // ===                        INCLUDES                          ===
 // ================================================================
-#include <ESP8266WiFi.h>
+#include <SoftwareSerial.h>
 #include "I2Cdev.h"
 
 #include "MPU6050_6Axis_MotionApps20.h"
@@ -14,6 +14,7 @@
 #endif
 
 String stringFromSerial = "";
+String stringFromControllerSoftwareSerial = "";
 
 // ================================================================
 // ===           GENERAL SERIAL COMMUNICATION PROTOCOL          ===
@@ -55,9 +56,7 @@ String stringFromSerial = "";
 #define GENERAL_NACK "NACK"
 #define RP6_NAME "RP6"
 #define WEMOS_NAME "CAR"
-#define BOARDCOMPUTER_NAME "BOARDCOMPUTER"
 //=================================================================
-
 String protocolStringToSend = "";
 String protocolToSendArray[5] = {"a", "b", "c", "d", "e"}; // 0 = speed; 1 = sideHit; 2 = impact; 3 = distDriven; 4 = orientation;
 
@@ -67,6 +66,7 @@ int heartbeatInterval = 1000;
 int maxNACKCounter = 3;
 int maxResponseTimeout = 2000;
 bool receivedEndOfSerialString = false;
+bool receivedEndOfControllerSoftwareSerialString = false;
 
 typedef enum
 {
@@ -96,6 +96,12 @@ stateRP6 lastRP6State = STOPPED_PROGRAM;
 
 connectionController WemosToCTRLConnection = CTRL_DISCONNECTED;
 connectionController lastWemosToCTRLConnection = CTRL_DISCONNECTED;
+
+SoftwareSerial softwareSerial(D8, D7); //Rx, Tx
+SoftwareSerial ControllerSoftwareSerial(D5, D6); //Rx, Tx
+
+unsigned long lastControllerReceiveTimer = 0;
+int controllerRequestInterval = 300;
 
 // ================================================================
 // ===                   MPU VARIABLE SETUP                     ===
@@ -128,7 +134,7 @@ float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gra
 
 bool MPUIsStable = false;
 
-int currentYPR[3] = {0, 0, 0};
+int currentYPR[3];
 long lastYPRUpdate = 0;
 long updateTime = 3000;
 
@@ -141,22 +147,6 @@ void dmpDataReady()
 {
   mpuInterrupt = true;
 }
-
-// ================================================================
-// ===                      WIFI VARIABLES                      ===
-// ================================================================
-//const char* ssid = "Project";
-//const char* password = "123456780";
-const char* ssid = "eversveraa";
-const char* password = "qwerty69";
-//const char* ssid = "HotSpotBoardComputer";
-//const char* password = "1234567890";
-
-String controllerToRP6Protocol = "";
-
-long currentMillis = 0;
-long lastControllerReceiveTimer = 0;
-int controllerRequestInterval = 100;
 
 // ================================================================
 // ===                      MAIN SETUP                          ===
@@ -175,6 +165,9 @@ void setup() {
   // really up to you depending on your project)
   Serial.begin(38400);
 
+  softwareSerial.begin(38400);
+  ControllerSoftwareSerial.begin(38400);
+  
   // =========================SETUP FOR MPU=========================
 
   // NOTE: 8MHz or slower host processors, like the Teensy @ 3.3v or Ardunio
@@ -229,35 +222,7 @@ void setup() {
 
   // configure LED for output
   pinMode(LED_PIN, OUTPUT);
-
-
-  // ========================SETUP FOR ESP========================
-  // Connect to WiFi network
-  Serial.println();
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-
-  WiFi.begin(ssid, password);
-
-  // If the router isn't available for use comment this while loop.
- while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
 }
-
-
-
-
-
-
-
-
 
 // ================================================================
 // ===                        MAIN LOOP                         ===
@@ -267,28 +232,23 @@ void loop()
   /*
      Make Sure the DMP values are stable.
   */
-  /* while (!MPUIsStable)
-    {
-     if (getMPUIsStabilized())
-     {
-       Serial.println("MPU is stable");
-       MPUIsStable = true;
-       resetYPRValues();
-     }
-     else return;
-    }*/
-
-  /*
-         Reset the orentation values close to 0.
-  */
-
-
-  if (stringFromSerial == "RESET")
+  while (!MPUIsStable)
   {
-    Serial.println(stringFromSerial);
-    stringFromSerial = "";
-    resetYPRValues();
+    delay(1);
+    if (getMPUIsStabilized())
+    {
+      Serial.println("MPU is stable");
+      MPUIsStable = true;
+      resetYPRValues();
+    }
+    else
+    {
+      return;
+    }
   }
+
+
+  DMPRoutine();
 
   actOnState_WemosToRP6Connection();
   actOnState_RP6State();

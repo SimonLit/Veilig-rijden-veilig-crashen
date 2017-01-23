@@ -1,4 +1,5 @@
 String connectResponse = CONNECTED_ACK_RECEIVE + (String)VALUE_CHARACTER + (String)RP6_NAME;
+long lastControllerReceived = 0;
 
 void actOnState_WemosToRP6Connection(void)
 {
@@ -32,14 +33,16 @@ void actOnState_WemosToRP6Connection(void)
       // The YPR values are then corrected with the offset values.
       if ((millis() -  lastYPRUpdate) > updateTime)
       {
-        //updateCurrentOrientation(currentYPR);
+        updateCurrentOrientation(currentYPR);
         lastYPRUpdate = millis();
       }
 
       // Receive the controller values and send these to the RP6.
       if ((millis() - lastControllerReceiveTimer) > controllerRequestInterval)
       {
-        //sendAndReceiveController();
+        makeProtocolString(CONTROLLER_VALUE_PROTOCOL_REQUEST_SEND);
+        ControllerSoftwareSerial.print(protocolStringToSend);
+        lastControllerReceiveTimer = millis();
       }
 
       receivedEndOfSerialString = false;
@@ -70,11 +73,15 @@ void actOnState_WemosToRP6Connection(void)
             //  from the RP6 and can be send to the boardcomputer.
             if (stringFromSerial == ORIENTATION_PROTOCOL_RECEIVE)
             {
-              Serial.println("ori");
-              //if (connectToBoardcomputer() == 1);
-              //{
-              //sendCrashData(protocolToSendArray, 5);
-              //}
+              String crashDataForBoardcomputer = SEND_DATA_TO_BOARDCOMPUTER_INDICATOR + (String)MULTI_COMMAND_SEPARATOR +
+                                                 protocolToSendArray[0] + (String)MULTI_COMMAND_SEPARATOR +
+                                                 protocolToSendArray[1] + (String)MULTI_COMMAND_SEPARATOR +
+                                                 protocolToSendArray[2] + (String)MULTI_COMMAND_SEPARATOR +
+                                                 protocolToSendArray[3] + (String)MULTI_COMMAND_SEPARATOR +
+                                                 protocolToSendArray[4];
+              makeProtocolString(crashDataForBoardcomputer);
+              softwareSerial.print(protocolStringToSend);
+              //RP6State = STOPPED_PROGRAM;
             }
           }
 
@@ -94,6 +101,44 @@ void actOnState_WemosToRP6Connection(void)
         // serial message is received.
         receivedEndOfSerialString = false;
       }
+
+      // Check if the network wemos send a message.
+      receivedEndOfControllerSoftwareSerialString = getIncommingStringFromControllerSoftwareSerial(&stringFromControllerSoftwareSerial);
+
+      if ((millis() - lastControllerReceived) > 5000)
+      {
+        RP6State = STOPPED_PROGRAM;
+      }
+      else
+      {
+        RP6State = STARTED_PROGRAM;
+      }
+      if (receivedEndOfControllerSoftwareSerialString)
+      {
+        if (stringFromControllerSoftwareSerial.indexOf(CONTROLLER_VALUES) > -1)
+        {
+          makeProtocolString(stringFromControllerSoftwareSerial);
+
+          int timeoutState = timeoutHandlerWemosToRP6(protocolStringToSend, GENERAL_ACK);
+          if (timeoutState == -1)
+          {
+            WemosToRP6Connection = RP6_DISCONNECTED;
+          }
+          else if (timeoutState == 0)
+          {
+            WemosToRP6Connection = RP6_CONNECTED;
+          }
+        }
+        else if (stringFromControllerSoftwareSerial == "ControllerDisconnected")
+        {
+          WemosToRP6Connection = RP6_DISCONNECTED;
+        }
+
+        lastControllerReceived = millis();
+
+        receivedEndOfControllerSoftwareSerialString = false;
+      }
+
       break;
   }
 }
@@ -117,42 +162,12 @@ void sendHeartbeatToRP6(void)
   }
 }
 
-void sendAndReceiveController()
-{
-  // Format the received controller values to the protcol that is send
-  // form the wemos to the RP6 to let the RP6 drive.
-  // If getControllerValues return 0 is means the controller
-  // values are received correctly
-
-  int statusControllerConnection = getControllerValues(&controllerToRP6Protocol);
-  switch (statusControllerConnection)
-  {
-    // Succes
-    case 0:
-      // Check is GENERAL_ACK is received from the RP6.
-      if (timeoutHandlerWemosToRP6(controllerToRP6Protocol, GENERAL_ACK) == -1)
-      {
-        WemosToRP6Connection = RP6_DISCONNECTED;
-      }
-
-      WemosToCTRLConnection = CTRL_CONNECTED;
-      break;
-
-    // Fail
-    case -1:
-      //WemosToCTRLConnection = CTRL_DISCONNECTED;
-      break;
-  }
-}
-
 void actOnState_RP6State(void)
 {
   if (lastRP6State != RP6State)
   {
-    /*if (connectToBoardcomputer() == 1);
-    {
-      sendRP6StatusToBoardcomputer();
-    }*/
+    makeProtocolString(RP6States[RP6State]);
+    softwareSerial.print(protocolStringToSend);
     lastRP6State = RP6State;
   }
 }
