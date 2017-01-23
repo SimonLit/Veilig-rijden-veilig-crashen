@@ -3,6 +3,10 @@
 #include <string.h>
 #include "ProtocolDefines.h"
 #include "Tools.h"
+#include "Stopwatch.h"
+#include "InterpretSerial.h"
+
+#include "RP6ControlLib.h"
 
 int START_READING_COMMAND = 0;
 int START_READING_VALUE = 0;
@@ -45,6 +49,8 @@ int getIncomingSerialMessage(char* receiveBufferCommand, char* receiveBufferValu
 
 			memset(receiveBufferCommand, 0, MAX_COMMAND_LENGTH);
 			memset(receiveBufferValue, 0, MAX_VALUE_LENGTH);
+
+			writeStringLCD(receiveBufferCommand);	
 			
 			// Append the received message to the command and value char*.
 			// By using strcat the null terminator is added automatically.
@@ -100,27 +106,58 @@ int getIncomingSerialMessage(char* receiveBufferCommand, char* receiveBufferValu
 	return -1;
 }
 
-void sendACK(void)
+int sendMessage(char* command)
 {
-	makeProtocolMessage(GENERAL_ACK);
+	if(makeProtocolMessage(command) == -1) {return -1;}
 	writeString(protocolMessageToSend);
+	return 0;
 }
 
-void sendNACK(void)
+int sendMessageWithValue(char* command, char* value)
 {
-	makeProtocolMessage(GENERAL_NACK);
+	if(makeProtocolMessageWithValue(command, value) == -1) {return -1;}
 	writeString(protocolMessageToSend);
+	return 0;
 }
 
-void sendConnectACK(void)
+int timeoutHandler(void)
 {
-	makeProtocolMessageWithValue(CONNECTED_ACK, RP6_NAME);
-	writeString(protocolMessageToSend);
-}
+	char commandBuffer[MAX_COMMAND_LENGTH];
+	char valueBuffer[MAX_VALUE_LENGTH];
+	memset(commandBuffer, 0, MAX_COMMAND_LENGTH);
+	memset(valueBuffer, 0, MAX_VALUE_LENGTH);
 
+	uint16_t timoutTimer = getStopwatch5();
+	int nackCounter = 0;
 
-void sendRP6Satus(char* state)
-{
-	makeProtocolMessage(state);
-	writeString(protocolMessageToSend);
+	int result = -1;
+
+	while ((nackCounter < MAX_NACK_COUNTER) && ((getStopwatch5() - timoutTimer) < MAX_HEARTBEAT_TIMEOUT) && (result == -1))
+	{
+		if(getIncomingSerialMessage(commandBuffer, valueBuffer) == 0)
+		{
+			if(checkForACK(commandBuffer) == 0)
+			{
+				result = 0;
+			}
+			else if(checkForNACK(commandBuffer) == 0)
+			{
+				writeString(protocolMessageToSend);
+				nackCounter++;
+				timoutTimer = getStopwatch5();
+			}
+			else if(checkForHeartbeat(commandBuffer) == 0)
+			{
+				sendMessage(GENERAL_ACK);
+				lastHeartbeatReceived = getStopwatch1();
+			}
+		}
+	}
+
+	if((nackCounter > MAX_NACK_COUNTER) || ((getStopwatch5() - timoutTimer) > MAX_HEARTBEAT_TIMEOUT))
+    {
+        result = -1;
+    }
+
+	return result;
 }

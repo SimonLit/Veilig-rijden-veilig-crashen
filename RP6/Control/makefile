@@ -7,7 +7,7 @@
 #   make        :   creates hex target
 #   make clean  :   cleans up by removing all build products.
 #
-##############################################################################
+###############################################################################
 # Target file name (without extension).
 # This is the name of your main C source file! Do NOT append the ".c"!
 # Example: Let's assume your main source file is "RP6Base_MyProgram.c", then
@@ -23,26 +23,26 @@ RP6_LIB_PATH_CONTROL = $(RP6_LIB_PATH)/RP6control
 RP6_LIB_PATH_COMMON = $(RP6_LIB_PATH)/RP6common
 RP6_LIB_PATH_I2C_MASTER= $(RP6_LIB_PATH)/RP6control_I2CMasterLib
 
-RP6_LIB_PATH_OTHERS= $(RP6_LIB_PATH_CONTROL) $(RP6_LIB_PATH_COMMON) $(RP6_LIB_PATH_I2C_MASTER)
+RP6_LIB_PATH_OTHERS= $(RP6_LIB_PATH_CONTROL) $(RP6_LIB_PATH_COMMON) 
 
-CODE_TO_TEST_PATH = ../Control
-UNITY_LIB_PATH = ../../../../rp6/RP6Examples_20120725f/unity
-
-EXTRAINCDIRS = $(RP6_LIB_PATH) $(RP6_LIB_PATH_OTHERS) $(UNITY_LIB_PATH) $(CODE_TO_TEST_PATH)
+# List any extra directories to look for include files here.
+EXTRAINCDIRS = $(RP6_LIB_PATH) $(RP6_LIB_PATH_OTHERS) $(RP6_LIB_PATH_I2C_MASTER)
+###############################################################################
 
 #------------------------------------------------
 # Main Source file is _automatically_ added here:
 SRC = $(TARGET).c
-SRC += interpretSerial_test.c
-SRC += tools_test.c
+SRC += Drive.c
+SRC += Crash.c
+SRC += SerialReaderSender.c
+SRC += InterpretSerial.c
+SRC += Tools.c
+SRC += ProtocolDefines.c
 
-SRC += $(CODE_TO_TEST_PATH)/InterpretSerial.c
-SRC += $(CODE_TO_TEST_PATH)/Tools.c
-
-#Additional files for the unit-testing framework and logging
-SRC += $(UNITY_LIB_PATH)/unity.c
-
-#This is where all details of the build are defined:
-include $(UNITY_LIB_PATH)/makefile.unit
+SRC += $(RP6_LIB_PATH_CONTROL)/RP6ControlLib.c
+SRC += $(RP6_LIB_PATH)/RP6common/RP6uart.c
+SRC += $(RP6_LIB_PATH_COMMON)/RP6I2CmasterTWI.c
+SRC += $(RP6_LIB_PATH_I2C_MASTER)/RP6Control_I2CMasterLib.c
 
 
+include $(RP6_LIB_PATH_CONTROL)/makefile.control

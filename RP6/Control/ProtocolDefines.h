@@ -1,6 +1,8 @@
 #ifndef PROTOCOL_DEFINES_H
 #define PROTOCOL_DEFINES_H
 
+#include <stdint.h>
+
 // ================================================================
 // ===           GENERAL SERIAL COMMUNICATION PROTOCOL          ===
 // ================================================================
@@ -34,9 +36,8 @@
 
 #define MAX_COMMAND_LENGTH 20
 #define MAX_VALUE_LENGTH 20
-#define MAX_HEARTBEAT_TIMEOUT 2000 // Since every 1 second a heartbeat is supposed
-								   // to be received there can be a 200 ms delay before
-								   // deciding the connection to the wemos is broken.
+#define MAX_NACK_COUNTER 3
+#define MAX_HEARTBEAT_TIMEOUT 2000 
 
 typedef enum
 {
@@ -49,6 +50,7 @@ typedef enum
 	STARTED_PROGRAM,
 	STOPPED_PROGRAM
 } stateRP6;
- 
 
+extern uint16_t lastHeartbeatReceived;
+ 
 #endif

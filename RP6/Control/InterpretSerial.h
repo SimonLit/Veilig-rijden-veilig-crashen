@@ -42,6 +42,23 @@ int checkForHeartbeat(char* receiveBufferCommand);
 int checkForRP6StateChange(char* receiveBufferCommand);
 //
 // Pre: -
-// Post:
-// Return:
+// Post: receiveBufferCommand is checked for the RP6 states.
+// Return: -1 if receiveBufferCommand is NULL, or receiveBufferCommand isn't a RP6 state
+//          0 if receiveBufferCommand = "STOP_RP6"
+//          1 if receiveBufferCommand = "START_RP6"
+
+int checkForACK(char* receiveBufferCommand);
+//
+// Pre: -
+// Post: receiveBufferCommand is checked for ACK.
+// Return: -1 if receiveBufferCommand is NULL, or receiveBufferCommand isn't an ACK
+//          0 if receiveBufferCommand = "ACK"
+
+int checkForNACK(char* receiveBufferCommand);
+//
+// Pre: -
+// Post: receiveBufferCommand is checked for NACK.
+// Return: -1 if receiveBufferCommand is NULL, or receiveBufferCommand isn't an NACK
+//          0 if receiveBufferCommand = "NACK"
+
 #endif

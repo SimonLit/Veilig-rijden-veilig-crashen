@@ -1,10 +1,13 @@
 #include "Crash.h" 
 #include "Drive.h"
 #include "RP6I2CmasterTWI.h"
-#include "RP6uart.h"
+#include "SerialReaderSender.h"
 #include "Adc.h"
 #include "RP6Control_I2CMasterLib.h"
 #include "Tools.h"
+#include "ProtocolDefines.h"
+
+#include "RP6ControlLib.h"
 
 //====================================================================================
 // Crash
@@ -12,7 +15,7 @@
 
 uint8_t pressed = false;
 uint8_t crashInfoWasSend = false;
-uint8_t hitSide;
+uint8_t hitSide = 0;
 
 uint8_t lastButton2State = false;
 uint8_t lastButton3State = false;
@@ -20,6 +23,8 @@ uint8_t lastButton5State = false;
 
 // Used for the converting from Newton to grams.
 float earthAcceleration = 9.81; 
+
+char valueBuffer[MAX_VALUE_LENGTH];
 
 int assignCrashInfo(crashInfo* cInfo)
 {
@@ -37,7 +42,7 @@ int assignCrashInfo(crashInfo* cInfo)
 	// Each segment is +/- 0.24mm (= ENCODER_RESOLUTION). 
 	// ENCODER_RESOLUTION is defined in the RP6Config.h file.
 	// So by multiplying is by 0.025cm you get the amount of cm/s.
-	double speedCMPerSecond = averageSpeed * 5 * ENCODER_RESOLUTION; 	
+	uint8_t speedCMPerSecond = averageSpeed * 5 * ENCODER_RESOLUTION; 	
 
 	cInfo->speed = speedCMPerSecond;
 	cInfo->sideHit = hitSide;
@@ -49,33 +54,42 @@ int assignCrashInfo(crashInfo* cInfo)
 
 int sendCrashInfo(crashInfo* cInfo)
 {
-	if(cInfo == NULL)
-	{
-		return -1;
-	}
+	if(cInfo == NULL){return -1;}
+	uint8_t timeoutResult = 0;
 
-	writeString("\n#SPEED:");
-	writeInteger(cInfo->speed, DEC);
-	writeChar('%');
+	uint8_tToString(cInfo->speed, valueBuffer, sizeof(valueBuffer)); // Convert the speed to string.
+	sendMessageWithValue(SPEED_PROTOCOL_SEND, valueBuffer);
+	timeoutResult = timeoutHandler();
 
-	writeString("#SIDE_HIT:");
-	writeInteger(cInfo->sideHit, DEC);
-	writeChar('%');
+	uint8_tToString(cInfo->sideHit, valueBuffer, sizeof(valueBuffer)); // Convert the hit side to string.
+	if(timeoutResult == 0)
+	{	
+		sendMessageWithValue(SIDE_HIT_PROTOCOL_SEND_RECEIVE, valueBuffer);
+		timeoutResult = timeoutHandler();
+	} 
 
-	writeString("#IMPACT:");
-	writeInteger(cInfo->impactGram, DEC);
-	writeChar('%');
+	uint16_tToString(cInfo->impactGram, valueBuffer, sizeof(valueBuffer)); // Convert the impact in grams to string.
+	if(timeoutResult == 0)
+    {
+        sendMessageWithValue(IMPACT_PROTOCOL_SEND_RECEIVE, valueBuffer);
+        timeoutResult = timeoutHandler();
+    } 
 
-	writeString("#DIST_DRIVEN:");
-	writeInteger(cInfo->distanceDrivenInCM, DEC);
-	writeChar('%');
+	uint16_tToString(cInfo->distanceDrivenInCM, valueBuffer, sizeof(valueBuffer)); // Convert the distance driven to string.
+	if(timeoutResult == 0)
+    {
+        sendMessageWithValue(DIST_DRIVEN_PROTOCOL_SEND_RECEIVE, valueBuffer);
+        timeoutResult = timeoutHandler();
+    } 
 
-	writeString("#ORIENTATION");
-	writeChar('%');
+	if(timeoutResult == 0)
+    {
+        sendMessage(ORIENTATION_PROTOCOL_RECEIVE);
+        timeoutResult = timeoutHandler();
+    } 
 
 	crashInfoWasSend = true;
-
-	return 0;
+	return timeoutResult;
 }
 
 void buttenChanged(void)
@@ -110,7 +124,7 @@ void buttenChanged(void)
 
 int task_checkButtonChanged(void)
 {
-	if(getStopwatch4() > 50)
+	if(getStopwatch6() > 50)
 	{
 		uint8_t button2State = PINC & IO_PC2;
 		uint8_t button3State = PINC & IO_PC3;
@@ -140,7 +154,7 @@ int task_checkButtonChanged(void)
 			return 0;
 		}	
 
-		setStopwatch4(0);
+		setStopwatch6(0);
 	}
 
 	return -1;
